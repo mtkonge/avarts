@@ -33,6 +33,6 @@ Efter uge 3 forventer vi at kunne oprette sigselv som bruger, og tilknytte et r�
 
 ### Uge 4
 
-Efter uge 4 forventer vi at havde nået gennem 3 rammer Tuborg Classic.
+Efter uge 4 forventer vi at have nået gennem 3 kasser Tuborg Classic.
 
 
