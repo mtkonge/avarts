@@ -51,7 +51,7 @@ export class GeoMap {
         });
     }
 
-    public updateRoutes() {
+    private updateRoutes() {
         const geojson: GeoJSON.FeatureCollection = {
             type: "FeatureCollection",
             features: this.routes.map((route) => ({
@@ -92,6 +92,7 @@ export class GeoMap {
 
     public addRoute(route: Coords[]) {
         this.routes.push(route);
+        this.updateRoutes();
     }
 
     public startMarker() {
