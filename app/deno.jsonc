@@ -1,6 +1,6 @@
 {
     "tasks": {
-        "dev": "deno run -A npm:vite --host 0.0.0.0",
+        "dev": "deno run -A npm:vite",
         "build": "deno run -A npm:vite build"
     },
     "fmt": {

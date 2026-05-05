@@ -1,7 +1,7 @@
-import maplibregl, { MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { GeoMap, type HTMLGeolocationElement } from "./GeoMap.ts";
-import type { Coords } from "./Coords.ts";
+import { type HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
+import { GeoMap } from "./GeoMap.ts";
+import { RouteRecorder } from "./RouteRecorder.ts";
 
 const geo = document.getElementById("geo")! as HTMLGeolocationElement;
 
@@ -14,38 +14,23 @@ async function loadMap(): Promise<GeoMap> {
 
 async function main() {
     const map = await loadMap();
-    map.start();
+    map.startMarker();
+    const routeRecorder = new RouteRecorder(geo);
 
-    const addRoute = document.getElementById("create-route")!;
-    let createRouteLoopId: number | null = null;
-    const currentRoute: Coords[] = [];
+    const createRouteButton = document.getElementById("create-route")!;
+    const finishRouteButton = document.getElementById("finish-route")!;
 
-    addRoute.addEventListener("click", () => {
-        if (createRouteLoopId === null) {
-            if (geo.position === null) {
-                console.log("couldn't get geo data");
-                return;
-            }
-            addRoute.textContent = "Finish route";
-            createRouteLoopId = setInterval(() => {
-                if (geo.position === null) {
-                    console.log("couldn't get geo data");
-                    return;
-                }
-                currentRoute.push([
-                    geo.position.coords.longitude,
-                    geo.position.coords.latitude,
-                ]);
-                console.log(currentRoute);
-            }, 1000);
-        } else {
-            addRoute.textContent = "hewwo";
-            clearInterval(createRouteLoopId);
-            console.log(currentRoute);
-            map.addRoute([...currentRoute]);
-            map.updateRoutes();
-            createRouteLoopId = null;
-        }
+    createRouteButton.addEventListener("click", () => {
+        createRouteButton.hidden = true;
+        finishRouteButton.hidden = false;
+        routeRecorder.record();
+    });
+
+    finishRouteButton.addEventListener("click", () => {
+        createRouteButton.hidden = false;
+        finishRouteButton.hidden = true;
+        const route = routeRecorder.stop();
+        map.addRoute(route);
     });
 }
 

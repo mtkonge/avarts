@@ -1,17 +1,7 @@
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Coords } from "./Coords.ts";
-
-export type HTMLGeolocationElement = HTMLElement & {
-    isValid: boolean;
-    invalidReason: string;
-    position: {
-        coords: {
-            longitude: number;
-            latitude: number;
-        };
-    } | null;
-};
+import { type HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
 
 export class GeoMap {
     private routes: Coords[][] = [[
@@ -25,8 +15,7 @@ export class GeoMap {
     ]];
 
     private marker: maplibregl.Marker = new maplibregl.Marker();
-
-    constructor(
+    private constructor(
         private geolocation: HTMLGeolocationElement,
         private map: maplibregl.Map,
     ) {
@@ -105,7 +94,7 @@ export class GeoMap {
         this.routes.push(route);
     }
 
-    public start() {
+    public startMarker() {
         setInterval(() => {
             if (!this.geolocation.position) {
                 return;
