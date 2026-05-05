@@ -1,88 +1,52 @@
-import maplibregl from "maplibre-gl";
+import maplibregl, { MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { GeoMap, type HTMLGeolocationElement } from "./GeoMap.ts";
+import type { Coords } from "./Coords.ts";
 
-type Coords = [number, number];
+const geo = document.getElementById("geo")! as HTMLGeolocationElement;
 
-type HTMLGeolocationElement = HTMLElement & {
-    isValid: boolean;
-    invalidReason: string;
-    position: {
-        coords: {
-            longitude: number;
-            latitude: number;
-        };
-    } | null;
-};
-
-function drawRoute(map: maplibregl.Map, route: Coords[]) {
-    map.addSource("route", {
-        "type": "geojson",
-        "data": {
-            "type": "Feature",
-            "properties": {},
-            "geometry": {
-                "type": "LineString",
-                "coordinates": route,
-            },
-        },
-    });
-    map.addLayer({
-        "id": "route",
-        "type": "line",
-        "source": "route",
-        "layout": {
-            "line-join": "round",
-            "line-cap": "round",
-        },
-        "paint": {
-            "line-color": "#4444FF",
-            "line-width": 8,
-        },
-    });
+async function loadMap(): Promise<GeoMap> {
+    return await GeoMap.fromHtmlElement(
+        geo,
+        document.getElementById("map")!,
+    );
 }
 
-function main() {
-    const geo = document.getElementById("geo")! as HTMLGeolocationElement;
-    const info = document.getElementById("info")!;
+async function main() {
+    const map = await loadMap();
+    map.start();
 
-    try {
-        geo.addEventListener("location", () => {
+    const addRoute = document.getElementById("create-route")!;
+    let createRouteLoopId: number | null = null;
+    const currentRoute: Coords[] = [];
+
+    addRoute.addEventListener("click", () => {
+        if (createRouteLoopId === null) {
             if (geo.position === null) {
+                console.log("couldn't get geo data");
                 return;
             }
-            info.textContent =
-                `${geo.isValid}, ${geo.invalidReason}, "${geo.position.coords.longitude} ${geo.position.coords.latitude}"`;
-            const map = new maplibregl.Map({
-                container: "map",
-                style: "https://tiles.openfreemap.org/styles/bright",
-                center: [
-                    9.412228,
-                    56.466753,
-                ],
-                zoom: 16,
-            });
-            const marker = new maplibregl.Marker()
-                .setLngLat([
-                    9.412228,
-                    56.466753,
-                ])
-                .addTo(map);
-            const route: Coords[] = [
-                [9.412228, 56.466753],
-                [9.410354, 56.465671],
-                [9.412157, 56.464335],
-                [9.415502, 56.465763],
-                [9.413432, 56.467100],
-                [9.412972, 56.467153],
-                [9.412228, 56.466753],
-            ];
-            map.on("load", () => {
-                drawRoute(map, route);
-            });
-        });
-    } catch (err: unknown) {
-        info.textContent = String(err);
-    }
+            addRoute.textContent = "Finish route";
+            createRouteLoopId = setInterval(() => {
+                if (geo.position === null) {
+                    console.log("couldn't get geo data");
+                    return;
+                }
+                currentRoute.push([
+                    geo.position.coords.longitude,
+                    geo.position.coords.latitude,
+                ]);
+                console.log(currentRoute);
+            }, 1000);
+        } else {
+            addRoute.textContent = "hewwo";
+            clearInterval(createRouteLoopId);
+            console.log(currentRoute);
+            map.addRoute([...currentRoute]);
+            map.updateRoutes();
+            createRouteLoopId = null;
+        }
+    });
 }
 
-main();
+await main();

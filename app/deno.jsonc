@@ -1,0 +1,18 @@
+{
+    "tasks": {
+        "dev": "deno run -A npm:vite --host 0.0.0.0",
+        "build": "deno run -A npm:vite build"
+    },
+    "fmt": {
+        "indentWidth": 4
+    },
+    "nodeModulesDir": "auto",
+    "compilerOptions": {
+        "types": [],
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "deno.ns"
+        ]
+    }
+}
