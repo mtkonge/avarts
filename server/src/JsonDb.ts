@@ -12,38 +12,39 @@ const Route = z.strictObject({
 const Routes = z.array(Route);
 
 export class JsonDb implements Database {
-    private static data_dir: string = "jsondb_data";
+    private static dataDir: string = "jsondb_data";
     private constructor(private routes: Route[]) {
     }
 
     public static async open(): Promise<Database> {
-        await Deno.writeTextFile(`${JsonDb.data_dir}/.gitignore`, "*", {
+        await Deno.writeTextFile(`${JsonDb.dataDir}/.gitignore`, "*", {
             create: true,
         });
-        const routes = await Deno.readTextFile(`${JsonDb.data_dir}/routes.json`)
+        const routes = await Deno.readTextFile(`${JsonDb.dataDir}/routes.json`)
             .catch(() => "[]")
             .then((x) => JSON.parse(x))
             .then((x) => Routes.parse(x));
         return new JsonDb(routes);
     }
 
-    getRouteById(id: number): Route {
+    async getRouteById(id: number): Promise<Route> {
         const route = this.routes.find((x) => x.id === id);
         if (!route) {
             throw new Error(`invalid id ${id}`);
         }
-        return structuredClone(route);
+        return await Promise.resolve(structuredClone(route));
     }
-    addRoute(route: Route): void {
+    async addRoute(route: Route): Promise<void> {
         this.routes.push(route);
+        await this.save();
     }
-    getAllRoutes(): Route[] {
-        return structuredClone(this.routes);
+    async getAllRoutes(): Promise<Route[]> {
+        return await Promise.resolve(structuredClone(this.routes));
     }
 
-    async save() {
+    private async save() {
         await Deno.writeTextFile(
-            `${JsonDb.data_dir}/routes.json`,
+            `${JsonDb.dataDir}/routes.json`,
             JSON.stringify(this.routes),
             { create: true },
         );
