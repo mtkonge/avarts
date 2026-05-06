@@ -1,4 +1,4 @@
-import { type Coord } from "./Coords.ts";
+import { type Coord } from "./Coord.ts";
 import { type HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
 
 export class RouteRecorder {
