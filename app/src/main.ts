@@ -4,7 +4,7 @@ import { GeolocatorFactory } from "./Geolocator.ts";
 
 async function main() {
     const geolocator = await GeolocatorFactory.fromWebApi();
-    const map = await GeoMap.fromGeolocator(
+    const map = await GeoMap.fromGeolocatorAndMap(
         geolocator,
         document.getElementById("map")!,
     );

@@ -25,7 +25,7 @@ export class GeoMap {
     ) {
     }
 
-    public static async fromGeolocator(
+    public static async fromGeolocatorAndMap(
         geolocator: Geolocator,
         mapContainer: HTMLElement,
     ): Promise<GeoMap> {
@@ -49,7 +49,7 @@ export class GeoMap {
     }
 
     private updateRoutes() {
-        const geojson: GeoJSON.FeatureCollection = {
+        const geojson = {
             type: "FeatureCollection",
             features: this.routes.map((route) => ({
                 type: "Feature",
@@ -59,7 +59,7 @@ export class GeoMap {
                     coordinates: route.map(coordsToLatLngTuple),
                 },
             })),
-        };
+        } satisfies GeoJSON.FeatureCollection;
 
         const source = this.map.getSource("routes") as maplibregl.GeoJSONSource;
 
@@ -96,12 +96,7 @@ export class GeoMap {
         const coords = this.geolocator.coords();
         setInterval(() => {
             this.marker.remove();
-            this.marker.setLngLat(
-                [
-                    coords.longitude,
-                    coords.latitude,
-                ],
-            );
+            this.marker.setLngLat(coordsToLatLngTuple(coords));
             this.marker.addTo(this.map);
         }, 1000);
     }
