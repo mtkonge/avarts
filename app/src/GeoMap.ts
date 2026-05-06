@@ -1,6 +1,6 @@
 import maplibregl from "maplibre-gl";
 import type { Coord } from "./Coord.ts";
-import { type HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
+import { Geolocator } from "./Geolocator.ts";
 
 export class GeoMap {
     private routes: Coord[][] = [[
@@ -15,38 +15,31 @@ export class GeoMap {
 
     private marker: maplibregl.Marker = new maplibregl.Marker();
     private constructor(
-        private geolocation: HTMLGeolocationElement,
+        private geolocator: Geolocator,
         private map: maplibregl.Map,
     ) {
     }
 
-    public static async fromHtmlElement(
-        geolocation: HTMLGeolocationElement,
-        container: HTMLElement,
+    public static async fromGeolocator(
+        geolocator: Geolocator,
+        mapContainer: HTMLElement,
     ): Promise<GeoMap> {
+        const { longitude, latitude } = geolocator.coords();
+        const map = new maplibregl.Map({
+            container: mapContainer,
+            style: "https://tiles.openfreemap.org/styles/bright",
+            center: [
+                longitude,
+                latitude,
+            ],
+            zoom: 16,
+        });
         return await new Promise((resolve) => {
-            const event = () => {
-                if (geolocation.position === null) {
-                    console.log("couldn't get geo data");
-                    return;
-                }
-                const map = new maplibregl.Map({
-                    container,
-                    style: "https://tiles.openfreemap.org/styles/bright",
-                    center: [
-                        geolocation.position.coords.longitude,
-                        geolocation.position.coords.latitude,
-                    ],
-                    zoom: 16,
-                });
-                map.on("load", () => {
-                    const geoMap = new GeoMap(geolocation, map);
-                    geoMap.updateRoutes();
-                    resolve(geoMap);
-                });
-                geolocation.removeEventListener("location", event);
-            };
-            geolocation.addEventListener("location", event);
+            map.on("load", () => {
+                const geoMap = new GeoMap(geolocator, map);
+                geoMap.updateRoutes();
+                resolve(geoMap);
+            });
         });
     }
 
@@ -95,15 +88,13 @@ export class GeoMap {
     }
 
     public startMarker() {
+        const coords = this.geolocator.coords();
         setInterval(() => {
-            if (!this.geolocation.position) {
-                return;
-            }
             this.marker.remove();
             this.marker.setLngLat(
                 [
-                    this.geolocation.position.coords.longitude,
-                    this.geolocation.position.coords.latitude,
+                    coords.longitude,
+                    coords.latitude,
                 ],
             );
             this.marker.addTo(this.map);

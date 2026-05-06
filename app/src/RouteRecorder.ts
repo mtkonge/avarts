@@ -1,22 +1,20 @@
 import { type Coord } from "./Coord.ts";
-import { type HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
+import { Geolocator } from "./Geolocator.ts";
 
 export class RouteRecorder {
     private currentRecording: Coord[] = [];
     private recordingLoopId: number | null = null;
 
-    constructor(private geolocation: HTMLGeolocationElement) {
+    constructor(private geolocator: Geolocator) {
     }
 
     public record() {
         this.currentRecording = [];
         this.recordingLoopId = setInterval(() => {
-            if (!this.geolocation.position) {
-                return;
-            }
+            const coords = this.geolocator.coords();
             this.currentRecording.push([
-                this.geolocation.position.coords.longitude,
-                this.geolocation.position.coords.latitude,
+                coords.longitude,
+                coords.latitude,
             ]);
         }, 1000);
     }

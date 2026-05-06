@@ -1,20 +1,15 @@
-import type { HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
 import { GeoMap } from "./GeoMap.ts";
 import { RouteRecorder } from "./RouteRecorder.ts";
-
-const geo = document.getElementById("geo")! as HTMLGeolocationElement;
-
-async function loadMap(): Promise<GeoMap> {
-    return await GeoMap.fromHtmlElement(
-        geo,
-        document.getElementById("map")!,
-    );
-}
+import { GeolocatorFactory } from "./Geolocator.ts";
 
 async function main() {
-    const map = await loadMap();
+    const geolocator = await GeolocatorFactory.fromWebApi();
+    const map = await GeoMap.fromGeolocator(
+        geolocator,
+        document.getElementById("map")!,
+    );
     map.startMarker();
-    const routeRecorder = new RouteRecorder(geo);
+    const routeRecorder = new RouteRecorder(geolocator);
 
     const createRouteButton = document.getElementById("create-route")!;
     const finishRouteButton = document.getElementById("finish-route")!;
