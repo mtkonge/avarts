@@ -21,7 +21,7 @@ export class RouteRecorder {
 
     public stop(): Coord[] {
         if (!this.recordingLoopId) {
-            throw new Error("Called stop without start");
+            throw new Error("called stop without start");
         }
         clearInterval(this.recordingLoopId);
         this.recordingLoopId = null;
