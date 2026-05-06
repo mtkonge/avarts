@@ -1,9 +1,14 @@
 import maplibregl from "maplibre-gl";
-import type { Coord } from "./Coord.ts";
-import { Geolocator } from "./Geolocator.ts";
+import {
+    Coords,
+    coordsFromLatLng,
+    coordsToLatLngTuple,
+    Geolocator,
+    LatLng,
+} from "./Geolocator.ts";
 
 export class GeoMap {
-    private routes: Coord[][] = [[
+    private routes: Coords[][] = [([
         [9.412228, 56.466753],
         [9.410354, 56.465671],
         [9.412157, 56.464335],
@@ -11,7 +16,7 @@ export class GeoMap {
         [9.413432, 56.467100],
         [9.412972, 56.467153],
         [9.412228, 56.466753],
-    ]];
+    ] satisfies LatLng[]).map(coordsFromLatLng)];
 
     private marker: maplibregl.Marker = new maplibregl.Marker();
     private constructor(
@@ -51,7 +56,7 @@ export class GeoMap {
                 properties: {},
                 geometry: {
                     type: "LineString",
-                    coordinates: route,
+                    coordinates: route.map(coordsToLatLngTuple),
                 },
             })),
         };
@@ -82,7 +87,7 @@ export class GeoMap {
         });
     }
 
-    public addRoute(route: Coord[]) {
+    public addRoute(route: Coords[]) {
         this.routes.push(route);
         this.updateRoutes();
     }

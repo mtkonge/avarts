@@ -1,7 +1,17 @@
-type Coords = {
+export type Coords = {
     latitude: number;
     longitude: number;
 };
+
+export type LatLng = [number, number];
+
+export function coordsFromLatLng([latitude, longitude]: LatLng): Coords {
+    return { latitude, longitude };
+}
+
+export function coordsToLatLngTuple(coords: Coords): LatLng {
+    return [coords.latitude, coords.longitude];
+}
 
 export interface Geolocator {
     coords(): Coords;
@@ -67,10 +77,7 @@ class WebApiGeolocator implements Geolocator {
         private lastKnownCoords: Coords,
     ) {
         navigator.geolocation.watchPosition(({ coords }) => {
-            this.lastKnownCoords = {
-                latitude: coords.latitude,
-                longitude: coords.longitude,
-            };
+            this.lastKnownCoords = coords;
         });
     }
     public static create(): Promise<Geolocator> {
