@@ -3,6 +3,7 @@ import {
     Coords,
     coordsFromLatLng,
     coordsToLatLngTuple,
+    coordsToLngLatTuple,
     Geolocator,
     LatLng,
 } from "./Geolocator.ts";
@@ -96,7 +97,7 @@ export class GeoMap {
         const coords = this.geolocator.coords();
         setInterval(() => {
             this.marker.remove();
-            this.marker.setLngLat(coordsToLatLngTuple(coords));
+            this.marker.setLngLat(coordsToLngLatTuple(coords));
             this.marker.addTo(this.map);
         }, 1000);
     }

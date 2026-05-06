@@ -13,6 +13,10 @@ export function coordsToLatLngTuple(coords: Coords): LatLng {
     return [coords.latitude, coords.longitude];
 }
 
+export function coordsToLngLatTuple(coords: Coords): LatLng {
+    return [coords.longitude, coords.latitude];
+}
+
 export interface Geolocator {
     coords(): Coords;
 }
