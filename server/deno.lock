@@ -14,7 +14,8 @@
     "jsr:@std/media-types@1": "1.1.0",
     "jsr:@std/path@1": "1.1.4",
     "jsr:@std/path@^1.1.4": "1.1.4",
-    "npm:path-to-regexp@^6.3.0": "6.3.0"
+    "npm:path-to-regexp@^6.3.0": "6.3.0",
+    "npm:zod@^4.4.3": "4.4.3"
   },
   "jsr": {
     "@oak/commons@1.0.1": {
@@ -84,13 +85,17 @@
   "npm": {
     "path-to-regexp@6.3.0": {
       "integrity": "sha512-Yhpw4T9C6hPpgPeA28us07OJeqZ5EzQTkbfwuhsUg0c237RomFoETJgmp2sa3F/41gfLE6G5cqcYwznmeEeOlQ=="
+    },
+    "zod@4.4.3": {
+      "integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="
     }
   },
   "workspace": {
     "dependencies": [
       "jsr:@oak/oak@^17.2.0",
       "jsr:@std/assert@1",
-      "jsr:@std/fs@^1.0.23"
+      "jsr:@std/fs@^1.0.23",
+      "npm:zod@^4.4.3"
     ]
   }
 }
