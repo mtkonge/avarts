@@ -1,10 +1,9 @@
 import maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-import type { Coords } from "./Coords.ts";
+import type { Coord } from "./Coord.ts";
 import { type HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
 
 export class GeoMap {
-    private routes: Coords[][] = [[
+    private routes: Coord[][] = [[
         [9.412228, 56.466753],
         [9.410354, 56.465671],
         [9.412157, 56.464335],
@@ -90,7 +89,7 @@ export class GeoMap {
         });
     }
 
-    public addRoute(route: Coords[]) {
+    public addRoute(route: Coord[]) {
         this.routes.push(route);
         this.updateRoutes();
     }

@@ -1,5 +1,4 @@
-import "maplibre-gl/dist/maplibre-gl.css";
-import { type HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
+import type { HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
 import { GeoMap } from "./GeoMap.ts";
 import { RouteRecorder } from "./RouteRecorder.ts";
 

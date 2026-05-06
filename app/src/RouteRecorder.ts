@@ -1,8 +1,8 @@
-import { type Coords } from "./Coords.ts";
+import { type Coord } from "./Coords.ts";
 import { type HTMLGeolocationElement } from "./HTMLGeolocationElement.ts";
 
 export class RouteRecorder {
-    private currentRecording: Coords[] = [];
+    private currentRecording: Coord[] = [];
     private recordingLoopId: number | null = null;
 
     constructor(private geolocation: HTMLGeolocationElement) {
@@ -21,7 +21,7 @@ export class RouteRecorder {
         }, 1000);
     }
 
-    public stop(): Coords[] {
+    public stop(): Coord[] {
         if (!this.recordingLoopId) {
             throw new Error("Called stop without start");
         }

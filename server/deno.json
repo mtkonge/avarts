@@ -4,7 +4,8 @@
   },
   "imports": {
     "@oak/oak": "jsr:@oak/oak@^17.2.0",
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/fs": "jsr:@std/fs@^1.0.23"
   },
   "fmt": {
     "useTabs": false,

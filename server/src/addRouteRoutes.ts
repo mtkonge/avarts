@@ -5,4 +5,9 @@ export function addRouteRoutes(router: Router) {
         ctx.response.body = "not implemented";
         await next();
     });
+
+    router.post("/add-route", async (ctx, next) => {
+        ctx.response.body = "not implemented";
+        await next();
+    });
 }

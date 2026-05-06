@@ -12,4 +12,6 @@
   into its on class.
 - Added creation of route with geolocation and automatically updating the marker
   on the map.
-- Mikkel added a server template.
+- Mikkel started on backend.
+
+## 06/05
