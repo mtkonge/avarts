@@ -98,7 +98,7 @@ export class GeoMap {
             this.marker.remove();
             this.marker.setLngLat(coordsToLngLatTuple(coords));
             this.marker.addTo(this.map);
-            this.map.easeTo({ center: coordsToLatLngTuple(coords) });
+            this.map.easeTo({ center: coordsToLngLatTuple(coords) });
         }, 1000);
     }
 }
