@@ -1,3 +1,4 @@
+import { Route } from "./mod.ts";
 import { Coords, Geolocator } from "./Geolocator.ts";
 
 export class RouteRecorder {
@@ -15,12 +16,12 @@ export class RouteRecorder {
         }, 1000);
     }
 
-    public stop(): Coords[] {
+    public stop(): Route {
         if (!this.recordingLoopId) {
             throw new Error("called stop without start");
         }
         clearInterval(this.recordingLoopId);
         this.recordingLoopId = null;
-        return [...this.currentRecording];
+        return { coords: [...this.currentRecording] };
     }
 }

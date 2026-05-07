@@ -1,5 +1,7 @@
 import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Coords, Geolocator } from "./Geolocator.ts";
+import { Server } from "./Server.ts";
+import { Route, RouteWithId } from "./mod.ts";
 
 export function coordsToMapLibreCoords(
     coords: Coords,
@@ -14,27 +16,21 @@ export function coordsToGeoJsonPosition(
 }
 
 export class GeoMap {
-    private routes: Coords[][] = [[
-        { latitude: 9.412228, longitude: 56.466753 },
-        { latitude: 9.410354, longitude: 56.465671 },
-        { latitude: 9.412157, longitude: 56.464335 },
-        { latitude: 9.415502, longitude: 56.465763 },
-        { latitude: 9.413432, longitude: 56.467100 },
-        { latitude: 9.412972, longitude: 56.467153 },
-        { latitude: 9.412228, longitude: 56.466753 },
-    ]];
+    private routes: RouteWithId[] = [];
 
-    private marker: maplibregl.Marker = new maplibregl.Marker();
+    // private marker: maplibregl.Marker = new maplibregl.Marker();
     private constructor(
         private geolocator: Geolocator,
         private map: maplibregl.Map,
+        private server: Server,
     ) {
-        this.marker.addTo(map);
+        // this.marker.addTo(map);
     }
 
     public static async fromGeolocatorAndMap(
         geolocator: Geolocator,
         mapContainer: HTMLElement,
+        server: Server,
     ): Promise<GeoMap> {
         const coords = geolocator.coords();
         const map = new maplibregl.Map({
@@ -43,17 +39,24 @@ export class GeoMap {
             center: coordsToMapLibreCoords(coords),
             zoom: 16,
         });
-        map.dragPan.disable();
+        // map.dragPan.disable();
         return await new Promise((resolve) => {
             map.on("load", () => {
-                const geoMap = new GeoMap(geolocator, map);
-                geoMap.updateRoutes();
+                const geoMap = new GeoMap(geolocator, map, server);
+                geoMap.reloadRoutes();
                 resolve(geoMap);
             });
         });
     }
 
-    private updateRoutes() {
+    private async reloadRoutes() {
+        const routesResult = await this.server.routes();
+        if (!routesResult.ok) {
+            console.error(routesResult.error);
+            return;
+        }
+        this.routes = routesResult.data;
+
         const geojson = {
             type: "FeatureCollection",
             features: this.routes.map((route) => ({
@@ -61,7 +64,7 @@ export class GeoMap {
                 properties: {},
                 geometry: {
                     type: "LineString",
-                    coordinates: route.map(coordsToGeoJsonPosition),
+                    coordinates: route.coords.map(coordsToGeoJsonPosition),
                 },
             })),
         } satisfies GeoJSON.FeatureCollection;
@@ -92,16 +95,16 @@ export class GeoMap {
         });
     }
 
-    public addRoute(route: Coords[]) {
-        this.routes.push(route);
-        this.updateRoutes();
+    public async addRoute(route: Route) {
+        await this.server.addRoute(route);
+        this.reloadRoutes();
     }
 
-    public startMarker() {
-        this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
-        this.geolocator.on("update", (coords: Coords) => {
-            this.marker.setLngLat(coordsToMapLibreCoords(coords));
-            this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
-        });
-    }
+    // public startMarker() {
+    //     this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
+    //     this.geolocator.on("update", (coords: Coords) => {
+    //         this.marker.setLngLat(coordsToMapLibreCoords(coords));
+    //         this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
+    //     });
+    // }
 }

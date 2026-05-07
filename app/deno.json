@@ -6,6 +6,7 @@
     "fmt": {
         "indentWidth": 4
     },
+    "nodeModulesDir": "auto",
     "compilerOptions": {
         "types": [],
         "lib": [
@@ -15,7 +16,9 @@
         ]
     },
     "imports": {
+        "@deno/vite-plugin": "npm:@deno/vite-plugin@^2.0.2",
         "maplibre-gl": "npm:maplibre-gl@^5.24.0",
-        "vite": "npm:vite@^8.0.10"
+        "vite": "npm:vite@^8.0.10",
+        "zod": "npm:zod@^4.4.3"
     }
 }

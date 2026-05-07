@@ -1,10 +1,11 @@
 import { Router } from "@oak/oak/router";
 import { Database } from "./Database.ts";
 import * as z from "zod";
-import { RouteWithId } from "@avarts/shared";
+import { Route } from "../../shared/mod.ts";
+import { Status } from "@oak/commons/status";
 
 const AddRouteRequest = z.strictObject({
-    route: RouteWithId,
+    route: Route,
 });
 
 export function addRouteRoutes(router: Router, database: Database) {
@@ -15,6 +16,11 @@ export function addRouteRoutes(router: Router, database: Database) {
             ctx.response.body = { success: true, data: result.data };
         } else {
             ctx.response.body = { success: false, error: result.error };
+            if (result.error == `invalid id ${id}`) {
+                ctx.response.status = Status.NotFound;
+            } else {
+                ctx.response.status = Status.InternalServerError;
+            }
         }
     });
 
@@ -31,16 +37,18 @@ export function addRouteRoutes(router: Router, database: Database) {
             ctx.response.body = { success: true };
         } else {
             ctx.response.body = { success: false, error: dbResult.error };
+            ctx.response.status = Status.InternalServerError;
         }
     });
 
-    router.get("routes", async (ctx) => {
+    router.get("/routes", async (ctx) => {
         const result = await database.getAllRoutes();
 
         if (result.ok) {
             ctx.response.body = { success: true, data: result.data };
         } else {
             ctx.response.body = { success: false, error: result.error };
+            ctx.response.status = Status.InternalServerError;
         }
     });
 }
