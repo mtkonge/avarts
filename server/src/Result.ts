@@ -5,7 +5,7 @@ export function ok<T>(...data: T[]) {
     if (data.length === 0) {
         return { tag: "ok" };
     }
-    if (data.length > 1) {
+    if (data.length !== 1) {
         throw new Error("contract broken");
     }
     return {
@@ -21,7 +21,7 @@ export function err<E>(...error: E[]) {
     if (error.length === 0) {
         return { tag: "err" };
     }
-    if (error.length > 1) {
+    if (error.length !== 1) {
         throw new Error("contract broken");
     }
     return {
