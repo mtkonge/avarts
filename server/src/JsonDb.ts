@@ -1,4 +1,5 @@
-import type { Database } from "./Database.ts";
+import type { Database, Result as DbResult } from "./Database.ts";
+import { err, ok } from "./Result.ts";
 import type { Route } from "./Route.ts";
 import * as z from "zod";
 
@@ -27,19 +28,20 @@ export class JsonDb implements Database {
         return new JsonDb(routes);
     }
 
-    async getRouteById(id: number): Promise<Route> {
+    async getRouteById(id: number) {
         const route = this.routes.find((x) => x.id === id);
         if (!route) {
-            throw new Error(`invalid id ${id}`);
+            return err(`invalid id ${id}`);
         }
-        return await Promise.resolve(structuredClone(route));
+        return await Promise.resolve(ok(structuredClone(route)));
     }
-    async addRoute(route: Route): Promise<void> {
+    async addRoute(route: Route): Promise<DbResult<void>> {
         this.routes.push(route);
         await this.save();
+        return ok();
     }
-    async getAllRoutes(): Promise<Route[]> {
-        return await Promise.resolve(structuredClone(this.routes));
+    async getAllRoutes(): Promise<DbResult<Route[]>> {
+        return await Promise.resolve(ok(structuredClone(this.routes)));
     }
 
     private async save() {
