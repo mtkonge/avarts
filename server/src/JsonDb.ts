@@ -1,20 +1,12 @@
 import type { Database, Result as DbResult } from "./Database.ts";
-import { err, ok } from "./Result.ts";
-import type { Route } from "./Route.ts";
+import { err, ok, RouteWithId } from "@avarts/shared";
 import * as z from "zod";
 
-const coord = z.tuple([z.number(), z.number()]);
-
-const Route = z.strictObject({
-    id: z.number(),
-    coords: z.array(coord),
-});
-
-const Routes = z.array(Route);
+const Routes = z.array(RouteWithId);
 
 export class JsonDb implements Database {
     private static dataDir: string = "jsondb_data";
-    private constructor(private routes: Route[]) {
+    private constructor(private routes: RouteWithId[]) {
     }
     private idCounter = 0;
 
@@ -36,14 +28,14 @@ export class JsonDb implements Database {
         }
         return await Promise.resolve(ok(structuredClone(route)));
     }
-    async addRoute(route: Omit<Route, "id">): Promise<DbResult<void>> {
+    async addRoute(route: Omit<RouteWithId, "id">): Promise<DbResult<void>> {
         const id = this.idCounter;
         this.idCounter++;
         this.routes.push({ ...route, id });
         await this.save();
         return ok();
     }
-    async getAllRoutes(): Promise<DbResult<Route[]>> {
+    async getAllRoutes(): Promise<DbResult<RouteWithId[]>> {
         return await Promise.resolve(ok(structuredClone(this.routes)));
     }
 

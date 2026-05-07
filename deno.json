@@ -1,0 +1,7 @@
+{
+    "workspace": [
+        "./shared",
+        "./server",
+        "./app"
+    ]
+}

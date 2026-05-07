@@ -1,11 +1,10 @@
 import { Router } from "@oak/oak/router";
 import { Database } from "./Database.ts";
 import * as z from "zod";
+import { RouteWithId } from "@avarts/shared";
 
 const AddRouteRequest = z.strictObject({
-    route: z.strictObject({
-        coords: z.array(z.tuple([z.number(), z.number()])),
-    }),
+    route: RouteWithId,
 });
 
 export function addRouteRoutes(router: Router, database: Database) {
@@ -32,6 +31,16 @@ export function addRouteRoutes(router: Router, database: Database) {
             ctx.response.body = { success: true };
         } else {
             ctx.response.body = { success: false, error: dbResult.error };
+        }
+    });
+
+    router.get("routes", async (ctx) => {
+        const result = await database.getAllRoutes();
+
+        if (result.ok) {
+            ctx.response.body = { success: true, data: result.data };
+        } else {
+            ctx.response.body = { success: false, error: result.error };
         }
     });
 }

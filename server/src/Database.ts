@@ -1,10 +1,9 @@
-import { Result as InnerResult } from "./Result.ts";
-import { type Route } from "./Route.ts";
+import { Result as InnerResult, type RouteWithId } from "@avarts/shared";
 
 export type Result<T> = InnerResult<T, string>;
 
 export interface Database {
-    getRouteById(id: number): Promise<Result<Route>>;
-    addRoute(route: Omit<Route, "id">): Promise<Result<void>>;
-    getAllRoutes(): Promise<Result<Route[]>>;
+    getRouteById(id: number): Promise<Result<RouteWithId>>;
+    addRoute(route: Omit<RouteWithId, "id">): Promise<Result<void>>;
+    getAllRoutes(): Promise<Result<RouteWithId[]>>;
 }
