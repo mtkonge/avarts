@@ -5,6 +5,6 @@ export type Result<T> = InnerResult<T, string>;
 
 export interface Database {
     getRouteById(id: number): Promise<Result<Route>>;
-    addRoute(route: Route): Promise<Result<void>>;
+    addRoute(route: Omit<Route, "id">): Promise<Result<void>>;
     getAllRoutes(): Promise<Result<Route[]>>;
 }

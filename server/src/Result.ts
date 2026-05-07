@@ -3,13 +3,13 @@ export function ok<T>(data: T): Ok<T>;
 
 export function ok<T>(...data: T[]) {
     if (data.length === 0) {
-        return { tag: "ok" };
+        return { ok: true };
     }
     if (data.length !== 1) {
         throw new Error("contract broken");
     }
     return {
-        tag: "ok",
+        ok: true,
         data: data[0],
     };
 }
@@ -19,24 +19,24 @@ export function err<E>(error: E): Err<E>;
 
 export function err<E>(...error: E[]) {
     if (error.length === 0) {
-        return { tag: "err" };
+        return { ok: false };
     }
     if (error.length !== 1) {
         throw new Error("contract broken");
     }
     return {
-        tag: "ok",
+        ok: false,
         error: error[0],
     };
 }
 
-export type Ok<T> = T extends void ? { tag: "ok" } : {
-    tag: "ok";
+export type Ok<T> = T extends void ? { ok: true } : {
+    ok: true;
     data: T;
 };
 
-export type Err<E> = E extends void ? { tag: "err" } : {
-    tag: "err";
+export type Err<E> = E extends void ? { ok: false } : {
+    ok: false;
     error: E;
 };
 

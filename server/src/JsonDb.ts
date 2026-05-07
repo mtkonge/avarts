@@ -16,6 +16,7 @@ export class JsonDb implements Database {
     private static dataDir: string = "jsondb_data";
     private constructor(private routes: Route[]) {
     }
+    private idCounter = 0;
 
     public static async open(): Promise<Database> {
         await Deno.writeTextFile(`${JsonDb.dataDir}/.gitignore`, "*", {
@@ -35,8 +36,10 @@ export class JsonDb implements Database {
         }
         return await Promise.resolve(ok(structuredClone(route)));
     }
-    async addRoute(route: Route): Promise<DbResult<void>> {
-        this.routes.push(route);
+    async addRoute(route: Omit<Route, "id">): Promise<DbResult<void>> {
+        const id = this.idCounter;
+        this.idCounter++;
+        this.routes.push({ ...route, id });
         await this.save();
         return ok();
     }

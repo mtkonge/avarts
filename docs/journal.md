@@ -21,3 +21,9 @@
 - Theis created a geolocator interface to provide an alternative implementation of geolocation by using the `navigator.geolocation` API instead of the `<geolocation>` element. We did this because the `navigator.geolocation` api is older and better supported (`<geolocation>` is as of writing only supported on chromium based browsers), and does not require a visible "allow geolocation" element to work.
 - In `app`: Theis consolidated package.json into `deno.jsonc`. This is because `package.json` is related to `node.js`, while we would like to go all in on Deno, and prevent duplicate information.
 - Implemented a Result interface on the backend.
+
+## 07/05
+
+- Theis expanded on Result type to allow `Result<void, void>` to be constructable
+- Used result types in database interface & implementation
+- Implemented get route by id, add route backend api
