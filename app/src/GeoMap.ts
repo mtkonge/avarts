@@ -30,16 +30,15 @@ export class GeoMap {
         geolocator: Geolocator,
         mapContainer: HTMLElement,
     ): Promise<GeoMap> {
-        const { longitude, latitude } = geolocator.coords();
+        const coords = geolocator.coords();
+        const center = coordsToLngLatTuple(coords);
         const map = new maplibregl.Map({
             container: mapContainer,
             style: "https://tiles.openfreemap.org/styles/bright",
-            center: [
-                longitude,
-                latitude,
-            ],
+            center,
             zoom: 16,
         });
+        map.dragPan.disable();
         return await new Promise((resolve) => {
             map.on("load", () => {
                 const geoMap = new GeoMap(geolocator, map);
@@ -99,6 +98,7 @@ export class GeoMap {
             this.marker.remove();
             this.marker.setLngLat(coordsToLngLatTuple(coords));
             this.marker.addTo(this.map);
+            this.map.easeTo({ center: coordsToLatLngTuple(coords) });
         }, 1000);
     }
 }
