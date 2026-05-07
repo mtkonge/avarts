@@ -27,3 +27,4 @@
 - Theis expanded on Result type to allow `Result<void, void>` to be constructable
 - Used result types in database interface & implementation
 - Implemented get route by id, add route backend api
+- Simplified coords handling

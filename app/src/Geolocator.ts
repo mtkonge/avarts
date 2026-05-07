@@ -3,20 +3,6 @@ export type Coords = {
     longitude: number;
 };
 
-export type LatLng = [number, number];
-
-export function coordsFromLatLng([latitude, longitude]: LatLng): Coords {
-    return { latitude, longitude };
-}
-
-export function coordsToLatLngTuple(coords: Coords): LatLng {
-    return [coords.latitude, coords.longitude];
-}
-
-export function coordsToLngLatTuple(coords: Coords): LatLng {
-    return [coords.longitude, coords.latitude];
-}
-
 export interface Geolocator {
     coords(): Coords;
 }

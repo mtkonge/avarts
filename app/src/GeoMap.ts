@@ -1,23 +1,28 @@
-import maplibregl from "maplibre-gl";
-import {
-    Coords,
-    coordsFromLatLng,
-    coordsToLatLngTuple,
-    coordsToLngLatTuple,
-    Geolocator,
-    LatLng,
-} from "./Geolocator.ts";
+import maplibregl, { LngLatLike } from "maplibre-gl";
+import { Coords, Geolocator } from "./Geolocator.ts";
+
+export function coordsToMapLibreCoords(
+    coords: Coords,
+): LngLatLike {
+    return { lat: coords.latitude, lng: coords.longitude };
+}
+
+export function coordsToGeoJsonPosition(
+    coords: Coords,
+): GeoJSON.Position {
+    return [coords.latitude, coords.longitude];
+}
 
 export class GeoMap {
-    private routes: Coords[][] = [([
-        [9.412228, 56.466753],
-        [9.410354, 56.465671],
-        [9.412157, 56.464335],
-        [9.415502, 56.465763],
-        [9.413432, 56.467100],
-        [9.412972, 56.467153],
-        [9.412228, 56.466753],
-    ] satisfies LatLng[]).map(coordsFromLatLng)];
+    private routes: Coords[][] = [[
+        { latitude: 9.412228, longitude: 56.466753 },
+        { latitude: 9.410354, longitude: 56.465671 },
+        { latitude: 9.412157, longitude: 56.464335 },
+        { latitude: 9.415502, longitude: 56.465763 },
+        { latitude: 9.413432, longitude: 56.467100 },
+        { latitude: 9.412972, longitude: 56.467153 },
+        { latitude: 9.412228, longitude: 56.466753 },
+    ]];
 
     private marker: maplibregl.Marker = new maplibregl.Marker();
     private constructor(
@@ -31,11 +36,10 @@ export class GeoMap {
         mapContainer: HTMLElement,
     ): Promise<GeoMap> {
         const coords = geolocator.coords();
-        const center = coordsToLngLatTuple(coords);
         const map = new maplibregl.Map({
             container: mapContainer,
             style: "https://tiles.openfreemap.org/styles/bright",
-            center,
+            center: coordsToMapLibreCoords(coords),
             zoom: 16,
         });
         map.dragPan.disable();
@@ -56,7 +60,7 @@ export class GeoMap {
                 properties: {},
                 geometry: {
                     type: "LineString",
-                    coordinates: route.map(coordsToLatLngTuple),
+                    coordinates: route.map(coordsToGeoJsonPosition),
                 },
             })),
         } satisfies GeoJSON.FeatureCollection;
@@ -96,9 +100,9 @@ export class GeoMap {
         const coords = this.geolocator.coords();
         setInterval(() => {
             this.marker.remove();
-            this.marker.setLngLat(coordsToLngLatTuple(coords));
+            this.marker.setLngLat(coordsToMapLibreCoords(coords));
             this.marker.addTo(this.map);
-            this.map.easeTo({ center: coordsToLngLatTuple(coords) });
+            this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
         }, 1000);
     }
 }
