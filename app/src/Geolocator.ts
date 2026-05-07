@@ -5,6 +5,7 @@ export type Coords = {
 
 export interface Geolocator {
     coords(): Coords;
+    on(type: "update", handler: (coords: Coords) => void): number;
 }
 
 export type HTMLGeolocationElement = HTMLElement & {
@@ -16,58 +17,20 @@ export type HTMLGeolocationElement = HTMLElement & {
 };
 
 export class GeolocatorFactory {
-    public static async fromElement(
-        element: HTMLGeolocationElement,
-    ): Promise<Geolocator> {
-        return await HTMLElementGeolocator.fromElement(element);
-    }
-
     public static async fromWebApi(): Promise<Geolocator> {
         return await WebApiGeolocator.create();
     }
 }
 
-class HTMLElementGeolocator implements Geolocator {
-    private constructor(
-        private element: HTMLGeolocationElement,
-        private lastKnownCoords: Coords,
-    ) {
-        this.element.addEventListener("location", () => {
-            if (element.position) {
-                this.lastKnownCoords = element.position.coords;
-            }
-        });
-    }
-    public static fromElement(
-        element: HTMLGeolocationElement,
-    ): Promise<Geolocator> {
-        return new Promise((resolve) => {
-            const ev = () => {
-                if (!element.position) {
-                    return;
-                }
-                element.removeEventListener("location", ev);
-                resolve(
-                    new HTMLElementGeolocator(
-                        element,
-                        element.position.coords,
-                    ),
-                );
-            };
-            element.addEventListener("location", ev);
-        });
-    }
-    coords(): Coords {
-        return this.lastKnownCoords;
-    }
-}
-
 class WebApiGeolocator implements Geolocator {
+    private eventListenerIdCounter = 0;
+    private events = new Map<number, (coords: Coords) => void>();
     private constructor(
         private lastKnownCoords: Coords,
     ) {
         navigator.geolocation.watchPosition(({ coords }) => {
             this.lastKnownCoords = coords;
+            this.events.values().forEach((handler) => handler(coords));
         });
     }
     public static create(): Promise<Geolocator> {
@@ -84,5 +47,12 @@ class WebApiGeolocator implements Geolocator {
     }
     coords(): Coords {
         return this.lastKnownCoords;
+    }
+
+    on(_: "update", handler: (coords: Coords) => void): number {
+        const id = this.eventListenerIdCounter;
+        this.eventListenerIdCounter++;
+        this.events.set(id, handler);
+        return id;
     }
 }

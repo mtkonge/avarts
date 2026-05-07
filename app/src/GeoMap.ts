@@ -29,6 +29,7 @@ export class GeoMap {
         private geolocator: Geolocator,
         private map: maplibregl.Map,
     ) {
+        this.marker.addTo(map);
     }
 
     public static async fromGeolocatorAndMap(
@@ -97,12 +98,10 @@ export class GeoMap {
     }
 
     public startMarker() {
-        const coords = this.geolocator.coords();
-        setInterval(() => {
-            this.marker.remove();
+        this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
+        this.geolocator.on("update", (coords: Coords) => {
             this.marker.setLngLat(coordsToMapLibreCoords(coords));
-            this.marker.addTo(this.map);
             this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
-        }, 1000);
+        });
     }
 }
