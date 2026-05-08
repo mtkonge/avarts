@@ -28,3 +28,4 @@
 - Used result types in database interface & implementation
 - Implemented get route by id, add route backend api
 - Simplified coords handling
+- Removed unused `<geolocation>` Geolocator interface implementation
