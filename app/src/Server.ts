@@ -1,5 +1,10 @@
-import { err, ok } from "./Result.ts";
-import { type Result, type Route, type RouteWithId } from "@avarts/shared";
+import {
+    err,
+    ok,
+    type Result,
+    type Route,
+    type RouteWithId,
+} from "@avarts/shared";
 export interface Server {
     routes(): Promise<Result<RouteWithId[], string>>;
     addRoute(route: Route): Promise<Result<void, string>>;
