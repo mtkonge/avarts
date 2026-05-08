@@ -18,13 +18,14 @@ export function coordsToGeoJsonPosition(
 export class GeoMap {
     private routes: RouteWithId[] = [];
 
-    // private marker: maplibregl.Marker = new maplibregl.Marker();
+    private marker: maplibregl.Marker = new maplibregl.Marker();
     private constructor(
         private geolocator: Geolocator,
         private map: maplibregl.Map,
         private server: Server,
     ) {
-        // this.marker.addTo(map);
+        this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
+            .addTo(map);
     }
 
     public static async fromGeolocatorAndMap(
@@ -100,11 +101,11 @@ export class GeoMap {
         this.reloadRoutes();
     }
 
-    // public startMarker() {
-    //     this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
-    //     this.geolocator.on("update", (coords: Coords) => {
-    //         this.marker.setLngLat(coordsToMapLibreCoords(coords));
-    //         this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
-    //     });
-    // }
+    public startMarker() {
+        this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
+        this.geolocator.on("update", (coords: Coords) => {
+            this.marker.setLngLat(coordsToMapLibreCoords(coords));
+            this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
+        });
+    }
 }

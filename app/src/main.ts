@@ -10,7 +10,7 @@ async function main() {
         document.getElementById("map")!,
         new HttpServer("http://127.0.0.1:8000"),
     );
-    // map.startMarker();
+    map.startMarker();
     const routeRecorder = new RouteRecorder(geolocator);
 
     const createRouteButton = document.getElementById("create-route")!;
