@@ -42,3 +42,7 @@
 - Had issues with Vite in our monorepo setup, so changed our setup temporarily.
 
 ## 08/05
+
+- Removed Vite and used our own scripts for building and serving frontend.
+- Users and authentication on backend
+- Refined 'kravspecifikation.md'

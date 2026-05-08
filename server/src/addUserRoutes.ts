@@ -1,7 +1,7 @@
 import { Router } from "@oak/oak/router";
 import { Database } from "./Database.ts";
 import { Sessions } from "./Session.ts";
-import z, { success } from "zod";
+import z from "zod";
 import bcrypt from "bcryptjs";
 
 const LoginRequest = z.strictObject({
