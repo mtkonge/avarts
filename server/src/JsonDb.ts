@@ -1,5 +1,5 @@
 import type { Database, Result as DbResult } from "./Database.ts";
-import { err, ok, RouteWithId } from "../../shared/mod.ts";
+import { err, ok, RouteWithId } from "@avarts/shared";
 import * as z from "zod";
 
 const Routes = z.array(RouteWithId);

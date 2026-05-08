@@ -1,7 +1,7 @@
 import { Router } from "@oak/oak/router";
 import { Database } from "./Database.ts";
 import * as z from "zod";
-import { Route } from "../../shared/mod.ts";
+import { Route } from "@avarts/shared";
 import { Status } from "@oak/commons/status";
 
 const AddRouteRequest = z.strictObject({

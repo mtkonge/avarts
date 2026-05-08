@@ -1,4 +1,4 @@
-import { Route } from "./mod.ts";
+import { type Route } from "@avarts/shared";
 import { Coords, Geolocator } from "./Geolocator.ts";
 
 export class RouteRecorder {

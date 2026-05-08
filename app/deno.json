@@ -16,6 +16,7 @@
         ]
     },
     "imports": {
+        "@avarts/shared": "../shared/mod.ts",
         "@deno/vite-plugin": "npm:@deno/vite-plugin@^2.0.2",
         "maplibre-gl": "npm:maplibre-gl@^5.24.0",
         "vite": "npm:vite@^8.0.10",
