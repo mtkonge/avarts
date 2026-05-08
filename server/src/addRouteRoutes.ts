@@ -3,12 +3,17 @@ import { Database } from "./Database.ts";
 import * as z from "zod";
 import { Route } from "@avarts/shared";
 import { Status } from "@oak/commons/status";
+import { Sessions } from "./Session.ts";
 
 const AddRouteRequest = z.strictObject({
     route: Route,
 });
 
-export function addRouteRoutes(router: Router, database: Database) {
+export function addRouteRoutes(
+    router: Router,
+    database: Database,
+    sessions: Sessions,
+) {
     router.get("/route/:id", async (ctx) => {
         const id = parseInt(ctx.params.id);
         const result = await database.getRouteById(id);
@@ -25,6 +30,25 @@ export function addRouteRoutes(router: Router, database: Database) {
     });
 
     router.post("/add-route", async (ctx) => {
+        const token = await ctx.cookies.get("token");
+        if (!token) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                success: false,
+                error: "invalid session",
+            };
+            return;
+        }
+        const userIdResult = sessions.userIdFromToken(token);
+        if (!userIdResult.ok) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                success: false,
+                error: "invalid session",
+            };
+            return;
+        }
+
         const raw = await ctx.request.body.json();
         const parseResult = AddRouteRequest.safeParse(raw);
         if (!parseResult.success) {
@@ -32,7 +56,10 @@ export function addRouteRoutes(router: Router, database: Database) {
             return;
         }
         const route = parseResult.data.route;
-        const dbResult = await database.addRoute(route);
+        const dbResult = await database.addRoute({
+            ...route,
+            userId: userIdResult.data,
+        });
         if (dbResult.ok) {
             ctx.response.body = { success: true };
         } else {

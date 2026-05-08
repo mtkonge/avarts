@@ -3,5 +3,9 @@
         "app",
         "shared",
         "server"
-    ]
+    ],
+    "fmt": {
+        "useTabs": false,
+        "indentWidth": 4
+    }
 }

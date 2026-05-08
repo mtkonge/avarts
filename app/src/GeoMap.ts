@@ -1,7 +1,7 @@
 import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Coords, Geolocator } from "./Geolocator.ts";
 import { Server } from "./Server.ts";
-import { type Route, type RouteWithId } from "@avarts/shared";
+import { type Route, type RouteWithUserIdAndId } from "@avarts/shared";
 
 export function coordsToMapLibreCoords(
     coords: Coords,
@@ -16,7 +16,7 @@ export function coordsToGeoJsonPosition(
 }
 
 export class GeoMap {
-    private routes: RouteWithId[] = [];
+    private routes: RouteWithUserIdAndId[] = [];
 
     private marker: maplibregl.Marker = new maplibregl.Marker();
     private constructor(

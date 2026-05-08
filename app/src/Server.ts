@@ -3,10 +3,10 @@ import {
     ok,
     type Result,
     type Route,
-    type RouteWithId,
+    type RouteWithUserIdAndId,
 } from "@avarts/shared";
 export interface Server {
-    routes(): Promise<Result<RouteWithId[], string>>;
+    routes(): Promise<Result<RouteWithUserIdAndId[], string>>;
     addRoute(route: Route): Promise<Result<void, string>>;
 }
 
@@ -30,14 +30,14 @@ export class HttpServer implements Server {
         });
     }
 
-    async routes(): Promise<Result<RouteWithId[], string>> {
-        const body: Response<RouteWithId[] | string> =
+    async routes(): Promise<Result<RouteWithUserIdAndId[], string>> {
+        const body: Response<RouteWithUserIdAndId[] | string> =
             await (await fetch(`${this.serverUrl}/routes`))
                 .json();
         if (!body.success) {
             return err(body.data as string);
         }
-        return ok(body.data as RouteWithId[]);
+        return ok(body.data as RouteWithUserIdAndId[]);
     }
 
     async addRoute(route: Route): Promise<Result<void, string>> {

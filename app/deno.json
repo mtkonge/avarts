@@ -3,9 +3,6 @@
         "bundle": "deno run --allow-read --allow-write --allow-env --allow-run bundle.ts",
         "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-run dev.ts"
     },
-    "fmt": {
-        "indentWidth": 4
-    },
     "compilerOptions": {
         "types": [],
         "lib": [

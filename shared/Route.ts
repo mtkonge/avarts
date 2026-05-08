@@ -1,18 +1,24 @@
 import * as z from "zod";
 
 export const Coords = z.strictObject({
-  latitude: z.number(),
-  longitude: z.number(),
+    latitude: z.number(),
+    longitude: z.number(),
 });
 
 export const Route = z.strictObject({
-  coords: z.array(Coords),
+    coords: z.array(Coords),
 });
 
-export const RouteWithId = Route.extend({
-  id: z.number(),
+export const RouteWithUserId = Route.extend({
+    userId: z.number(),
 });
 
-export type RouteWithId = z.infer<typeof RouteWithId>;
+export const RouteWithUserIdAndId = Route.extend({
+    userId: z.number(),
+    id: z.number(),
+});
+
+export type RouteWithUserId = z.infer<typeof RouteWithUserId>;
+export type RouteWithUserIdAndId = z.infer<typeof RouteWithUserIdAndId>;
 export type Route = z.infer<typeof Route>;
 export type Coords = z.infer<typeof Coords>;

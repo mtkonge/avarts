@@ -3,12 +3,14 @@ import { Router } from "@oak/oak/router";
 import { oakCors } from "@tajpouria/cors";
 import { api } from "./api.ts";
 import { JsonDb } from "./JsonDb.ts";
+import { Sessions } from "./Session.ts";
 
 async function main() {
     const app = new Application();
     const router = new Router();
     const database = await JsonDb.open();
-    api(router, database);
+    const sessions = new Sessions();
+    api(router, database, sessions);
     app.use(oakCors());
     app.use(router.routes());
     app.use(router.allowedMethods());

@@ -3,7 +3,7 @@
 ## Case beskrivelse
 
 Pim de Keysergracht's Snel Gaan VOF vil gerne fremme racersport da de sælger
-grej til adskillige racersportsgrene. Derfor vil de gerne have en løsning.
+grej til adskillige racersportsgrene.
 
 For at øge engagement i deres sportsgrene vil de gerne have en måde hvor brugere
 nemt kan måle tid og konkurrere, uden at skulle holde et formelt tourné.
