@@ -1,7 +1,14 @@
 import type { Database, Result as DbResult } from "./Database.ts";
-import { err, ok, RouteWithUserId, RouteWithUserIdAndId } from "@avarts/shared";
+import {
+    err,
+    ok,
+    RouteWithUserId,
+    RouteWithUserIdAndId,
+    User,
+    UserWithId,
+} from "@avarts/shared";
 import * as z from "zod";
-import { User, UserWithId } from "../../shared/User.ts";
+import * as fs from "@std/fs";
 
 const Routes = z.array(RouteWithUserIdAndId);
 type Routes = z.infer<typeof Routes>;
@@ -18,6 +25,7 @@ export class JsonDb implements Database {
     }
 
     public static async open(): Promise<Database> {
+        await fs.ensureDir(JsonDb.dataDir);
         await Deno.writeTextFile(`${JsonDb.dataDir}/.gitignore`, "*", {
             create: true,
         });
