@@ -7,6 +7,7 @@ import { Sessions } from "./Session.ts";
 
 const AddRouteRequest = z.strictObject({
     route: Route,
+    token: z.string(),
 });
 
 export function addRouteRoutes(
@@ -30,8 +31,14 @@ export function addRouteRoutes(
     });
 
     router.post("/add-route", async (ctx) => {
-        const token = await ctx.cookies.get("token");
-        if (!token) {
+        const raw = await ctx.request.body.json();
+        const parsedResult = AddRouteRequest.safeParse(raw);
+        if (!parsedResult.success) {
+            ctx.response.body = { success: false, error: parsedResult.error };
+            return;
+        }
+
+        if (!parsedResult.data.token) {
             ctx.response.status = 400;
             ctx.response.body = {
                 success: false,
@@ -39,7 +46,7 @@ export function addRouteRoutes(
             };
             return;
         }
-        const userIdResult = sessions.userIdFromToken(token);
+        const userIdResult = sessions.userIdFromToken(parsedResult.data.token);
         if (!userIdResult.ok) {
             ctx.response.status = 400;
             ctx.response.body = {
@@ -49,13 +56,7 @@ export function addRouteRoutes(
             return;
         }
 
-        const raw = await ctx.request.body.json();
-        const parseResult = AddRouteRequest.safeParse(raw);
-        if (!parseResult.success) {
-            ctx.response.body = { success: false, error: parseResult.error };
-            return;
-        }
-        const route = parseResult.data.route;
+        const route = parsedResult.data.route;
         const dbResult = await database.addRoute({
             ...route,
             userId: userIdResult.data,

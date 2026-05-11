@@ -4,6 +4,10 @@ import { GeolocatorFactory } from "./Geolocator.ts";
 import { server } from "./utils.ts";
 
 async function main() {
+    const user = await server.user();
+    if (!user.ok || user.ok && user.data === null) {
+        location.href = "/login.html";
+    }
     const geolocator = await GeolocatorFactory.fromWebApi();
     const map = await GeoMap.fromGeolocatorAndMap(
         geolocator,

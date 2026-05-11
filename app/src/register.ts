@@ -12,8 +12,10 @@ function main() {
 
     registerButton.addEventListener("click", async () => {
         const result = await server.register(
-            registerUsernameInput.value,
-            registerPasswordInput.value,
+            {
+                username: registerUsernameInput.value,
+                password: registerPasswordInput.value,
+            },
         );
         if (!result.ok) {
             errorElement.textContent = result.error;

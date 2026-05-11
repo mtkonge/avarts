@@ -14,6 +14,10 @@ const RegisterRequest = z.strictObject({
     password: z.string(),
 });
 
+const UserRequest = z.strictObject({
+    token: z.string(),
+});
+
 export function addUserRoutes(
     router: Router,
     database: Database,
@@ -63,11 +67,9 @@ export function addUserRoutes(
             return;
         }
         const token = sessions.addSession(user.id);
-        await ctx.cookies.set("token", token, {
-            maxAge: 60 * 60 * 24 * 30,
-        });
         ctx.response.body = {
             success: true,
+            data: token,
         };
     });
 
@@ -91,7 +93,6 @@ export function addUserRoutes(
             return;
         }
         sessions.removeSession(user.data);
-        ctx.cookies.delete("token");
         ctx.response.body = {
             success: true,
         };
@@ -150,6 +151,45 @@ export function addUserRoutes(
 
         ctx.response.body = {
             success: true,
+        };
+    });
+
+    router.post("/user", async (ctx) => {
+        const parsed = UserRequest.safeParse(await ctx.request.body.json());
+        if (!parsed.success) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                success: false,
+                error: parsed.error,
+            };
+            return;
+        }
+        const token = parsed.data.token;
+
+        const sessionResult = sessions.userIdFromToken(token);
+        if (!sessionResult.ok) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                success: false,
+                data: null,
+            };
+            return;
+        }
+
+        const userResult = await database.getUserById(sessionResult.data);
+
+        if (!userResult.ok) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                success: false,
+                data: "user not found",
+            };
+            return;
+        }
+
+        ctx.response.body = {
+            success: true,
+            data: userResult.data,
         };
     });
 }

@@ -4,10 +4,19 @@ import {
     type Result,
     type Route,
     type RouteWithUserIdAndId,
+    User,
 } from "@avarts/shared";
 export interface Server {
     routes(): Promise<Result<RouteWithUserIdAndId[], string>>;
     addRoute(route: Route): Promise<Result<void, string>>;
+    register(
+        user: User,
+    ): Promise<Result<void, string>>;
+    login(
+        user: User,
+    ): Promise<Result<string, string>>;
+    logout(): Promise<Result<void, string>>;
+    user(): Promise<Result<User | null, string>>;
 }
 
 type Response<T> = {
@@ -53,15 +62,10 @@ export class HttpServer implements Server {
     }
 
     async register(
-        username: string,
-        password: string,
+        user: User,
     ): Promise<Result<void, string>> {
-        const data = {
-            username,
-            password,
-        };
         const body: Response<void | string> =
-            await (await this.postRequest(data, "/register")).json();
+            await (await this.postRequest(user, "/register")).json();
         if (!body.success) {
             return err(body.error);
         }
@@ -69,19 +73,14 @@ export class HttpServer implements Server {
     }
 
     async login(
-        username: string,
-        password: string,
-    ): Promise<Result<void, string>> {
-        const data = {
-            username,
-            password,
-        };
-        const body: Response<void | string> =
-            await (await this.postRequest(data, "/login")).json();
+        user: User,
+    ): Promise<Result<string, string>> {
+        const body: Response<string> =
+            await (await this.postRequest(user, "/login")).json();
         if (!body.success) {
             return err(body.error);
         }
-        return ok();
+        return ok(body.data);
     }
 
     async logout(): Promise<Result<void, string>> {
@@ -91,5 +90,22 @@ export class HttpServer implements Server {
             return err(body.error);
         }
         return ok();
+    }
+
+    async user(): Promise<Result<User | null, string>> {
+        const token = localStorage.getItem("token");
+        if (token === null) {
+            return err("no token");
+        }
+        const body: Response<User | null> = await (await this.postRequest(
+            {
+                token,
+            },
+            "/user",
+        )).json();
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok(body.data);
     }
 }

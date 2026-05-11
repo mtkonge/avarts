@@ -12,13 +12,16 @@ function main() {
 
     loginButton.addEventListener("click", async () => {
         const result = await server.login(
-            loginUsernameInput.value,
-            loginPasswordInput.value,
+            {
+                username: loginUsernameInput.value,
+                password: loginPasswordInput.value,
+            },
         );
         if (!result.ok) {
             errorElement.textContent = result.error;
             return;
         }
+        localStorage.setItem("token", result.data);
         location.href = "/";
     });
 }
