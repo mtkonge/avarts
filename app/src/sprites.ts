@@ -20,10 +20,10 @@ class Skateboard {
 
     render(): string {
         const template = String.raw`
-    o
-  $$|$$
-   / \   
-''o'''o''
+  o
+$$|$$
+ / \   
+¨°¨°¨
 `;
 
         return stripStartAndEnd(
