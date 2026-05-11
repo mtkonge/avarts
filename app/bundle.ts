@@ -26,6 +26,14 @@ async function buildCode() {
         format: "esm",
     });
 
+    await esbuild.build({
+        plugins: [...denoPlugins()],
+        entryPoints: ["./src/sprites.ts"],
+        outfile: "./dist/sprites.js",
+        bundle: true,
+        format: "esm",
+    });
+
     esbuild.stop();
 }
 
