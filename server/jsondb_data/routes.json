@@ -1,6 +1,7 @@
 [
     {
         "id": 0,
+        "userId": 0,
         "coords": [
             {
                 "latitude": 9.412228,

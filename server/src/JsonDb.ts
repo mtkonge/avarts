@@ -44,7 +44,7 @@ export class JsonDb implements Database {
     private static async initIdCounter(): Promise<number> {
         return await Deno.readTextFile(`${JsonDb.dataDir}/id_counter.txt`)
             .catch(() => "0")
-            .then((x) => z.number().parse(x.trim()));
+            .then((x) => z.number().parse(parseInt(x.trim())));
     }
 
     private async save() {
