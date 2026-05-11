@@ -20,3 +20,21 @@ body {
     }
 }
 
+.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-form * {
+    margin: 5px;
+}
+
+#error {
+    color: red;
+}

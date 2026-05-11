@@ -10,6 +10,22 @@ async function buildCode() {
         format: "esm",
     });
 
+    await esbuild.build({
+        plugins: [...denoPlugins()],
+        entryPoints: ["./src/login.ts"],
+        outfile: "./dist/login.js",
+        bundle: true,
+        format: "esm",
+    });
+
+    await esbuild.build({
+        plugins: [...denoPlugins()],
+        entryPoints: ["./src/register.ts"],
+        outfile: "./dist/register.js",
+        bundle: true,
+        format: "esm",
+    });
+
     esbuild.stop();
 }
 

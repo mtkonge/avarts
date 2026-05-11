@@ -1,14 +1,14 @@
 import { GeoMap } from "./GeoMap.ts";
 import { RouteRecorder } from "./RouteRecorder.ts";
 import { GeolocatorFactory } from "./Geolocator.ts";
-import { HttpServer } from "./Server.ts";
+import { server } from "./utils.ts";
 
 async function main() {
     const geolocator = await GeolocatorFactory.fromWebApi();
     const map = await GeoMap.fromGeolocatorAndMap(
         geolocator,
         document.getElementById("map")!,
-        new HttpServer("http://127.0.0.1:8000"),
+        server,
     );
     map.startMarker();
     const routeRecorder = new RouteRecorder(geolocator);

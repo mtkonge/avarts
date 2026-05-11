@@ -13,6 +13,9 @@ export interface Server {
 type Response<T> = {
     success: true;
     data: T;
+} | {
+    success: false;
+    error: string;
 };
 
 export class HttpServer implements Server {
@@ -35,7 +38,7 @@ export class HttpServer implements Server {
             await (await fetch(`${this.serverUrl}/routes`))
                 .json();
         if (!body.success) {
-            return err(body.data as string);
+            return err(body.error);
         }
         return ok(body.data as RouteWithUserIdAndId[]);
     }
@@ -44,7 +47,48 @@ export class HttpServer implements Server {
         const body: Response<void | string> =
             await (await this.postRequest(route, "/add-route")).json();
         if (!body.success) {
-            return err(body.data as string);
+            return err(body.error);
+        }
+        return ok();
+    }
+
+    async register(
+        username: string,
+        password: string,
+    ): Promise<Result<void, string>> {
+        const data = {
+            username,
+            password,
+        };
+        const body: Response<void | string> =
+            await (await this.postRequest(data, "/register")).json();
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok();
+    }
+
+    async login(
+        username: string,
+        password: string,
+    ): Promise<Result<void, string>> {
+        const data = {
+            username,
+            password,
+        };
+        const body: Response<void | string> =
+            await (await this.postRequest(data, "/login")).json();
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok();
+    }
+
+    async logout(): Promise<Result<void, string>> {
+        const body: Response<void | string> =
+            await (await this.postRequest({}, "/logout")).json();
+        if (!body.success) {
+            return err(body.error);
         }
         return ok();
     }

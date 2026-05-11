@@ -4,14 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Avarts</title>
 </head>
 
-<body>
-    <input type="text" id="username-input">
-    <input type="password" id="password-input">
-    <a href="./login.html"></a>
-    <button>Log in</button>
+<body class="centered">
+    <div class="auth-form">
+        <label for="username-login-input">Username</label>
+        <input type="text" id="username-login-input">
+        <label for="password-login-input">Password</label>
+        <input type="password" id="password-login-input">
+        <button id="login-button">Sign in</button>
+        <a href="./register.html">Don't have an account?</a>
+        <p id="error"></p>
+    </div>
+    <script src="login.js" type="module"></script>
 
 </body>
 

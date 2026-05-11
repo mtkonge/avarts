@@ -51,8 +51,8 @@ export function addUserRoutes(
             return;
         }
         const bcryptResult = await bcrypt.compare(
-            user.password,
             parsed.data.password,
+            user.password,
         );
         if (!bcryptResult) {
             ctx.response.status = 400;
@@ -110,13 +110,26 @@ export function addUserRoutes(
             };
             return;
         }
+        const userInDbResult = await database.getUserByUsername(
+            parsed.data.username,
+        );
 
-        if (await database.getUserByUsername(parsed.data.username)) {
-            ctx.response.status = 401;
+        if (
+            userInDbResult.ok && userInDbResult.data !== null
+        ) {
+            ctx.response.status = 400;
             ctx.response.body = {
                 success: false,
                 error:
                     `user with username '${parsed.data.username}' already exists`,
+            };
+            return;
+        }
+        if (!userInDbResult.ok) {
+            ctx.response.status = 500;
+            ctx.response.body = {
+                success: false,
+                error: parsed.error,
             };
             return;
         }
