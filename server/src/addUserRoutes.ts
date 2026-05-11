@@ -1,195 +1,207 @@
 import { Router } from "@oak/oak/router";
 import { Database } from "./Database.ts";
 import { Sessions } from "./Session.ts";
-import z from "zod";
 import bcrypt from "bcryptjs";
-
-const LoginRequest = z.strictObject({
-    username: z.string(),
-    password: z.string(),
-});
-
-const RegisterRequest = z.strictObject({
-    username: z.string(),
-    password: z.string(),
-});
-
-const UserRequest = z.strictObject({
-    token: z.string(),
-});
+import {
+    LoginRequest,
+    LoginResponse,
+    LogoutRequest,
+    LogoutResponse,
+    RegisterRequest,
+    RegisterResponse,
+    UserRequest,
+    UserResponse,
+} from "@avarts/shared";
+import { validateResponse } from "./validateResponse.ts";
 
 export function addUserRoutes(
     router: Router,
     database: Database,
     sessions: Sessions,
 ) {
-    router.post("/login", async (ctx) => {
-        const parsed = LoginRequest.safeParse(
-            await ctx.request.body.json(),
-        );
-        if (!parsed.success) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                success: false,
-                error: parsed.error,
-            };
-            return;
-        }
+    router.post(
+        "/login",
+        validateResponse(LoginResponse, async (ctx) => {
+            const parsed = LoginRequest.safeParse(
+                await ctx.request.body.json(),
+            );
+            if (!parsed.success) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: parsed.error,
+                };
+                return;
+            }
 
-        const dbResult = await database.getUserByUsername(parsed.data.username);
-        if (!dbResult.ok) {
-            ctx.response.status = 500;
+            const dbResult = await database.getUserByUsername(
+                parsed.data.username,
+            );
+            if (!dbResult.ok) {
+                ctx.response.status = 500;
+                ctx.response.body = {
+                    success: false,
+                    error: "db error",
+                };
+                return;
+            }
+            const user = dbResult.data;
+            if (!user) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: "invalid login",
+                };
+                return;
+            }
+            const bcryptResult = await bcrypt.compare(
+                parsed.data.password,
+                user.password,
+            );
+            if (!bcryptResult) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: "invalid login",
+                };
+                return;
+            }
+            const token = sessions.addSession(user.id);
             ctx.response.body = {
-                success: false,
-                error: "db error",
+                success: true,
+                token,
             };
-            return;
-        }
-        const user = dbResult.data;
-        if (!user) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                success: false,
-                error: "invalid login",
-            };
-            return;
-        }
-        const bcryptResult = await bcrypt.compare(
-            parsed.data.password,
-            user.password,
-        );
-        if (!bcryptResult) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                success: false,
-                error: "invalid login",
-            };
-            return;
-        }
-        const token = sessions.addSession(user.id);
-        ctx.response.body = {
-            success: true,
-            data: token,
-        };
-    });
+        }),
+    );
 
-    router.post("/logout", async (ctx) => {
-        const token = await ctx.cookies.get("token");
-        if (!token) {
-            ctx.response.status = 400;
+    router.post(
+        "/logout",
+        validateResponse(LogoutResponse, async (ctx) => {
+            const parsedResult = LogoutRequest.safeParse(
+                await ctx.request.body.json(),
+            );
+            if (!parsedResult.success) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: "invalid logout",
+                };
+                return;
+            }
+            const user = sessions.userIdFromToken(parsedResult.data.token);
+            if (!user.ok) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: "invalid logout",
+                };
+                return;
+            }
+            sessions.removeSession(user.data);
             ctx.response.body = {
-                success: false,
-                error: "invalid logout",
+                success: true,
             };
-            return;
-        }
-        const user = sessions.userIdFromToken(token);
-        if (!user.ok) {
-            ctx.response.status = 400;
+        }),
+    );
+
+    router.post(
+        "/register",
+        validateResponse(RegisterResponse, async (ctx) => {
+            const parsed = RegisterRequest.safeParse(
+                await ctx.request.body.json(),
+            );
+
+            if (!parsed.success) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: parsed.error,
+                };
+                return;
+            }
+            const userInDbResult = await database.getUserByUsername(
+                parsed.data.username,
+            );
+
+            if (
+                userInDbResult.ok && userInDbResult.data !== null
+            ) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error:
+                        `user with username '${parsed.data.username}' already exists`,
+                };
+                return;
+            }
+            if (!userInDbResult.ok) {
+                ctx.response.status = 500;
+                ctx.response.body = {
+                    success: false,
+                    error: parsed.error,
+                };
+                return;
+            }
+            const hashedPassword = await bcrypt.hash(parsed.data.password, 12);
+            const result = await database.addUser({
+                username: parsed.data.username,
+                password: hashedPassword,
+            });
+
+            if (!result.ok) {
+                ctx.response.status = 500;
+                ctx.response.body = {
+                    success: false,
+                    error: parsed.error,
+                };
+                return;
+            }
+
             ctx.response.body = {
-                success: false,
-                error: "invalid logout",
+                success: true,
             };
-            return;
-        }
-        sessions.removeSession(user.data);
-        ctx.response.body = {
-            success: true,
-        };
-    });
+        }),
+    );
 
-    router.post("/register", async (ctx) => {
-        const parsed = RegisterRequest.safeParse(
-            await ctx.request.body.json(),
-        );
+    router.post(
+        "/user",
+        validateResponse(UserResponse, async (ctx) => {
+            const parsed = UserRequest.safeParse(await ctx.request.body.json());
+            if (!parsed.success) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: parsed.error,
+                };
+                return;
+            }
+            const token = parsed.data.token;
 
-        if (!parsed.success) {
-            ctx.response.status = 400;
+            const sessionResult = sessions.userIdFromToken(token);
+            if (!sessionResult.ok) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: "invalid token",
+                };
+                return;
+            }
+
+            const userResult = await database.getUserById(sessionResult.data);
+
+            if (!userResult.ok) {
+                ctx.response.status = 400;
+                ctx.response.body = {
+                    success: false,
+                    error: "invalid user",
+                };
+                return;
+            }
+
             ctx.response.body = {
-                success: false,
-                error: parsed.error,
+                success: true,
+                data: userResult.data,
             };
-            return;
-        }
-        const userInDbResult = await database.getUserByUsername(
-            parsed.data.username,
-        );
-
-        if (
-            userInDbResult.ok && userInDbResult.data !== null
-        ) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                success: false,
-                error:
-                    `user with username '${parsed.data.username}' already exists`,
-            };
-            return;
-        }
-        if (!userInDbResult.ok) {
-            ctx.response.status = 500;
-            ctx.response.body = {
-                success: false,
-                error: parsed.error,
-            };
-            return;
-        }
-        const hashedPassword = await bcrypt.hash(parsed.data.password, 12);
-        const result = await database.addUser({
-            username: parsed.data.username,
-            password: hashedPassword,
-        });
-
-        if (!result.ok) {
-            ctx.response.status = 500;
-            ctx.response.body = {
-                success: false,
-                error: parsed.error,
-            };
-            return;
-        }
-
-        ctx.response.body = {
-            success: true,
-        };
-    });
-
-    router.post("/user", async (ctx) => {
-        const parsed = UserRequest.safeParse(await ctx.request.body.json());
-        if (!parsed.success) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                success: false,
-                error: parsed.error,
-            };
-            return;
-        }
-        const token = parsed.data.token;
-
-        const sessionResult = sessions.userIdFromToken(token);
-        if (!sessionResult.ok) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                success: false,
-                data: null,
-            };
-            return;
-        }
-
-        const userResult = await database.getUserById(sessionResult.data);
-
-        if (!userResult.ok) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                success: false,
-                data: "user not found",
-            };
-            return;
-        }
-
-        ctx.response.body = {
-            success: true,
-            data: userResult.data,
-        };
-    });
+        }),
+    );
 }

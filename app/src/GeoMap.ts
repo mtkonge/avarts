@@ -1,7 +1,11 @@
 import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Coords, Geolocator } from "./Geolocator.ts";
 import { Server } from "./Server.ts";
-import { type Route, type RouteWithUserIdAndId } from "@avarts/shared";
+import {
+    AddRouteRequest,
+    type Route,
+    type RouteWithUserIdAndId,
+} from "@avarts/shared";
 
 export function coordsToMapLibreCoords(
     coords: Coords,
@@ -96,7 +100,7 @@ export class GeoMap {
         });
     }
 
-    public async addRoute(route: Route) {
+    public async addRoute(route: AddRouteRequest) {
         await this.server.addRoute(route);
         this.reloadRoutes();
     }

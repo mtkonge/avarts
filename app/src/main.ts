@@ -2,11 +2,18 @@ import { GeoMap } from "./GeoMap.ts";
 import { RouteRecorder } from "./RouteRecorder.ts";
 import { GeolocatorFactory } from "./Geolocator.ts";
 import { server } from "./utils.ts";
+import { AddRouteRequest } from "../../shared/requests.ts";
 
 async function main() {
-    const user = await server.user();
+    const token = localStorage.getItem("token");
+    if (token === null) {
+        location.href = "/login.html";
+        return;
+    }
+    const user = await server.user({ token });
     if (!user.ok || user.ok && user.data === null) {
         location.href = "/login.html";
+        return;
     }
     const geolocator = await GeolocatorFactory.fromWebApi();
     const map = await GeoMap.fromGeolocatorAndMap(
@@ -21,6 +28,10 @@ async function main() {
     const finishRouteButton = document.getElementById("finish-route")!;
 
     createRouteButton.addEventListener("click", () => {
+        if (localStorage.getItem("token") === null) {
+            location.href = "/login.html";
+            return;
+        }
         createRouteButton.hidden = true;
         finishRouteButton.hidden = false;
         routeRecorder.record();
@@ -29,8 +40,14 @@ async function main() {
     finishRouteButton.addEventListener("click", async () => {
         createRouteButton.hidden = false;
         finishRouteButton.hidden = true;
+        const token = localStorage.getItem("token");
+        if (token === null) {
+            location.href = "/login.html";
+            return;
+        }
         const route = routeRecorder.stop();
-        await map.addRoute(route);
+        const addRouteRequest: AddRouteRequest = { route, token };
+        await map.addRoute(addRouteRequest);
     });
 }
 
