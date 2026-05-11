@@ -46,3 +46,10 @@
 - Removed Vite and used our own scripts for building and serving frontend.
 - Users and authentication on backend
 - Refined 'kravspecifikation.md'
+
+## 11/05
+
+- Implemented simple frontend page for user authentication.
+- Drew ascii sprites for loading screens.
+- Improved type safety for request and response objects for both frontend and
+  backend.
