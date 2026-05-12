@@ -4,6 +4,7 @@ import { GeolocatorFactory } from "./Geolocator.ts";
 import { server } from "./utils.ts";
 import { AddRouteRequest } from "@avarts/shared";
 import { LoadingDialog } from "./loading.ts";
+import { CompassFactory } from "./Compass.ts";
 
 async function main() {
     const loading = new LoadingDialog();
@@ -18,11 +19,13 @@ async function main() {
         location.href = "/login.html";
         return;
     }
+    const compass = await CompassFactory.fromWebApi();
     const geolocator = await GeolocatorFactory.fromWebApi();
     const map = await GeoMap.create(
         geolocator,
-        document.getElementById("map")!,
+        compass,
         server,
+        document.getElementById("map")!,
     );
     loading.hide();
     map.startMarker();
