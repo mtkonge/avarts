@@ -125,7 +125,6 @@ export class GeoMap {
         });
         this.compass.on("update", (heading: number) => {
             this.map.rotateTo(heading, { animate: false });
-            this.marker.setRotation(heading);
         });
     }
 }
