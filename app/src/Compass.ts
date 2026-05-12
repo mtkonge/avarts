@@ -25,6 +25,18 @@ class WebApiCompass implements Compass {
         });
     }
     public static async create(): Promise<Compass> {
+        const names = [
+            "accelerometer",
+            "magnetometer",
+            "gyroscope",
+        ] satisfies PermissionNameExt[] as unknown as PermissionName[];
+        try {
+            await Promise.all(
+                names.map((name) => navigator.permissions.query({ name })),
+            );
+        } catch {
+            return new WebApiCompass(0);
+        }
         return await new Promise((resolve) => {
             const functor = ({ alpha }: DeviceOrientationEvent) => {
                 if (alpha === null) {
