@@ -1,20 +1,13 @@
 export type Coords = {
     latitude: number;
     longitude: number;
+    heading?: number;
 };
 
 export interface Geolocator {
     coords(): Coords;
     on(type: "update", handler: (coords: Coords) => void): number;
 }
-
-export type HTMLGeolocationElement = HTMLElement & {
-    isValid: boolean;
-    invalidReason: string;
-    position: {
-        coords: Coords;
-    } | null;
-};
 
 export class GeolocatorFactory {
     public static async fromWebApi(): Promise<Geolocator> {
@@ -29,8 +22,14 @@ class WebApiGeolocator implements Geolocator {
         private lastKnownCoords: Coords,
     ) {
         navigator.geolocation.watchPosition(({ coords }) => {
-            this.lastKnownCoords = coords;
-            this.events.values().forEach((handler) => handler(coords));
+            this.lastKnownCoords = {
+                longitude: coords.longitude,
+                latitude: coords.latitude,
+                heading: coords.heading ?? undefined,
+            };
+            this.events.values().forEach((handler) =>
+                handler(this.lastKnownCoords)
+            );
         });
     }
     public static create(): Promise<Geolocator> {
@@ -40,6 +39,7 @@ class WebApiGeolocator implements Geolocator {
                     new WebApiGeolocator({
                         latitude: coords.latitude,
                         longitude: coords.longitude,
+                        heading: coords.heading ?? undefined,
                     }),
                 );
             });

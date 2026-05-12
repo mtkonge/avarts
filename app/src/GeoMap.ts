@@ -15,10 +15,18 @@ export function coordsToGeoJsonPosition(
     return [coords.latitude, coords.longitude];
 }
 
+function userMarker(): maplibregl.Marker {
+    const element = document.createElement("span");
+    element.textContent = "⬆️";
+    element.classList = "user-marker";
+
+    return new maplibregl.Marker({ element });
+}
+
 export class GeoMap {
     private routes: RouteWithUserIdAndId[] = [];
 
-    private marker: maplibregl.Marker = new maplibregl.Marker();
+    private marker: maplibregl.Marker = userMarker();
     private constructor(
         private geolocator: Geolocator,
         private map: maplibregl.Map,
@@ -40,7 +48,7 @@ export class GeoMap {
             center: coordsToMapLibreCoords(coords),
             zoom: 16,
         });
-        // map.dragPan.disable();
+        map.dragPan.disable();
         return await new Promise((resolve) => {
             map.on("load", () => {
                 const geoMap = new GeoMap(geolocator, map, server);
@@ -105,6 +113,7 @@ export class GeoMap {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
         this.geolocator.on("update", (coords: Coords) => {
             this.marker.setLngLat(coordsToMapLibreCoords(coords));
+            this.marker.setRotation(coords.heading);
             this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
         });
     }

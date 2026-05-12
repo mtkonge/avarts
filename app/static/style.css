@@ -31,3 +31,7 @@ body {
 .loading-dialog {
     text-align: center;
 }
+
+.user-marker {
+    font-size: 1.25rem;
+}
