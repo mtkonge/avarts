@@ -50,6 +50,7 @@ export class GeoMap {
         });
         map.dragPan.disable();
         map.dragRotate.disable();
+        map.touchZoomRotate.disable();
         return await new Promise((resolve) => {
             map.on("load", () => {
                 const geoMap = new GeoMap(geolocator, map, server);
