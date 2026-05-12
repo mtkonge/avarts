@@ -1,5 +1,5 @@
 import { LoadingDialog } from "./loading.ts";
-import { server } from "./utils.ts";
+import * as utils from "./utils.ts";
 
 function main() {
     const registerUsernameInput = document.getElementById(
@@ -11,6 +11,7 @@ function main() {
     const registerButton = document.getElementById("register-button")!;
     const errorElement = document.getElementById("error")!;
     const loading = new LoadingDialog();
+    const server = utils.server();
 
     registerButton.addEventListener("click", async () => {
         loading.show();

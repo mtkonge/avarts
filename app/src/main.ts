@@ -1,7 +1,7 @@
 import { GeoMap } from "./GeoMap.ts";
 import { RouteRecorder } from "./RouteRecorder.ts";
 import { GeolocatorFactory } from "./Geolocator.ts";
-import { server } from "./utils.ts";
+import * as utils from "./utils.ts";
 import { AddRouteRequest } from "@avarts/shared";
 import { LoadingDialog } from "./loading.ts";
 import { CompassFactory } from "./Compass.ts";
@@ -14,6 +14,7 @@ async function main() {
         location.href = "/login.html";
         return;
     }
+    const server = utils.server();
     const user = await server.user({ token });
     if (!user.ok || user.ok && user.data === null) {
         location.href = "/login.html";

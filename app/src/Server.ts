@@ -10,7 +10,6 @@ import {
     RegisterRequest,
     RegisterResponse,
     type Result,
-    type Route,
     RoutesResponse,
     type RouteWithUserIdAndId,
     User,

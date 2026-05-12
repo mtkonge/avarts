@@ -30,6 +30,20 @@ body {
 
 .loading-dialog {
     text-align: center;
+    border: 1px solid gray;
+    border-radius: 1rem;
+    padding: 1rem;
+
+    &:focus-visible {
+        outline: none;
+    }
+    &::backdrop {
+        backdrop-filter: blur(5px);
+    }
+
+    pre {
+        margin: 0;
+    }
 }
 
 .user-marker {
