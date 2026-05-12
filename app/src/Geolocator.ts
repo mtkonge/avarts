@@ -25,7 +25,7 @@ class WebApiGeolocator implements Geolocator {
             this.lastKnownCoords = {
                 longitude: coords.longitude,
                 latitude: coords.latitude,
-                heading: coords.heading ?? undefined,
+                heading: coords.heading ?? this.lastKnownCoords.heading,
             };
             this.events.values().forEach((handler) =>
                 handler(this.lastKnownCoords)
