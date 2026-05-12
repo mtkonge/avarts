@@ -53,3 +53,11 @@
 - Drew ascii sprites for loading screens.
 - Improved type safety for request and response objects for both frontend and
   backend.
+
+## 12/05
+
+- Loading screen
+- Rotate map based on device orientation
+- Automatically select dev/prod backend URL, host backend in cloud
+- Backend endpoints for adding routes
+- Toolbar design
