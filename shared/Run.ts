@@ -1,6 +1,6 @@
 import * as z from "zod";
-import { Route } from "@avarts/shared";
-import { Coords } from "./Coords.ts";
+import type { Route } from "@avarts/shared";
+import type { Coords } from "./Coords.ts";
 
 export const Run = z.strictObject({
     routeId: z.number(),
