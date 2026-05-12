@@ -118,10 +118,13 @@ export class GeoMap {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
         this.geolocator.on("update", (coords: Coords) => {
             this.marker.setLngLat(coordsToMapLibreCoords(coords));
-            this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
+            this.map.easeTo({
+                center: coordsToMapLibreCoords(coords),
+                animate: false,
+            });
         });
         this.compass.on("update", (heading: number) => {
-            this.map.rotateTo(heading);
+            this.map.rotateTo(heading, { animate: false });
             this.marker.setRotation(heading);
         });
     }
