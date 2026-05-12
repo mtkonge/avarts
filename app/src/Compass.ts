@@ -9,6 +9,8 @@ export class CompassFactory {
     }
 }
 
+type PermissionNameExt = "accelerometer" | "magnetometer" | "gyroscope";
+
 class WebApiCompass implements Compass {
     private eventListenerIdCounter = 0;
     private events = new Map<number, (heading: number) => void>();
@@ -23,6 +25,14 @@ class WebApiCompass implements Compass {
         });
     }
     public static async create(): Promise<Compass> {
+        const names = [
+            "accelerometer",
+            "magnetometer",
+            "gyroscope",
+        ] satisfies PermissionNameExt[] as unknown as PermissionName[];
+        const perms = await Promise.all(
+            names.map((name) => navigator.permissions.query({ name })),
+        );
         return await new Promise((resolve) => {
             const functor = ({ alpha }: DeviceOrientationEvent) => {
                 if (alpha === null) {
