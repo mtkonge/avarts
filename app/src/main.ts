@@ -2,7 +2,7 @@ import { GeoMap } from "./GeoMap.ts";
 import { RouteRecorder } from "./RouteRecorder.ts";
 import { GeolocatorFactory } from "./Geolocator.ts";
 import { server } from "./utils.ts";
-import { AddRouteRequest } from "../../shared/requests.ts";
+import { AddRouteRequest } from "@avarts/shared";
 
 async function main() {
     const token = localStorage.getItem("token");
