@@ -12,7 +12,7 @@ function fillTemplate(
 }
 
 function trimWhitespace(input: string): string {
-    return input.split("\n").map((x) => x.trimEnd()).slice(1, -1).join("\n");
+    return input.split("\n").slice(1, -1).join("\n");
 }
 
 interface Animation {
@@ -25,9 +25,9 @@ class Skateboarder implements Animation {
 
     render(): string {
         const template = String.raw`
-  o
+  o  
 $$|$$
- / \   
+ / \ 
 ¨°¨°¨
 `;
 
@@ -37,7 +37,7 @@ $$|$$
     }
 
     interval(): number {
-        return 1000;
+        return 500;
     }
 }
 
@@ -47,15 +47,15 @@ class Runner implements Animation {
     render(): string {
         this.iteration += 1;
         const anim0 = String.raw`
-  o
+  o  
  :|: 
-.' :   
+.' : 
 `;
 
         const anim1 = String.raw`
-  o
+  o  
 .'|.'
- :.'   
+ :.' 
 `;
 
         const picked = [anim0, anim1][this.iteration % 2];
@@ -71,11 +71,11 @@ class Biker implements Animation {
     render(): string {
         this.iteration += 1;
         const template = String.raw`
-     o
-    /'._
-  _.#.:_
- :$: ":$:   
-  ‾    ‾
+    o   
+   /'._ 
+ _.#.:_ 
+:$: ":$:
+ ‾    ‾
 `;
         const spokes = ["/", "-", "\\", "|"];
 
@@ -97,6 +97,7 @@ export class LoadingDialog {
     constructor() {
         this.root = document.createElement("dialog");
         this.animation = document.createElement("pre");
+        this.animation.style.textAlign = "center";
         const x = document.createElement("pre");
         x.textContent = "LOADING";
         this.root.append(this.animation, x);
@@ -108,7 +109,7 @@ export class LoadingDialog {
         let lastAnimationAt = Date.now();
         let animationTimer = Infinity;
         const step = () => {
-            if (this.progress >= 100) {
+            if (this.progress > 1) {
                 this.animationQueue.shift();
                 this.progress = 0;
                 animationTimer = Infinity;
@@ -123,7 +124,7 @@ export class LoadingDialog {
                 this.animation.textContent = this.animationQueue[0].render();
                 animationTimer = 0;
             }
-            this.progress += (delta / 1000) * 20;
+            this.progress += (delta / 1000) * 0.2;
         };
         step();
         setInterval(step);
@@ -144,5 +145,6 @@ export class LoadingDialog {
     }
     hide() {
         this.root.close();
+        this.animationQueue.splice(0, this.animationQueue.length);
     }
 }
