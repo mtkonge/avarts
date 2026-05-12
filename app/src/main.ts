@@ -59,4 +59,8 @@ async function main() {
     });
 }
 
-await main();
+await main().catch((error) => {
+    document.body.style =
+        "text-align: center; font-size: 3rem; margin-top: 2rem;";
+    document.body.textContent = error.toString();
+});
