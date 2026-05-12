@@ -49,6 +49,7 @@ export class GeoMap {
             zoom: 16,
         });
         map.dragPan.disable();
+        map.dragRotate.disable();
         return await new Promise((resolve) => {
             map.on("load", () => {
                 const geoMap = new GeoMap(geolocator, map, server);
@@ -113,7 +114,8 @@ export class GeoMap {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
         this.geolocator.on("update", (coords: Coords) => {
             this.marker.setLngLat(coordsToMapLibreCoords(coords));
-            this.marker.setRotation(coords.heading);
+            this.map.rotateTo(coords.heading ?? 0);
+            this.marker.setRotation(coords.heading ?? 0);
             this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
         });
     }
