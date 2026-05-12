@@ -14,10 +14,13 @@ type PermissionNameExt = "accelerometer" | "magnetometer" | "gyroscope";
 class WebApiCompass implements Compass {
     private eventListenerIdCounter = 0;
     private events = new Map<number, (heading: number) => void>();
+
     constructor(private lastKnownHeading: number) {
         addEventListener("deviceorientationabsolute", ({ alpha }) => {
             if (alpha !== null) {
-                this.lastKnownHeading = alpha;
+                this.lastKnownHeading = WebApiCompass.alphaToCardinalDegrees(
+                    alpha,
+                );
                 this.events.values().forEach((handler) =>
                     handler(this.lastKnownHeading)
                 );
@@ -43,7 +46,11 @@ class WebApiCompass implements Compass {
                     return;
                 }
                 removeEventListener("deviceorientationabsolute", functor);
-                resolve(new WebApiCompass(alpha));
+                resolve(
+                    new WebApiCompass(
+                        WebApiCompass.alphaToCardinalDegrees(alpha),
+                    ),
+                );
             };
             addEventListener("deviceorientationabsolute", functor);
         });
@@ -57,5 +64,9 @@ class WebApiCompass implements Compass {
         this.eventListenerIdCounter++;
         this.events.set(id, handler);
         return id;
+    }
+    // web api returns N=0, W=90, S=180, E=270, cardinal degrees is E=90, W=270
+    private static alphaToCardinalDegrees(heading: number) {
+        return Math.abs(heading - 360);
     }
 }
