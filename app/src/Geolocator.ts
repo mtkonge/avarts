@@ -1,7 +1,6 @@
 export type Coords = {
     latitude: number;
     longitude: number;
-    heading?: number;
 };
 
 export interface Geolocator {
@@ -25,21 +24,19 @@ class WebApiGeolocator implements Geolocator {
             this.lastKnownCoords = {
                 longitude: coords.longitude,
                 latitude: coords.latitude,
-                heading: coords.heading ?? this.lastKnownCoords.heading,
             };
             this.events.values().forEach((handler) =>
                 handler(this.lastKnownCoords)
             );
         });
     }
-    public static create(): Promise<Geolocator> {
-        return new Promise((resolve) => {
+    public static async create(): Promise<Geolocator> {
+        return await new Promise((resolve) => {
             navigator.geolocation.getCurrentPosition(({ coords }) => {
                 resolve(
                     new WebApiGeolocator({
                         latitude: coords.latitude,
                         longitude: coords.longitude,
-                        heading: coords.heading ?? undefined,
                     }),
                 );
             });

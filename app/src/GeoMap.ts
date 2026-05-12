@@ -2,6 +2,7 @@ import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Coords, Geolocator } from "./Geolocator.ts";
 import { Server } from "./Server.ts";
 import { AddRouteRequest, type RouteWithUserIdAndId } from "@avarts/shared";
+import { Compass } from "./Compass.ts";
 
 export function coordsToMapLibreCoords(
     coords: Coords,
@@ -29,17 +30,19 @@ export class GeoMap {
     private marker: maplibregl.Marker = userMarker();
     private constructor(
         private geolocator: Geolocator,
-        private map: maplibregl.Map,
+        private compass: Compass,
         private server: Server,
+        private map: maplibregl.Map,
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
             .addTo(map);
     }
 
-    public static async fromGeolocatorAndMap(
+    public static async create(
         geolocator: Geolocator,
-        mapContainer: HTMLElement,
+        compass: Compass,
         server: Server,
+        mapContainer: HTMLElement,
     ): Promise<GeoMap> {
         const coords = geolocator.coords();
         const map = new maplibregl.Map({
@@ -53,7 +56,7 @@ export class GeoMap {
         map.touchZoomRotate.disableRotation();
         return await new Promise((resolve) => {
             map.on("load", () => {
-                const geoMap = new GeoMap(geolocator, map, server);
+                const geoMap = new GeoMap(geolocator, compass, server, map);
                 geoMap.reloadRoutes();
                 resolve(geoMap);
             });
@@ -115,9 +118,11 @@ export class GeoMap {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
         this.geolocator.on("update", (coords: Coords) => {
             this.marker.setLngLat(coordsToMapLibreCoords(coords));
-            this.map.rotateTo(coords.heading ?? 0);
-            this.marker.setRotation(coords.heading ?? 0);
             this.map.easeTo({ center: coordsToMapLibreCoords(coords) });
+        });
+        this.compass.on("update", (heading: number) => {
+            this.map.rotateTo(heading);
+            this.marker.setRotation(heading);
         });
     }
 }

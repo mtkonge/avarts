@@ -19,7 +19,7 @@ async function main() {
         return;
     }
     const geolocator = await GeolocatorFactory.fromWebApi();
-    const map = await GeoMap.fromGeolocatorAndMap(
+    const map = await GeoMap.create(
         geolocator,
         document.getElementById("map")!,
         server,
