@@ -3,8 +3,11 @@ import { RouteRecorder } from "./RouteRecorder.ts";
 import { GeolocatorFactory } from "./Geolocator.ts";
 import { server } from "./utils.ts";
 import { AddRouteRequest } from "@avarts/shared";
+import { LoadingDialog } from "./loading.ts";
 
 async function main() {
+    const loading = new LoadingDialog();
+    loading.show();
     const token = localStorage.getItem("token");
     if (token === null) {
         location.href = "/login.html";
@@ -21,6 +24,7 @@ async function main() {
         document.getElementById("map")!,
         server,
     );
+    loading.hide();
     map.startMarker();
     const routeRecorder = new RouteRecorder(geolocator);
 

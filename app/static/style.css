@@ -9,17 +9,6 @@ body {
     flex: 1;
 }
 
-#map:empty {
-    &::after {
-        content: "loading geolocation data";
-        font-size: 4rem;
-        display: block;
-        text-align: center;
-        width: 100%;
-        margin-top: 20vh;
-    }
-}
-
 .centered {
     display: flex;
     justify-content: center;
@@ -37,4 +26,8 @@ body {
 
 #error {
     color: red;
+}
+
+.loading-dialog {
+    text-align: center;
 }

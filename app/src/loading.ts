@@ -50,12 +50,14 @@ class Runner implements Animation {
   o  
  :|: 
 .' : 
+
 `;
 
         const anim1 = String.raw`
   o  
 .'|.'
  :.' 
+
 `;
 
         const picked = [anim0, anim1][this.iteration % 2];
@@ -96,11 +98,9 @@ export class LoadingDialog {
 
     constructor() {
         this.root = document.createElement("dialog");
+        this.root.classList.add("loading-dialog");
         this.animation = document.createElement("pre");
-        this.animation.style.textAlign = "center";
-        const x = document.createElement("pre");
-        x.textContent = "LOADING";
-        this.root.append(this.animation, x);
+        this.root.append(this.animation);
         document.body.append(this.root);
         this.start();
     }
@@ -116,12 +116,14 @@ export class LoadingDialog {
             }
             if (this.animationQueue.length === 0) {
                 this.fillAnimationQueue();
+                animationTimer = Infinity;
             }
             const delta = Date.now() - lastAnimationAt;
             animationTimer += delta;
             lastAnimationAt = Date.now();
             if (animationTimer > this.animationQueue[0].interval()) {
-                this.animation.textContent = this.animationQueue[0].render();
+                this.animation.textContent = this.animationQueue[0].render() +
+                    "\nLOADING";
                 animationTimer = 0;
             }
             this.progress += (delta / 1000) * 0.2;
