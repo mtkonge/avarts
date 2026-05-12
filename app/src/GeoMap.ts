@@ -1,8 +1,12 @@
 import maplibregl, { LngLatLike } from "maplibre-gl";
-import { Coords, Geolocator } from "./Geolocator.ts";
+import { Geolocator } from "./Geolocator.ts";
 import { Server } from "./Server.ts";
-import { AddRouteRequest, type RouteWithUserIdAndId } from "@avarts/shared";
 import { Compass } from "./Compass.ts";
+import {
+    AddRouteRequest,
+    Coords,
+    type RouteWithUserIdAndId,
+} from "@avarts/shared";
 
 export function coordsToMapLibreCoords(
     coords: Coords,

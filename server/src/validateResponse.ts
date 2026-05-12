@@ -13,7 +13,8 @@ export function validateResponse<T extends ResponseBody | ResponseBodyFunction>(
 
         try {
             ctx.response.body = schema.parse(ctx.response.body);
-        } catch (_) {
+        } catch (err) {
+            console.error(err);
             ctx.response.status = 500;
             ctx.response.body = {
                 success: false,

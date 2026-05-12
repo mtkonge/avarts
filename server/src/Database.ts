@@ -2,6 +2,7 @@ import {
     Result as InnerResult,
     RouteWithUserId,
     RouteWithUserIdAndId,
+    Run,
     User,
     UserWithId,
 } from "@avarts/shared";
@@ -15,4 +16,5 @@ export interface Database {
     getUserById(id: number): Promise<Result<UserWithId>>;
     getUserByUsername(username: string): Promise<Result<UserWithId | null>>;
     addUser(user: User): Promise<Result<void>>;
+    addRun(run: Run, userId: number): Promise<Result<void>>;
 }

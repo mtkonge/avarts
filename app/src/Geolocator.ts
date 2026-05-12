@@ -1,7 +1,4 @@
-export type Coords = {
-    latitude: number;
-    longitude: number;
-};
+import { Coords } from "@avarts/shared";
 
 export interface Geolocator {
     coords(): Coords;

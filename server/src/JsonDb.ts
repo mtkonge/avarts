@@ -4,22 +4,27 @@ import {
     ok,
     RouteWithUserId,
     RouteWithUserIdAndId,
+    RunWithUserIdAndId,
     User,
     UserWithId,
 } from "@avarts/shared";
 import * as z from "zod";
 import * as fs from "@std/fs";
+import { Run } from "../../shared/Run.ts";
 
 const Routes = z.array(RouteWithUserIdAndId);
 type Routes = z.infer<typeof Routes>;
 const Users = z.array(UserWithId);
 type Users = z.infer<typeof Users>;
+const Runs = z.array(RunWithUserIdAndId);
+type Runs = z.infer<typeof Runs>;
 
 export class JsonDb implements Database {
     private static dataDir: string = "jsondb_data";
     private constructor(
         private routes: Routes,
         private users: Users,
+        private runs: Runs,
         private idCounter: number,
     ) {
     }
@@ -31,8 +36,9 @@ export class JsonDb implements Database {
         });
         const routes = await JsonDb.initRoutes();
         const users = await JsonDb.initUsers();
+        const runs = await JsonDb.initRuns();
         const idCounter = await JsonDb.initIdCounter();
-        return new JsonDb(routes, users, idCounter);
+        return new JsonDb(routes, users, runs, idCounter);
     }
 
     private static async initRoutes(): Promise<Routes> {
@@ -47,6 +53,13 @@ export class JsonDb implements Database {
             .catch(() => "[]")
             .then((x) => JSON.parse(x))
             .then((x) => Users.parse(x));
+    }
+
+    private static async initRuns() {
+        return await Deno.readTextFile(`${JsonDb.dataDir}/runs.json`)
+            .catch(() => "[]")
+            .then((x) => JSON.parse(x))
+            .then((x) => Runs.parse(x));
     }
 
     private static async initIdCounter(): Promise<number> {
@@ -64,6 +77,11 @@ export class JsonDb implements Database {
         await Deno.writeTextFile(
             `${JsonDb.dataDir}/users.json`,
             JSON.stringify(this.users),
+            { create: true },
+        );
+        await Deno.writeTextFile(
+            `${JsonDb.dataDir}/runs.json`,
+            JSON.stringify(this.runs),
             { create: true },
         );
         await Deno.writeTextFile(
@@ -117,5 +135,20 @@ export class JsonDb implements Database {
             return ok(null);
         }
         return await Promise.resolve(ok(structuredClone(user)));
+    }
+
+    async addRun(run: Run, userId: number): Promise<DbResult<void>> {
+        const id = this.nextId();
+        const user = await this.getUserById(userId);
+        const route = await this.getRouteById(run.routeId);
+        if (!user.ok) {
+            return err("user doesn't exist");
+        }
+        if (!route.ok) {
+            return err("route doesn't exist");
+        }
+        this.runs.push({ ...run, userId, id });
+        this.save();
+        return ok();
     }
 }

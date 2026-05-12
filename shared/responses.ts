@@ -50,3 +50,11 @@ export const RouteResponse = z.strictObject({
     success: z.literal(true),
     data: RouteWithUserIdAndId,
 }).or(GenericErrorResponse);
+
+export type RouteResponse = z.infer<typeof RouteResponse>;
+
+export const AddRunResponse = z.strictObject({
+    success: z.literal(true),
+}).or(GenericErrorResponse);
+
+export type AddRunResponse = z.infer<typeof AddRunResponse>;

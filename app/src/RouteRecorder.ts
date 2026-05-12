@@ -1,5 +1,5 @@
-import { type Route } from "@avarts/shared";
-import { Coords, Geolocator } from "./Geolocator.ts";
+import { Coords, type Route } from "@avarts/shared";
+import { Geolocator } from "./Geolocator.ts";
 
 export class RouteRecorder {
     private currentRecording: Coords[] = [];

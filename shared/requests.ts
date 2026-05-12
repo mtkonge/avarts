@@ -1,5 +1,6 @@
 import z from "zod";
 import { Route } from "./Route.ts";
+import { Run } from "./Run.ts";
 
 export const AddRouteRequest = z.strictObject({
     route: Route,
@@ -33,3 +34,10 @@ export const UserRequest = z.strictObject({
 });
 
 export type UserRequest = z.infer<typeof UserRequest>;
+
+export const AddRunRequest = z.strictObject({
+    token: z.string(),
+    run: Run,
+});
+
+export type AddRunRequest = z.infer<typeof AddRunRequest>;
