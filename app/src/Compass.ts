@@ -15,7 +15,7 @@ class WebApiCompass implements Compass {
     private eventListenerIdCounter = 0;
     private events = new Map<number, (heading: number) => void>();
     constructor(private lastKnownHeading: number) {
-        addEventListener("deviceorientation", ({ alpha }) => {
+        addEventListener("deviceorientationabsolute", ({ alpha }) => {
             if (alpha !== null) {
                 this.lastKnownHeading = alpha;
                 this.events.values().forEach((handler) =>
@@ -42,10 +42,10 @@ class WebApiCompass implements Compass {
                 if (alpha === null) {
                     return;
                 }
-                removeEventListener("deviceorientation", functor);
+                removeEventListener("deviceorientationabsolute", functor);
                 resolve(new WebApiCompass(alpha));
             };
-            addEventListener("deviceorientation", functor);
+            addEventListener("deviceorientationabsolute", functor);
         });
     }
     heading(): number {
