@@ -61,3 +61,9 @@
 - Automatically select dev/prod backend URL, host backend in cloud
 - Backend endpoints for adding routes
 - Toolbar design
+
+# 13/05
+
+- Fixed wrong geodata
+- Created a run recorder for recording runs and running records
+- Add frontend support for run endpoints
