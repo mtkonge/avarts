@@ -2,12 +2,12 @@ import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Geolocator } from "./Geolocator.ts";
 import { Server } from "./Server.ts";
 import { Compass } from "./Compass.ts";
-import {
+import type {
     AddRouteRequest,
     Coords,
-    Route,
-    type RouteWithUserIdAndId,
+    RouteWithUserIdAndId,
 } from "@avarts/shared";
+import { RunRecorder } from "./RunRecorder.ts";
 
 export function coordsToMapLibreCoords(
     coords: Coords,
@@ -29,18 +29,117 @@ function userMarker(): maplibregl.Marker {
     return new maplibregl.Marker({ element });
 }
 
+function routesToGeoJson(
+    ...routes: Coords[][]
+): GeoJSON.FeatureCollection {
+    const geojson = {
+        type: "FeatureCollection",
+        features: routes.map((coords) => ({
+            type: "Feature",
+            properties: {},
+            geometry: {
+                type: "LineString",
+                coordinates: coords.map(coordsToGeoJsonPosition),
+            },
+        })),
+    } satisfies GeoJSON.FeatureCollection;
+    return geojson;
+}
+
+const LineSource = {
+    routes: "routes",
+    runReached: "run-reached",
+    runNotReached: "run-not-reached",
+} as const;
+
+type LineSourceId = typeof LineSource[keyof typeof LineSource];
+
+class MapHelper {
+    constructor(
+        public readonly raw: maplibregl.Map,
+    ) {
+        this.addLayersAndSources();
+    }
+    private addLayersAndSources() {
+        function layer(
+            id: typeof LineSource[keyof typeof LineSource],
+            color: string,
+        ): maplibregl.LayerSpecification {
+            return {
+                id: `${id}-layer`,
+                type: "line",
+                source: `${id}`,
+                layout: {
+                    "line-join": "round",
+                    "line-cap": "round",
+                },
+                paint: {
+                    "line-color": color,
+                    "line-width": 4,
+                },
+            };
+        }
+
+        Object.values(LineSource).map((id) =>
+            this.raw.addSource(id, {
+                type: "geojson",
+                data: routesToGeoJson(),
+            })
+        );
+
+        [
+            layer(LineSource.routes, "#4444FF"),
+            layer(LineSource.runReached, "#4444FF"),
+            layer(LineSource.runNotReached, "#FF4444"),
+        ].map((x) => this.raw.addLayer(x));
+    }
+
+    lock() {
+        this.raw.dragPan.disable();
+        this.raw.dragRotate.disable();
+        this.raw.touchZoomRotate.disableRotation();
+    }
+    easeTo(coords: Coords) {
+        this.raw.easeTo({
+            animate: false,
+            center: coordsToMapLibreCoords(coords),
+        });
+    }
+    rotateTo(heading: number) {
+        this.raw.rotateTo(heading, {
+            animate: false,
+        });
+    }
+    setSource(id: LineSourceId, ...coords: Coords[][]) {
+        const source = this.raw.getSource<maplibregl.GeoJSONSource>(id);
+        if (source === undefined) throw new Error("contract broken");
+        source.setData(routesToGeoJson(...coords));
+    }
+    clearSource(id: LineSourceId) {
+        const source = this.raw.getSource<maplibregl.GeoJSONSource>(id);
+        if (source === undefined) throw new Error("contract broken");
+        source.setData(routesToGeoJson([]));
+    }
+    unlock() {
+        this.raw.dragPan.disable();
+        this.raw.dragRotate.disable();
+        this.raw.touchZoomRotate.disableRotation();
+    }
+}
+
 export class GeoMap {
     private routes: RouteWithUserIdAndId[] = [];
 
     private marker: maplibregl.Marker = userMarker();
+    private run: RunRecorder | null = null;
     private constructor(
         private geolocator: Geolocator,
         private compass: Compass,
         private server: Server,
-        private map: maplibregl.Map,
+        private map: MapHelper,
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
-            .addTo(map);
+            .addTo(map.raw);
     }
 
     public static async create(
@@ -58,12 +157,37 @@ export class GeoMap {
         });
         return await new Promise((resolve) => {
             map.on("load", () => {
-                const geoMap = new GeoMap(geolocator, compass, server, map);
+                const geoMap = new GeoMap(
+                    geolocator,
+                    compass,
+                    server,
+                    new MapHelper(map),
+                );
                 geoMap.reloadRoutes();
                 // geoMap.startRun();
                 resolve(geoMap);
             });
         });
+    }
+
+    private reloadRun() {
+        if (this.run === null) {
+            this.map.clearSource(LineSource.runReached);
+            this.map.clearSource(LineSource.runNotReached);
+            return;
+        }
+        const checkpointReached = this.run.checkpointIndex();
+        const route = this.routes.find((x) => x.id === this.run!.routeId());
+        if (!route) throw new Error("contract broken");
+
+        this.map.setSource(
+            LineSource.runReached,
+            route.coords.filter((_, i) => i < checkpointReached),
+        );
+        this.map.setSource(
+            LineSource.runNotReached,
+            route.coords.filter((_, i) => i >= checkpointReached),
+        );
     }
 
     private async reloadRoutes() {
@@ -73,70 +197,42 @@ export class GeoMap {
             return;
         }
         this.routes = routesResult.data;
+        this.map.setSource("routes", ...this.routes.map((x) => x.coords));
+    }
 
-        const geojson = {
-            type: "FeatureCollection",
-            features: this.routes.map((route) => ({
-                type: "Feature",
-                properties: {},
-                geometry: {
-                    type: "LineString",
-                    coordinates: route.coords.map(coordsToGeoJsonPosition),
-                },
-            })),
-        } satisfies GeoJSON.FeatureCollection;
-
-        const source = this.map.getSource("routes") as maplibregl.GeoJSONSource;
-
-        if (source) {
-            source.setData(geojson);
-            return;
-        }
-        this.map.addSource("routes", {
-            type: "geojson",
-            data: geojson,
-        });
-
-        this.map.addLayer({
-            id: "routes-layer",
-            type: "line",
-            source: "routes",
-            layout: {
-                "line-join": "round",
-                "line-cap": "round",
-            },
-            paint: {
-                "line-color": "#4444FF",
-                "line-width": 8,
-            },
+    private rotateWithCompass(): number {
+        return this.compass.addEvent("update", (heading: number) => {
+            this.map.rotateTo(heading);
         });
     }
 
-    private lockMap() {
-        this.map.dragPan.disable();
-        this.map.dragRotate.disable();
-        this.map.touchZoomRotate.disableRotation();
-    }
-
-    private rotateWithCompass() {
-        this.compass.on("update", (heading: number) => {
-            this.map.rotateTo(heading, { animate: false });
+    private followLocation(): number {
+        return this.geolocator.addEvent("update", (coords: Coords) => {
+            this.map.easeTo(coords);
         });
     }
 
-    private followLocation() {
-        this.geolocator.on("update", (coords: Coords) => {
-            this.map.easeTo({
-                center: coordsToMapLibreCoords(coords),
-                animate: false,
-            });
-        });
-    }
+    public startRun(route: RouteWithUserIdAndId) {
+        if (this.run !== null) throw new Error("contract broken");
+        this.map.lock();
+        this.run = RunRecorder.record(this.geolocator, route);
+        const compassEvent = this.rotateWithCompass();
+        const geolocatorEvent = this.followLocation();
 
-    public startRun(route: Route) {
-        this.lockMap();
-        this.rotateWithCompass();
-        this.followLocation();
+        this.reloadRun();
+        const interval = setInterval(() => {
+            if (this.run === null) throw new Error("contract broken");
+            this.reloadRun();
+            if (this.run.checkpointIndex() < route.coords.length) {
+                return;
+            }
+            const run = this.run.stop();
+            this.server.addRun({ token: "blablablablalba", run });
+            clearInterval(interval);
+            this.geolocator.removeEvent(geolocatorEvent);
+            this.compass.removeEvent(compassEvent);
+            this.run = null;
+        }, 500);
     }
 
     public async addRoute(request: AddRouteRequest) {
@@ -146,7 +242,7 @@ export class GeoMap {
 
     public startMarker() {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
-        this.geolocator.on("update", (coords: Coords) => {
+        this.geolocator.addEvent("update", (coords: Coords) => {
             this.marker.setLngLat(coordsToMapLibreCoords(coords));
         });
     }

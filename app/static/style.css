@@ -63,9 +63,16 @@ body {
     background-color: rgba(0, 0, 0, 0.1);
 
     button {
+        cursor: pointer;
         border: none;
         background-color: white;
         padding: 0.5rem 1rem;
         border-radius: 0.5rem;
+        &:hover {
+            opacity: 0.9;
+        }
+        &:active {
+            opacity: 0.8;
+        }
     }
 }

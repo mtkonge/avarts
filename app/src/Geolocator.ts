@@ -2,7 +2,8 @@ import { Coords } from "@avarts/shared";
 
 export interface Geolocator {
     coords(): Coords;
-    on(type: "update", handler: (coords: Coords) => void): number;
+    addEvent(type: "update", handler: (coords: Coords) => void): number;
+    removeEvent(id: number): void;
 }
 
 export class GeolocatorFactory {
@@ -43,10 +44,14 @@ class WebApiGeolocator implements Geolocator {
         return this.lastKnownCoords;
     }
 
-    on(_: "update", handler: (coords: Coords) => void): number {
+    addEvent(_: "update", handler: (coords: Coords) => void): number {
         const id = this.eventListenerIdCounter;
         this.eventListenerIdCounter++;
         this.events.set(id, handler);
         return id;
+    }
+
+    removeEvent(id: number): void {
+        this.events.delete(id);
     }
 }

@@ -67,3 +67,6 @@
 - Fixed wrong geodata
 - Created a run recorder for recording runs and running records
 - Add frontend support for run endpoints
+- Implement maplibregl abstraction
+- Implement run route functionality
+- Refactor existing code

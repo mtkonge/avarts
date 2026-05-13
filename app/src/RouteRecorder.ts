@@ -5,10 +5,16 @@ export class RouteRecorder {
     private currentRecording: Coords[] = [];
     private recordingLoopId: number | null = null;
 
-    constructor(private geolocator: Geolocator) {
+    private constructor(private geolocator: Geolocator) {
     }
 
-    public record() {
+    public static record(geolocator: Geolocator): RouteRecorder {
+        const recorder = new RouteRecorder(geolocator);
+        recorder.record();
+        return recorder;
+    }
+
+    private record() {
         this.currentRecording = [];
         this.recordingLoopId = setInterval(() => {
             const coords = this.geolocator.coords();

@@ -26,8 +26,12 @@ export class RunRecorder {
         return recorder;
     }
 
-    public progress(): number {
+    public checkpointIndex(): number {
         return currentCheckpointIndex(this.run, this.route);
+    }
+
+    public routeId(): RouteWithUserIdAndId["id"] {
+        return this.route.id;
     }
 
     private record() {

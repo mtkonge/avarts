@@ -1,6 +1,7 @@
 export interface Compass {
     heading(): number;
-    on(type: "update", handler: (heading: number) => void): number;
+    addEvent(type: "update", handler: (heading: number) => void): number;
+    removeEvent(id: number): void;
 }
 
 export class CompassFactory {
@@ -59,12 +60,17 @@ class WebApiCompass implements Compass {
         return this.lastKnownHeading;
     }
 
-    on(_: "update", handler: (heading: number) => void): number {
+    addEvent(_: "update", handler: (heading: number) => void): number {
         const id = this.eventListenerIdCounter;
         this.eventListenerIdCounter++;
         this.events.set(id, handler);
         return id;
     }
+
+    removeEvent(id: number): void {
+        this.events.delete(id);
+    }
+
     // web api returns N=0, W=90, S=180, E=270, cardinal degrees is E=90, W=270
     private static alphaToCardinalDegrees(heading: number) {
         return Math.abs(heading - 360);
