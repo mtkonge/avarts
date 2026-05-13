@@ -1,6 +1,8 @@
 import {
     AddRouteRequest,
     AddRouteResponse,
+    AddRunRequest,
+    AddRunResponse,
     err,
     LoginRequest,
     LoginResponse,
@@ -28,6 +30,7 @@ export interface Server {
     ): Promise<Result<string, string>>;
     logout(request: LogoutRequest): Promise<Result<void, string>>;
     user(request: UserRequest): Promise<Result<User | null, string>>;
+    addRun(request: AddRunRequest): Promise<Result<void, string>>;
 }
 
 export class HttpServer implements Server {
@@ -104,5 +107,14 @@ export class HttpServer implements Server {
             return err(body.error);
         }
         return ok(body.data);
+    }
+
+    async addRun(request: AddRunRequest): Promise<Result<void, string>> {
+        const body: AddRunResponse =
+            await (await this.postRequest(request, "/add-run")).json();
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok();
     }
 }

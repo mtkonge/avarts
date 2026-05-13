@@ -5,6 +5,7 @@ import { Compass } from "./Compass.ts";
 import {
     AddRouteRequest,
     Coords,
+    Route,
     type RouteWithUserIdAndId,
 } from "@avarts/shared";
 
@@ -55,13 +56,11 @@ export class GeoMap {
             center: coordsToMapLibreCoords(coords),
             zoom: 16,
         });
-        map.dragPan.disable();
-        map.dragRotate.disable();
-        map.touchZoomRotate.disableRotation();
         return await new Promise((resolve) => {
             map.on("load", () => {
                 const geoMap = new GeoMap(geolocator, compass, server, map);
                 geoMap.reloadRoutes();
+                // geoMap.startRun();
                 resolve(geoMap);
             });
         });
@@ -113,8 +112,35 @@ export class GeoMap {
         });
     }
 
-    public async addRoute(route: AddRouteRequest) {
-        await this.server.addRoute(route);
+    private lockMap() {
+        this.map.dragPan.disable();
+        this.map.dragRotate.disable();
+        this.map.touchZoomRotate.disableRotation();
+    }
+
+    private rotateWithCompass() {
+        this.compass.on("update", (heading: number) => {
+            this.map.rotateTo(heading, { animate: false });
+        });
+    }
+
+    private followLocation() {
+        this.geolocator.on("update", (coords: Coords) => {
+            this.map.easeTo({
+                center: coordsToMapLibreCoords(coords),
+                animate: false,
+            });
+        });
+    }
+
+    public startRun(route: Route) {
+        this.lockMap();
+        this.rotateWithCompass();
+        this.followLocation();
+    }
+
+    public async addRoute(request: AddRouteRequest) {
+        await this.server.addRoute(request);
         this.reloadRoutes();
     }
 
@@ -122,13 +148,6 @@ export class GeoMap {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()));
         this.geolocator.on("update", (coords: Coords) => {
             this.marker.setLngLat(coordsToMapLibreCoords(coords));
-            this.map.easeTo({
-                center: coordsToMapLibreCoords(coords),
-                animate: false,
-            });
-        });
-        this.compass.on("update", (heading: number) => {
-            this.map.rotateTo(heading, { animate: false });
         });
     }
 }

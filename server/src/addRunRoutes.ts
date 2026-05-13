@@ -4,7 +4,7 @@ import { Sessions } from "./Session.ts";
 import {
     AddRunRequest,
     AddRunResponse,
-    CheckpointsReachedForRunOnRoute,
+    currentCheckpointIndex,
 } from "@avarts/shared";
 import { validateResponse } from "./validateResponse.ts";
 
@@ -54,7 +54,7 @@ export function addRunRoutes(
             }
 
             if (
-                CheckpointsReachedForRunOnRoute(
+                currentCheckpointIndex(
                     parsedResult.data.run,
                     routeResult.data,
                 ) !== routeResult.data.coords.length

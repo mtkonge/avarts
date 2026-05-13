@@ -4,10 +4,11 @@ import type { Coords } from "./Coords.ts";
 
 export const Run = z.strictObject({
     routeId: z.number(),
-    timeInMilliseconds: z.number(),
+    startTime: z.number(),
     coords: z.strictObject({
         longitude: z.number(),
         latitude: z.number(),
+        startOffset: z.number(),
     }).array(),
 });
 
@@ -19,7 +20,7 @@ export const RunWithUserIdAndId = Run.extend({
 export type Run = z.infer<typeof Run>;
 export type RunWithUserIdAndId = z.infer<typeof RunWithUserIdAndId>;
 
-function distanceFromLineToPoint(
+export function distanceFromLineToPoint(
     from: Coords,
     to: Coords,
     point: Coords,
@@ -28,55 +29,56 @@ function distanceFromLineToPoint(
     Formular used
     https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
     */
-    return Math.abs(
-        (to.longitude - from.longitude) * point.latitude -
-            (to.latitude - from.latitude) * point.longitude +
-            to.latitude * from.longitude - to.longitude * from.latitude,
-    ) /
-        Math.sqrt(
-            Math.pow(to.longitude - from.longitude, 2) +
-                Math.pow(to.latitude - from.latitude, 2),
+    const over = Math.abs(
+        (to.latitude - from.latitude) * point.longitude -
+            (to.longitude - from.longitude) * point.latitude +
+            to.longitude * from.latitude - to.latitude * from.longitude,
+    );
+    const under = Math.sqrt(
+        Math.pow(to.latitude - from.latitude, 2) +
+            Math.pow(to.longitude - from.longitude, 2),
+    );
+    if (under === 0) {
+        return Math.sqrt(
+            (from.longitude - point.longitude) ** 2 +
+                (from.latitude - point.latitude) ** 2,
         );
+    }
+    return over / under;
 }
 
-function longitudeMetersToDegrees(meters: number, longitude: number): number {
-    const earthRadiusInMeters = 6378000;
-    const metersPerDegree = (Math.PI / 180) * earthRadiusInMeters *
-        Math.cos(longitude * Math.PI / 180);
-    return meters * metersPerDegree;
+export function latitudeMetersToDegrees(
+    meters: number,
+): number {
+    const metersInADegree = 111111;
+    return meters / metersInADegree;
 }
 
-export function CheckpointsReachedForRunOnRoute(
+export const checkpointRadius = latitudeMetersToDegrees(5);
+
+export function currentCheckpointIndex(
     run: Run,
     route: Route,
 ): number {
-    if (route.coords.length <= 1) {
-        throw new Error("Route should have more than 1 coordinate");
-    }
-    const checkpointsLeft = structuredClone(route.coords);
-    let currentLocation = checkpointsLeft.shift()!;
-    const checkpointRadius = longitudeMetersToDegrees(
-        5,
-        currentLocation.longitude,
-    );
-    for (let i = 0; i < run.coords.length; i++) {
-        while (true) {
-            if (
-                distanceFromLineToPoint(
-                    currentLocation,
-                    run.coords[i],
-                    checkpointsLeft[0],
-                ) >= checkpointRadius
-            ) {
-                break;
-            }
-
-            if (checkpointsLeft.shift() === undefined) {
-                return route.coords.length;
-            }
+    let checkpointIndex = 0;
+    let recordingIndex = 1;
+    while (true) {
+        if (recordingIndex >= run.coords.length) {
+            break;
         }
-        currentLocation = run.coords[i];
+        if (checkpointIndex >= route.coords.length) {
+            break;
+        }
+        const dist = distanceFromLineToPoint(
+            run.coords[recordingIndex - 1],
+            run.coords[recordingIndex],
+            route.coords[checkpointIndex],
+        );
+        if (dist <= checkpointRadius) {
+            checkpointIndex += 1;
+        } else {
+            recordingIndex += 1;
+        }
     }
-
-    return route.coords.length - checkpointsLeft.length;
+    return checkpointIndex;
 }
