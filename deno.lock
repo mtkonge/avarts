@@ -28,6 +28,7 @@
     "jsr:@std/streams@^1.1.0": "1.1.0",
     "jsr:@tajpouria/cors@^1.2.1": "1.2.1",
     "npm:bcryptjs@^3.0.3": "3.0.3",
+    "npm:common-tags@^1.8.2": "1.8.2",
     "npm:esbuild@0.20.2": "0.20.2",
     "npm:maplibre-gl@^5.24.0": "5.24.0",
     "npm:path-to-regexp@^6.3.0": "6.3.0",
@@ -323,6 +324,9 @@
       "integrity": "sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==",
       "bin": true
     },
+    "common-tags@1.8.2": {
+      "integrity": "sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA=="
+    },
     "earcut@3.0.2": {
       "integrity": "sha512-X7hshQbLyMJ/3RPhyObLARM2sNxxmRALLKx1+NVFFnQ9gKzmCrxm9+uLIAdBcvc8FNLpctqlQ2V6AE92Ol9UDQ=="
     },
@@ -439,6 +443,7 @@
         "dependencies": [
           "jsr:@luca/esbuild-deno-loader@~0.11.1",
           "jsr:@std/http@^1.1.0",
+          "npm:common-tags@^1.8.2",
           "npm:esbuild@0.20.2",
           "npm:maplibre-gl@^5.24.0",
           "npm:zod@^4.4.3"

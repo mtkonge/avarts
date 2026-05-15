@@ -2,11 +2,8 @@ import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Geolocator } from "./Geolocator.ts";
 import { Server } from "./Server.ts";
 import { Compass } from "./Compass.ts";
-import type {
-    AddRouteRequest,
-    Coords,
-    RouteWithUserIdAndId,
-} from "@avarts/shared";
+import { html } from "common-tags";
+import { AddRouteRequest, Coords, RouteWithUserIdAndId } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 
 export function coordsToMapLibreCoords(
@@ -30,16 +27,27 @@ function userMarker(): maplibregl.Marker {
 }
 
 function routesToGeoJson(
-    ...routes: Coords[][]
+    ...routes: RouteWithUserIdAndId[]
 ): GeoJSON.FeatureCollection {
     const geojson = {
         type: "FeatureCollection",
-        features: routes.map((coords) => ({
+        features: routes.map((route) => ({
             type: "Feature",
-            properties: {},
+            properties: {
+                "description": html`
+                    <div>
+                        <p>
+                            Nothing to see here
+                        </p>
+                        <button id="start-run-${route
+                            .id}-button">Start run</button>
+                    </div>
+                `,
+                "id": route.id,
+            },
             geometry: {
                 type: "LineString",
-                coordinates: coords.map(coordsToGeoJsonPosition),
+                coordinates: route.coords.map(coordsToGeoJsonPosition),
             },
         })),
     } satisfies GeoJSON.FeatureCollection;
@@ -75,7 +83,7 @@ class MapHelper {
                 },
                 paint: {
                     "line-color": color,
-                    "line-width": 4,
+                    "line-width": 8,
                 },
             };
         }
@@ -92,6 +100,34 @@ class MapHelper {
             layer(LineSource.runReached, "#4444FF"),
             layer(LineSource.runNotReached, "#FF4444"),
         ].map((x) => this.raw.addLayer(x));
+        this.addClickEventOnRouteLayer();
+    }
+
+    addClickEventOnRouteLayer() {
+        this.raw.on("click", "routes-layer", (event) => {
+            const firstFeature = event.features?.at(0);
+            if (firstFeature === undefined) {
+                return;
+            }
+            const coordinates = event.lngLat;
+            const description: string = firstFeature.properties.description;
+            const routeId: number = firstFeature.properties.id;
+
+            new maplibregl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(description)
+                .addTo(this.raw);
+
+            const startRunButton = document.getElementById(
+                `start-run-${routeId}-button`,
+            );
+            if (startRunButton === null) {
+                throw new Error("contract broken");
+            }
+            startRunButton.addEventListener("click", () => {
+                // TODO: Start run
+            });
+        });
     }
 
     lock() {
@@ -110,15 +146,18 @@ class MapHelper {
             animate: false,
         });
     }
-    setSource(id: LineSourceId, ...coords: Coords[][]) {
+    setSource(
+        id: LineSourceId,
+        ...routes: RouteWithUserIdAndId[]
+    ) {
         const source = this.raw.getSource<maplibregl.GeoJSONSource>(id);
         if (source === undefined) throw new Error("contract broken");
-        source.setData(routesToGeoJson(...coords));
+        source.setData(routesToGeoJson(...routes));
     }
     clearSource(id: LineSourceId) {
         const source = this.raw.getSource<maplibregl.GeoJSONSource>(id);
         if (source === undefined) throw new Error("contract broken");
-        source.setData(routesToGeoJson([]));
+        source.setData(routesToGeoJson());
     }
     unlock() {
         this.raw.dragPan.disable();
@@ -182,11 +221,19 @@ export class GeoMap {
 
         this.map.setSource(
             LineSource.runReached,
-            route.coords.filter((_, i) => i < checkpointReached),
+            {
+                coords: route.coords.filter((_, i) => i < checkpointReached),
+                userId: route.userId,
+                id: route.id,
+            },
         );
         this.map.setSource(
             LineSource.runNotReached,
-            route.coords.filter((_, i) => i >= checkpointReached),
+            {
+                coords: route.coords.filter((_, i) => i >= checkpointReached),
+                userId: route.userId,
+                id: route.id,
+            },
         );
     }
 
@@ -197,7 +244,11 @@ export class GeoMap {
             return;
         }
         this.routes = routesResult.data;
-        this.map.setSource("routes", ...this.routes.map((x) => x.coords));
+
+        this.map.setSource(
+            "routes",
+            ...this.routes,
+        );
     }
 
     private rotateWithCompass(): number {
