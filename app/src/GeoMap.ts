@@ -18,7 +18,7 @@ export function coordsToMapLibreCoords(
 export function coordsToGeoJsonPosition(
     coords: Coords,
 ): GeoJSON.Position {
-    return [coords.latitude, coords.longitude];
+    return [coords.longitude, coords.latitude];
 }
 
 function userMarker(): maplibregl.Marker {
