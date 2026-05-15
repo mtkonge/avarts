@@ -19,24 +19,34 @@ import {
     UserResponse,
 } from "@avarts/shared";
 
-export interface Server {
+export interface UnauthorizedServer {
     routes(): Promise<Result<RouteWithUserIdAndId[], string>>;
-    addRoute(request: AddRouteRequest): Promise<Result<void, string>>;
     register(
         request: RegisterRequest,
     ): Promise<Result<void, string>>;
     login(
         request: LoginRequest,
     ): Promise<Result<string, string>>;
-    logout(request: LogoutRequest): Promise<Result<void, string>>;
-    user(request: UserRequest): Promise<Result<User | null, string>>;
-    addRun(request: AddRunRequest): Promise<Result<void, string>>;
 }
 
-export class HttpServer implements Server {
-    constructor(private serverUrl: string) {}
+export interface AuthorizedServer extends UnauthorizedServer {
+    addRoute(
+        request: Forget<AddRouteRequest, "token">,
+    ): Promise<Result<void, string>>;
+    logout(
+        request: Forget<LogoutRequest, "token">,
+    ): Promise<Result<void, string>>;
+    user(
+        request: Forget<UserRequest, "token">,
+    ): Promise<Result<User | null, string>>;
+    addRun(
+        request: Forget<AddRunRequest, "token">,
+    ): Promise<Result<void, string>>;
+}
 
-    private async postRequest(data: object, route: string) {
+abstract class BaseHttpServer {
+    constructor(protected serverUrl: string) {}
+    protected async postRequest(data: object, route: string) {
         const body = JSON.stringify(data);
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
@@ -47,6 +57,13 @@ export class HttpServer implements Server {
             method,
         });
     }
+}
+
+export class UnauthorizedHttpServer extends BaseHttpServer
+    implements UnauthorizedServer {
+    constructor(serverUrl: string) {
+        super(serverUrl);
+    }
 
     async routes(): Promise<Result<RouteWithUserIdAndId[], string>> {
         const body: RoutesResponse =
@@ -56,15 +73,6 @@ export class HttpServer implements Server {
             return err(body.error);
         }
         return ok(body.data);
-    }
-
-    async addRoute(request: AddRouteRequest): Promise<Result<void, string>> {
-        const body: AddRouteResponse =
-            await (await this.postRequest(request, "/add-route")).json();
-        if (!body.success) {
-            return err(body.error);
-        }
-        return ok();
     }
 
     async register(
@@ -88,8 +96,32 @@ export class HttpServer implements Server {
         }
         return ok(body.token);
     }
+}
 
-    async logout(request: LogoutRequest): Promise<Result<void, string>> {
+type Forget<T, K extends keyof T> = Omit<T, K>;
+
+export class AuthorizedHttpServer extends UnauthorizedHttpServer
+    implements AuthorizedServer {
+    constructor(serverUrl: string, public token: string) {
+        super(serverUrl);
+    }
+
+    async addRoute(
+        request: Forget<AddRouteRequest, "token">,
+    ): Promise<Result<void, string>> {
+        const body: AddRouteResponse = await (await this.postRequest(
+            { token: this.token, ...request },
+            "/add-route",
+        )).json();
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok();
+    }
+
+    async logout(
+        request: Forget<LogoutRequest, "token">,
+    ): Promise<Result<void, string>> {
         const body: LogoutResponse =
             await (await this.postRequest(request, "/logout")).json();
         if (!body.success) {
@@ -98,7 +130,9 @@ export class HttpServer implements Server {
         return ok();
     }
 
-    async user(request: UserRequest): Promise<Result<User | null, string>> {
+    async user(
+        request: Forget<UserRequest, "token">,
+    ): Promise<Result<User | null, string>> {
         const body: UserResponse = await (await this.postRequest(
             request,
             "/user",
@@ -109,7 +143,9 @@ export class HttpServer implements Server {
         return ok(body.data);
     }
 
-    async addRun(request: AddRunRequest): Promise<Result<void, string>> {
+    async addRun(
+        request: Forget<AddRunRequest, "token">,
+    ): Promise<Result<void, string>> {
         const body: AddRunResponse =
             await (await this.postRequest(request, "/add-run")).json();
         if (!body.success) {

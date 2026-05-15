@@ -14,7 +14,7 @@ async function main() {
         location.href = "/login.html";
         return;
     }
-    const server = utils.server();
+    const server = utils.unauthorizedServer();
     const user = await server.user({ token });
     if (!user.ok || user.ok && user.data === null) {
         location.href = "/login.html";

@@ -1,6 +1,6 @@
 import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Geolocator } from "./Geolocator.ts";
-import { Server } from "./Server.ts";
+import { UnauthorizedServer } from "./Server.ts";
 import { Compass } from "./Compass.ts";
 import { html } from "common-tags";
 import { AddRouteRequest, Coords, RouteWithUserIdAndId } from "@avarts/shared";
@@ -174,7 +174,7 @@ export class GeoMap {
     private constructor(
         private geolocator: Geolocator,
         private compass: Compass,
-        private server: Server,
+        private server: UnauthorizedServer,
         private map: MapHelper,
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
@@ -184,7 +184,7 @@ export class GeoMap {
     public static async create(
         geolocator: Geolocator,
         compass: Compass,
-        server: Server,
+        server: UnauthorizedServer,
         mapContainer: HTMLElement,
     ): Promise<GeoMap> {
         const coords = geolocator.coords();

@@ -1,6 +1,6 @@
-import { HttpServer } from "./Server.ts";
+import { UnauthorizedHttpServer } from "./Server.ts";
 
-export function server() {
+export function unauthorizedServer() {
     let url;
     if (
         location.hostname === "localhost" || location.hostname === "127.0.0.1"
@@ -12,5 +12,5 @@ export function server() {
         throw new Error("unhandled case");
     }
 
-    return new HttpServer(url);
+    return new UnauthorizedHttpServer(url);
 }
