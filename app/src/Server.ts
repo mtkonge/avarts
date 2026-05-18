@@ -56,7 +56,7 @@ type Requests =
 abstract class BaseHttpServer {
     constructor(protected serverUrl: string) {}
     protected async postRequest(
-        data: Requests,
+        data: Requests | null,
         route: string,
     ) {
         const body = JSON.stringify(data);
@@ -79,7 +79,7 @@ export class UnauthorizedHttpServer extends BaseHttpServer
 
     async routes(): Promise<Result<RouteWithUserIdAndId[], string>> {
         const body: RoutesResponse =
-            await (await fetch(`${this.serverUrl}/routes`))
+            await (await this.postRequest(null, `${this.serverUrl}/routes`))
                 .json();
         if (!body.success) {
             return err(body.error);

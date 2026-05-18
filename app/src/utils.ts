@@ -24,14 +24,13 @@ export async function unauthorizedServer(): Promise<UnauthorizedServer> {
 export async function authorizedServer(): Promise<AuthorizedServer> {
     const token = localStorage.getItem("token");
     if (token === null) {
-        console.log(token);
-        // location.href = "/login.html";
-        throw new Error("unreachable - href set");
+        location.href = "/login.html";
+        throw new Error("unreachable - href set (no token)");
     }
     const server = new AuthorizedHttpServer(url(), token);
     const user = await server.user({});
     if (!user.ok || user.ok && user.data === null) {
-        // location.href = "/login.html";
+        location.href = "/login.html";
         throw new Error("unreachable - href set");
     }
     return server;

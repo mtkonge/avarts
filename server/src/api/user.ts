@@ -141,7 +141,15 @@ export function addUserRoutes(
                         assertUnreachable(result);
                 }
             }
-            return { body: { success: true, data: result.data.user } };
+            return {
+                body: {
+                    success: true,
+                    data: {
+                        id: result.data.user.id,
+                        username: result.data.user.username,
+                    },
+                },
+            };
         }),
     );
 }

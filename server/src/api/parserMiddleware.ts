@@ -28,7 +28,9 @@ export function parse<
             const body = responseSchema.parse(res.body);
             ctx.response.status = res.status ?? 200;
             ctx.response.body = body;
-        } catch (_) {
+        } catch (err) {
+            console.error(res.body);
+            console.error(err);
             ctx.response.status = 500;
             ctx.response.body = {
                 success: false,
