@@ -6,7 +6,7 @@ import {
     AddRunResponse,
     assertUnreachable,
 } from "@avarts/shared";
-import { check, Pmr } from "./parserMiddleware.ts";
+import { parse, Pmr } from "./parserMiddleware.ts";
 import * as beeswax from "../beeswax/mod.ts";
 
 export function addRunRoutes(
@@ -16,7 +16,7 @@ export function addRunRoutes(
 ) {
     router.post(
         "/add-run",
-        check(
+        parse(
             AddRunRequest,
             AddRunResponse,
             async (req): Pmr<AddRunResponse> => {

@@ -8,7 +8,7 @@ import {
     RouteResponse,
     RoutesResponse,
 } from "@avarts/shared";
-import { check, Pmr } from "./parserMiddleware.ts";
+import { parse, Pmr } from "./parserMiddleware.ts";
 import z from "zod";
 import * as beeswax from "../beeswax/mod.ts";
 
@@ -19,7 +19,7 @@ export function addRouteRoutes(
 ) {
     router.post(
         "/route",
-        check(
+        parse(
             z.strictObject({ id: z.number() }),
             RouteResponse,
             async (req): Pmr<RouteResponse> => {
@@ -55,7 +55,7 @@ export function addRouteRoutes(
 
     router.post(
         "/add-route",
-        check(
+        parse(
             AddRouteRequest,
             AddRouteResponse,
             async (req): Pmr<AddRouteResponse> => {
@@ -92,7 +92,7 @@ export function addRouteRoutes(
 
     router.post(
         "/routes",
-        check(
+        parse(
             z.any(),
             RoutesResponse,
             async (): Pmr<RoutesResponse> => {

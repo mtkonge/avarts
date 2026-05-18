@@ -13,10 +13,7 @@ import {
     UserRequest,
     UserResponse,
 } from "@avarts/shared";
-import {
-    check,
-    Pmr as Pmr,
-} from "./parserMiddleware.ts";
+import { parse, Pmr as Pmr } from "./parserMiddleware.ts";
 
 export function addUserRoutes(
     router: Router,
@@ -25,7 +22,7 @@ export function addUserRoutes(
 ) {
     router.post(
         "/login",
-        check(
+        parse(
             LoginRequest,
             LoginResponse,
             async (req): Pmr<LoginResponse> => {
@@ -56,7 +53,7 @@ export function addUserRoutes(
 
     router.post(
         "/logout",
-        check(
+        parse(
             LogoutRequest,
             LogoutResponse,
             async (req): Pmr<LogoutResponse> => {
@@ -84,7 +81,7 @@ export function addUserRoutes(
 
     router.post(
         "/register",
-        check(
+        parse(
             RegisterRequest,
             RegisterResponse,
             async (req): Pmr<RegisterResponse> => {
@@ -119,36 +116,32 @@ export function addUserRoutes(
 
     router.post(
         "/user",
-        check(
-            UserRequest,
-            UserResponse,
-            async (req): Pmr<UserResponse> => {
-                const result = await beeswax.userWithToken(
-                    req,
-                    database,
-                    sessions,
-                );
-                if (!result.ok) {
-                    switch (result.error) {
-                        case "bad_login":
-                            return {
-                                status: 400,
-                                body: {
-                                    success: false,
-                                    error: "invalid login",
-                                },
-                            };
-                        case "db_error":
-                            return {
-                                status: 500,
-                                body: { success: false, error: "db error" },
-                            };
-                        default:
-                            assertUnreachable(result);
-                    }
+        parse(UserRequest, UserResponse, async (req): Pmr<UserResponse> => {
+            const result = await beeswax.userWithToken(
+                req,
+                database,
+                sessions,
+            );
+            if (!result.ok) {
+                switch (result.error) {
+                    case "bad_login":
+                        return {
+                            status: 400,
+                            body: {
+                                success: false,
+                                error: "invalid login",
+                            },
+                        };
+                    case "db_error":
+                        return {
+                            status: 500,
+                            body: { success: false, error: "db error" },
+                        };
+                    default:
+                        assertUnreachable(result);
                 }
-                return { body: { success: true, data: result.data.user } };
-            },
-        ),
+            }
+            return { body: { success: true, data: result.data.user } };
+        }),
     );
 }
