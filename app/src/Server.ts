@@ -4,6 +4,7 @@ import {
     AddRunRequest,
     AddRunResponse,
     err,
+    Forget,
     LoginRequest,
     LoginResponse,
     LogoutRequest,
@@ -44,9 +45,20 @@ export interface AuthorizedServer extends UnauthorizedServer {
     ): Promise<Result<void, string>>;
 }
 
+type Requests =
+    | RegisterRequest
+    | LoginRequest
+    | AddRouteRequest
+    | LogoutRequest
+    | UserRequest
+    | AddRunRequest;
+
 abstract class BaseHttpServer {
     constructor(protected serverUrl: string) {}
-    protected async postRequest(data: object, route: string) {
+    protected async postRequest(
+        data: Requests,
+        route: string,
+    ) {
         const body = JSON.stringify(data);
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
@@ -98,11 +110,9 @@ export class UnauthorizedHttpServer extends BaseHttpServer
     }
 }
 
-type Forget<T, K extends keyof T> = Omit<T, K>;
-
 export class AuthorizedHttpServer extends UnauthorizedHttpServer
     implements AuthorizedServer {
-    constructor(serverUrl: string, public token: string) {
+    constructor(serverUrl: string, public readonly token: string) {
         super(serverUrl);
     }
 
@@ -122,8 +132,10 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
     async logout(
         request: Forget<LogoutRequest, "token">,
     ): Promise<Result<void, string>> {
-        const body: LogoutResponse =
-            await (await this.postRequest(request, "/logout")).json();
+        const body: LogoutResponse = await (await this.postRequest(
+            { token: this.token, ...request },
+            "/logout",
+        )).json();
         if (!body.success) {
             return err(body.error);
         }
@@ -134,7 +146,7 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
         request: Forget<UserRequest, "token">,
     ): Promise<Result<User | null, string>> {
         const body: UserResponse = await (await this.postRequest(
-            request,
+            { token: this.token, ...request },
             "/user",
         )).json();
         if (!body.success) {
@@ -146,8 +158,10 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
     async addRun(
         request: Forget<AddRunRequest, "token">,
     ): Promise<Result<void, string>> {
-        const body: AddRunResponse =
-            await (await this.postRequest(request, "/add-run")).json();
+        const body: AddRunResponse = await (await this.postRequest(
+            { token: this.token, ...request },
+            "/add-run",
+        )).json();
         if (!body.success) {
             return err(body.error);
         }

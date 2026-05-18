@@ -1,5 +1,3 @@
-import { err, ok, Result } from "@avarts/shared";
-
 export type Session = {
     userId: number;
     token: string;
@@ -30,13 +28,13 @@ export class Sessions {
         });
     }
 
-    userIdFromToken(token: string): Result<number, void> {
+    userIdFromToken(token: string): number | null {
         const sessionFound = this.sessions.find((session) => {
             return session.token === token;
         });
         if (!sessionFound) {
-            return err();
+            return null;
         }
-        return ok(sessionFound.userId);
+        return sessionFound.userId;
     }
 }

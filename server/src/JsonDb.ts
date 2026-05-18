@@ -4,17 +4,17 @@ import {
     ok,
     RouteWithUserId,
     RouteWithUserIdAndId,
+    Run,
     RunWithUserIdAndId,
-    User,
-    UserWithId,
+    UserWithPassword,
+    UserWithPasswordAndId,
 } from "@avarts/shared";
 import * as z from "zod";
 import * as fs from "@std/fs";
-import { Run } from "../../shared/Run.ts";
 
 const Routes = z.array(RouteWithUserIdAndId);
 type Routes = z.infer<typeof Routes>;
-const Users = z.array(UserWithId);
+const Users = z.array(UserWithPasswordAndId);
 type Users = z.infer<typeof Users>;
 const Runs = z.array(RunWithUserIdAndId);
 type Runs = z.infer<typeof Runs>;
@@ -95,10 +95,12 @@ export class JsonDb implements Database {
         return this.idCounter++;
     }
 
-    async getRouteById(id: number) {
+    async getRouteById(
+        id: number,
+    ): Promise<DbResult<RouteWithUserIdAndId | null>> {
         const route = this.routes.find((x) => x.id === id);
         if (!route) {
-            return err(`invalid id ${id}`);
+            return ok(null);
         }
         return await Promise.resolve(ok(structuredClone(route)));
     }
@@ -112,7 +114,7 @@ export class JsonDb implements Database {
         return await Promise.resolve(ok(structuredClone(this.routes)));
     }
 
-    async getUserById(id: number): Promise<DbResult<UserWithId>> {
+    async getUserById(id: number): Promise<DbResult<UserWithPasswordAndId>> {
         const user = this.users.find((x) => x.id === id);
         if (!user) {
             return err(`invalid id ${id}`);
@@ -120,7 +122,7 @@ export class JsonDb implements Database {
         return await Promise.resolve(ok(structuredClone(user)));
     }
 
-    async addUser(user: User): Promise<DbResult<void>> {
+    async addUser(user: UserWithPassword): Promise<DbResult<void>> {
         const id = this.nextId();
         this.users.push({ ...user, id });
         await this.save();
@@ -129,7 +131,7 @@ export class JsonDb implements Database {
 
     async getUserByUsername(
         username: string,
-    ): Promise<DbResult<UserWithId | null>> {
+    ): Promise<DbResult<UserWithPasswordAndId | null>> {
         const user = this.users.find((x) => x.username === username);
         if (!user) {
             return ok(null);

@@ -1,7 +1,7 @@
 import { Application } from "@oak/oak/application";
 import { Router } from "@oak/oak/router";
 import { oakCors } from "@tajpouria/cors";
-import { api } from "./api.ts";
+import { api } from "./api/mod.ts";
 import { JsonDb } from "./JsonDb.ts";
 import { Sessions } from "./Session.ts";
 
@@ -14,6 +14,9 @@ async function main() {
     app.use(oakCors());
     app.use(router.routes());
     app.use(router.allowedMethods());
+    app.addEventListener("listen", () => {
+        console.log("listening on :8200");
+    });
     await app.listen({ port: 8200 });
 }
 

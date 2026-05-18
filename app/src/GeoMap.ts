@@ -1,9 +1,14 @@
 import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Geolocator } from "./Geolocator.ts";
-import { UnauthorizedServer } from "./Server.ts";
+import { AuthorizedServer } from "./Server.ts";
 import { Compass } from "./Compass.ts";
 import { html } from "common-tags";
-import { AddRouteRequest, Coords, RouteWithUserIdAndId } from "@avarts/shared";
+import type {
+    AddRouteRequest,
+    Coords,
+    Forget,
+    RouteWithUserIdAndId,
+} from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 
 export function coordsToMapLibreCoords(
@@ -174,7 +179,7 @@ export class GeoMap {
     private constructor(
         private geolocator: Geolocator,
         private compass: Compass,
-        private server: UnauthorizedServer,
+        private server: AuthorizedServer,
         private map: MapHelper,
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
@@ -184,7 +189,7 @@ export class GeoMap {
     public static async create(
         geolocator: Geolocator,
         compass: Compass,
-        server: UnauthorizedServer,
+        server: AuthorizedServer,
         mapContainer: HTMLElement,
     ): Promise<GeoMap> {
         const coords = geolocator.coords();
@@ -278,7 +283,7 @@ export class GeoMap {
                 return;
             }
             const run = this.run.stop();
-            this.server.addRun({ token: "blablablablalba", run });
+            this.server.addRun({ run });
             clearInterval(interval);
             this.geolocator.removeEvent(geolocatorEvent);
             this.compass.removeEvent(compassEvent);
@@ -286,7 +291,7 @@ export class GeoMap {
         }, 500);
     }
 
-    public async addRoute(request: AddRouteRequest) {
+    public async addRoute(request: Forget<AddRouteRequest, "token">) {
         await this.server.addRoute(request);
         this.reloadRoutes();
     }

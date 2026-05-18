@@ -1,0 +1,123 @@
+import { Router } from "@oak/oak/router";
+import { Database } from "../Database.ts";
+import { Sessions } from "../Session.ts";
+import {
+    AddRouteRequest,
+    AddRouteResponse,
+    assertUnreachable,
+    RouteResponse,
+    RoutesResponse,
+} from "@avarts/shared";
+import { check, Pmr } from "./parserMiddleware.ts";
+import z from "zod";
+import * as beeswax from "../beeswax/mod.ts";
+
+export function addRouteRoutes(
+    router: Router,
+    database: Database,
+    sessions: Sessions,
+) {
+    router.post(
+        "/route",
+        check(
+            z.strictObject({ id: z.number() }),
+            RouteResponse,
+            async (req): Pmr<RouteResponse> => {
+                const result = await beeswax.routeWithId(
+                    req,
+                    database,
+                );
+                if (!result.ok) {
+                    switch (result.error) {
+                        case "bad_id":
+                            return {
+                                status: 404,
+                                body: { success: false, error: "not found" },
+                            };
+                        case "db_error":
+                            return {
+                                status: 500,
+                                body: {
+                                    success: false,
+                                    error: "db error",
+                                },
+                            };
+                        default:
+                            assertUnreachable(result);
+                    }
+                }
+                return {
+                    body: { success: true, data: result.data.route },
+                };
+            },
+        ),
+    );
+
+    router.post(
+        "/add-route",
+        check(
+            AddRouteRequest,
+            AddRouteResponse,
+            async (req): Pmr<AddRouteResponse> => {
+                const result = await beeswax.addRoute(
+                    req,
+                    database,
+                    sessions,
+                );
+                if (!result.ok) {
+                    switch (result.error) {
+                        case "bad_login":
+                            return {
+                                status: 400,
+                                body: { success: false, error: "bad login" },
+                            };
+                        case "db_error":
+                            return {
+                                status: 500,
+                                body: {
+                                    success: false,
+                                    error: "db error",
+                                },
+                            };
+                        default:
+                            assertUnreachable(result);
+                    }
+                }
+                return {
+                    body: { success: true },
+                };
+            },
+        ),
+    );
+
+    router.post(
+        "/routes",
+        check(
+            z.any(),
+            RoutesResponse,
+            async (): Pmr<RoutesResponse> => {
+                const result = await beeswax.allRoutes(database);
+
+                if (!result.ok) {
+                    switch (result.error) {
+                        case "db_error":
+                            return {
+                                status: 500,
+                                body: {
+                                    success: false,
+                                    error: "db error",
+                                },
+                            };
+                        default:
+                            assertUnreachable(result.error);
+                    }
+                }
+
+                return {
+                    status: 200,
+                    body: { success: true, data: result.data.routes },
+                };
+            },
+        ),
+    );
+}

@@ -2,24 +2,13 @@ import { GeoMap } from "./GeoMap.ts";
 import { RouteRecorder } from "./RouteRecorder.ts";
 import { GeolocatorFactory } from "./Geolocator.ts";
 import * as utils from "./utils.ts";
-import { AddRouteRequest } from "@avarts/shared";
 import { LoadingDialog } from "./loading.ts";
 import { CompassFactory } from "./Compass.ts";
 
 async function main() {
     const loading = new LoadingDialog();
     loading.show();
-    const token = localStorage.getItem("token");
-    if (token === null) {
-        location.href = "/login.html";
-        return;
-    }
-    const server = utils.unauthorizedServer();
-    const user = await server.user({ token });
-    if (!user.ok || user.ok && user.data === null) {
-        location.href = "/login.html";
-        return;
-    }
+    const server = await utils.authorizedServer();
     const compass = await CompassFactory.fromWebApi();
     const geolocator = await GeolocatorFactory.fromWebApi();
     const map = await GeoMap.create(
@@ -50,16 +39,10 @@ async function main() {
     finishRouteButton.addEventListener("click", async () => {
         createRouteButton.hidden = false;
         finishRouteButton.hidden = true;
-        const token = localStorage.getItem("token");
-        if (token === null) {
-            location.href = "/login.html";
-            return;
-        }
         if (routeRecorder === null) throw new Error("contract broken");
         const route = routeRecorder.stop();
         routeRecorder = null;
-        const addRouteRequest: AddRouteRequest = { route, token };
-        await map.addRoute(addRouteRequest);
+        await map.addRoute({ route });
     });
 
     startRunButton.addEventListener("click", () => {
