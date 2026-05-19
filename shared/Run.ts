@@ -20,7 +20,7 @@ export const RunWithUserIdAndId = Run.extend({
 export type Run = z.infer<typeof Run>;
 export type RunWithUserIdAndId = z.infer<typeof RunWithUserIdAndId>;
 
-export function distanceFromLineToPoint(
+function distanceFromLineToPoint(
     from: Coords,
     to: Coords,
     point: Coords,
@@ -47,14 +47,14 @@ export function distanceFromLineToPoint(
     return over / under;
 }
 
-export function latitudeMetersToDegrees(
+function latitudeMetersToDegrees(
     meters: number,
 ): number {
     const metersInADegree = 111111;
     return meters / metersInADegree;
 }
 
-export const checkpointRadius = latitudeMetersToDegrees(5);
+const checkpointRadius = latitudeMetersToDegrees(5);
 
 export function currentCheckpointIndex(
     run: Run,

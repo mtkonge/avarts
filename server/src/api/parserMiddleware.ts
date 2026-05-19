@@ -6,7 +6,7 @@ export type Pmr<Res> = Promise<{ body: Res; status?: number }>;
 type Handler<Req, Res> = (req: Req) => Pmr<Res>;
 
 export function parse<
-    RequestSchema extends z.ZodType<object>,
+    RequestSchema extends z.ZodType,
     ResponseSchema extends z.ZodType<object>,
 >(
     requestSchema: RequestSchema,

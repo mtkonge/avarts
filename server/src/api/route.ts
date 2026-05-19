@@ -93,7 +93,7 @@ export function addRouteRoutes(
     router.post(
         "/routes",
         parse(
-            z.any(),
+            z.null(),
             RoutesResponse,
             async (): Pmr<RoutesResponse> => {
                 const result = await beeswax.allRoutes(database);
