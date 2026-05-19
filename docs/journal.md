@@ -70,3 +70,11 @@
 - Implement maplibregl abstraction
 - Implement run route functionality
 - Refactor existing code
+
+# 18/05
+
+- Refactored server to abstract business logic from the httproutes
+
+# 19/05
+
+- Created UI for clicking on a route on the map
