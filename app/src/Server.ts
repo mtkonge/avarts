@@ -60,9 +60,11 @@ type Requests =
 
 abstract class BaseHttpServer {
     constructor(protected serverUrl: string) {
-        throw new Error(
-            `contract broken: ${this.serverUrl} ends with '/'`,
-        );
+        if (serverUrl.endsWith("/")) {
+            throw new Error(
+                `contract broken: ${this.serverUrl} ends with '/'`,
+            );
+        }
     }
     protected async postRequest<Res>(
         data: Requests | null,
