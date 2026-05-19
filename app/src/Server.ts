@@ -13,6 +13,8 @@ import {
     RegisterRequest,
     RegisterResponse,
     type Result,
+    RouteRequest,
+    RouteResponse,
     RoutesResponse,
     type RouteWithUserIdAndId,
     User,
@@ -22,6 +24,7 @@ import {
 
 export interface UnauthorizedServer {
     routes(): Promise<Result<RouteWithUserIdAndId[], string>>;
+    route(request: RouteRequest): Promise<Result<RouteWithUserIdAndId, string>>;
     register(
         request: RegisterRequest,
     ): Promise<Result<void, string>>;
@@ -51,7 +54,8 @@ type Requests =
     | AddRouteRequest
     | LogoutRequest
     | UserRequest
-    | AddRunRequest;
+    | AddRunRequest
+    | RouteRequest;
 
 abstract class BaseHttpServer {
     constructor(protected serverUrl: string) {}
@@ -76,10 +80,21 @@ export class UnauthorizedHttpServer extends BaseHttpServer
     constructor(serverUrl: string) {
         super(serverUrl);
     }
+    async route(
+        request: RouteRequest,
+    ): Promise<Result<RouteWithUserIdAndId, string>> {
+        const body: RouteResponse =
+            await (await this.postRequest(request, `/route`))
+                .json();
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok(body.data);
+    }
 
     async routes(): Promise<Result<RouteWithUserIdAndId[], string>> {
         const body: RoutesResponse =
-            await (await this.postRequest(null, `${this.serverUrl}/routes`))
+            await (await this.postRequest(null, `/routes`))
                 .json();
         if (!body.success) {
             return err(body.error);

@@ -30,8 +30,12 @@ export class RunRecorder {
         return currentCheckpointIndex(this.run, this.route);
     }
 
-    public routeId(): RouteWithUserIdAndId["id"] {
-        return this.route.id;
+    public routeId(): number {
+        console.assert(
+            typeof this.run.routeId === "number",
+            "run.routeId was not a number",
+        );
+        return this.run.routeId;
     }
 
     private record() {

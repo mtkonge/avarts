@@ -68,6 +68,9 @@ const LineSource = {
 type LineSourceId = typeof LineSource[keyof typeof LineSource];
 
 class MapHelper {
+    private startRun: (routeId: number) => Promise<void | null> = () => {
+        return Promise.resolve(null);
+    };
     constructor(
         public readonly raw: maplibregl.Map,
     ) {
@@ -108,6 +111,10 @@ class MapHelper {
         this.addClickEventOnRouteLayer();
     }
 
+    addStartRunFunction(startRun: (routeId: number) => Promise<void>) {
+        this.startRun = startRun;
+    }
+
     addClickEventOnRouteLayer() {
         this.raw.on("click", "routes-layer", (event) => {
             const firstFeature = event.features?.at(0);
@@ -127,10 +134,12 @@ class MapHelper {
                 `start-run-${routeId}-button`,
             );
             if (startRunButton === null) {
-                throw new Error("contract broken");
+                throw new Error("start-run-button id changed");
             }
-            startRunButton.addEventListener("click", () => {
-                // TODO: Start run
+            startRunButton.addEventListener("click", async () => {
+                if (await this.startRun(routeId) === null) {
+                    throw Error("start run function not defined");
+                }
             });
         });
     }
@@ -156,12 +165,16 @@ class MapHelper {
         ...routes: RouteWithUserIdAndId[]
     ) {
         const source = this.raw.getSource<maplibregl.GeoJSONSource>(id);
-        if (source === undefined) throw new Error("contract broken");
+        if (source === undefined) {
+            throw new Error(`Source with id '${id}' doesn't exist`);
+        }
         source.setData(routesToGeoJson(...routes));
     }
     clearSource(id: LineSourceId) {
         const source = this.raw.getSource<maplibregl.GeoJSONSource>(id);
-        if (source === undefined) throw new Error("contract broken");
+        if (source === undefined) {
+            throw new Error(`Source with id '${id}' doesn't exist`);
+        }
         source.setData(routesToGeoJson());
     }
     unlock() {
@@ -184,6 +197,14 @@ export class GeoMap {
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
             .addTo(map.raw);
+        this.map.addStartRunFunction(async (routeId: number) => {
+            const route = await server.route({ id: routeId });
+            if (!route.ok) {
+                console.error(route.error);
+                return;
+            }
+            this.startRun(route.data);
+        });
     }
 
     public static async create(
@@ -201,28 +222,33 @@ export class GeoMap {
         });
         return await new Promise((resolve) => {
             map.on("load", () => {
+                const mapHelper = new MapHelper(map);
                 const geoMap = new GeoMap(
                     geolocator,
                     compass,
                     server,
-                    new MapHelper(map),
+                    mapHelper,
                 );
                 geoMap.reloadRoutes();
-                // geoMap.startRun();
                 resolve(geoMap);
             });
         });
     }
 
     private reloadRun() {
-        if (this.run === null) {
+        const run = this.run;
+        if (run === null) {
             this.map.clearSource(LineSource.runReached);
             this.map.clearSource(LineSource.runNotReached);
             return;
         }
-        const checkpointReached = this.run.checkpointIndex();
-        const route = this.routes.find((x) => x.id === this.run!.routeId());
-        if (!route) throw new Error("contract broken");
+        const checkpointReached = run.checkpointIndex();
+        const route = this.routes.find((x) => x.id === run.routeId());
+        if (!route) {
+            throw new Error(
+                `route with id '${run.routeId()}' doesn't exist when reloading run`,
+            );
+        }
 
         this.map.setSource(
             LineSource.runReached,
@@ -269,7 +295,7 @@ export class GeoMap {
     }
 
     public startRun(route: RouteWithUserIdAndId) {
-        if (this.run !== null) throw new Error("contract broken");
+        if (this.run !== null) throw new Error("Run already exists");
         this.map.lock();
         this.run = RunRecorder.record(this.geolocator, route);
         const compassEvent = this.rotateWithCompass();
@@ -277,7 +303,7 @@ export class GeoMap {
 
         this.reloadRun();
         const interval = setInterval(() => {
-            if (this.run === null) throw new Error("contract broken");
+            if (this.run === null) throw new Error("Run doesn't exist");
             this.reloadRun();
             if (this.run.checkpointIndex() < route.coords.length) {
                 return;

@@ -41,3 +41,7 @@ export const AddRunRequest = z.strictObject({
 });
 
 export type AddRunRequest = z.infer<typeof AddRunRequest>;
+
+export const RouteRequest = z.strictObject({ id: z.number() });
+
+export type RouteRequest = z.infer<typeof RouteRequest>;
