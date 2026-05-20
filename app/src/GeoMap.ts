@@ -2,7 +2,7 @@ import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Geolocator } from "./Geolocator.ts";
 import { AuthorizedServer } from "./Server.ts";
 import { Compass } from "./Compass.ts";
-import { html } from "common-tags";
+import { html } from "./utils.ts";
 import type {
     AddRouteRequest,
     Coords,
@@ -166,14 +166,14 @@ class MapHelper {
     ) {
         const source = this.raw.getSource<maplibregl.GeoJSONSource>(id);
         if (source === undefined) {
-            throw new Error(`Source with id '${id}' doesn't exist`);
+            throw new Error(`source with id '${id}' doesn't exist`);
         }
         source.setData(routesToGeoJson(...routes));
     }
     clearSource(id: LineSourceId) {
         const source = this.raw.getSource<maplibregl.GeoJSONSource>(id);
         if (source === undefined) {
-            throw new Error(`Source with id '${id}' doesn't exist`);
+            throw new Error(`source with id '${id}' doesn't exist`);
         }
         source.setData(routesToGeoJson());
     }
@@ -295,7 +295,7 @@ export class GeoMap {
     }
 
     public startRun(route: RouteWithUserIdAndId) {
-        if (this.run !== null) throw new Error("Run already exists");
+        if (this.run !== null) throw new Error("run already exists");
         this.map.lock();
         this.run = RunRecorder.record(this.geolocator, route);
         const compassEvent = this.rotateWithCompass();
@@ -303,7 +303,7 @@ export class GeoMap {
 
         this.reloadRun();
         const interval = setInterval(() => {
-            if (this.run === null) throw new Error("Run doesn't exist");
+            if (this.run === null) throw new Error("run doesn't exist");
             this.reloadRun();
             if (this.run.checkpointIndex() < route.coords.length) {
                 return;

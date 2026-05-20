@@ -35,3 +35,6 @@ export async function authorizedServer(): Promise<AuthorizedServer> {
     }
     return server;
 }
+
+export const html = <T>(strings: TemplateStringsArray, ...values: T[]) =>
+    String.raw({ raw: strings }, ...values);

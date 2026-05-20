@@ -14,10 +14,8 @@
     "imports": {
         "@luca/esbuild-deno-loader": "jsr:@luca/esbuild-deno-loader@^0.11.1",
         "@std/http": "jsr:@std/http@^1.1.0",
-        "common-tags": "npm:common-tags@^1.8.2",
         "esbuild": "npm:esbuild@0.20.2",
         "maplibre-gl": "npm:maplibre-gl@^5.24.0",
         "zod": "npm:zod@^4.4.3"
     }
 }
-
