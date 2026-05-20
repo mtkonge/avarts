@@ -8,6 +8,7 @@ import type {
     Coords,
     Forget,
     RouteWithUserIdAndId,
+    Run,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 
@@ -68,6 +69,11 @@ const LineSource = {
 type LineSourceId = typeof LineSource[keyof typeof LineSource];
 
 class MapHelper {
+    private runInformation: (
+        routeId: number,
+    ) => Promise<{ runs: Run[] } | null> = () => {
+        return Promise.resolve(null);
+    };
     private startRun: (routeId: number) => Promise<void | null> = () => {
         return Promise.resolve(null);
     };
@@ -111,19 +117,36 @@ class MapHelper {
         this.addClickEventOnRouteLayer();
     }
 
-    addStartRunFunction(startRun: (routeId: number) => Promise<void>) {
-        this.startRun = startRun;
+    addLateFunctions(
+        x: {
+            startRun: (routeId: number) => Promise<void>;
+            runInformation: (routeId: number) => Promise<{ runs: Run[] }>;
+        },
+    ) {
+        this.startRun = x.startRun;
+        this.runInformation = x.runInformation;
     }
 
     addClickEventOnRouteLayer() {
-        this.raw.on("click", "routes-layer", (event) => {
+        this.raw.on("click", "routes-layer", async (event) => {
             const firstFeature = event.features?.at(0);
             if (firstFeature === undefined) {
                 return;
             }
             const coordinates = event.lngLat;
-            const description: string = firstFeature.properties.description;
             const routeId: number = firstFeature.properties.id;
+            const runInformation = await this.runInformation(routeId);
+            if (runInformation === null) {
+                throw Error("run information function not defined");
+            }
+            const description = html`
+                <div>
+                    <p>
+                        Runs recorded: ${runInformation.runs.length}
+                    </p>
+                    <button id="start-run-${routeId}-button">Start run</button>
+                </div>
+            `;
 
             new maplibregl.Popup()
                 .setLngLat(coordinates)
@@ -197,13 +220,25 @@ export class GeoMap {
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
             .addTo(map.raw);
-        this.map.addStartRunFunction(async (routeId: number) => {
-            const route = await server.route({ id: routeId });
-            if (!route.ok) {
-                console.error(route.error);
-                return;
-            }
-            this.startRun(route.data);
+        this.map.addLateFunctions({
+            startRun: async (routeId: number) => {
+                const route = await server.route({ id: routeId });
+                if (!route.ok) {
+                    console.error(route.error);
+                    return;
+                }
+                this.startRun(route.data);
+            },
+            runInformation: async (
+                routeId: number,
+            ) => {
+                const runs = await server.runsOnRoute({ routeId });
+                if (!runs.ok) {
+                    console.error(runs.error);
+                    return { runs: [] };
+                }
+                return { runs: runs.data };
+            },
         });
     }
 

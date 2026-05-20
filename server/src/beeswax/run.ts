@@ -1,4 +1,11 @@
-import { currentCheckpointIndex, err, ok, Result, Run } from "@avarts/shared";
+import {
+    currentCheckpointIndex,
+    err,
+    ok,
+    Result,
+    Run,
+    RunWithUserIdAndId,
+} from "@avarts/shared";
 import { Database } from "../Database.ts";
 import { Sessions } from "../Session.ts";
 
@@ -52,4 +59,22 @@ export async function addRun(
     }
 
     return ok();
+}
+
+type RunsOnRouteError = "db_error" | "bad_route";
+
+export async function runsOnRoute(
+    request: { routeId: number },
+    database: Database,
+): Promise<Result<RunWithUserIdAndId[], RunsOnRouteError>> {
+    const result = await database.runsOnRoute(
+        request.routeId,
+    );
+    if (!result.ok) {
+        return err("db_error");
+    }
+    if (result.data === null) {
+        return err("bad_route");
+    }
+    return ok(result.data);
 }

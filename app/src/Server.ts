@@ -15,8 +15,12 @@ import {
     type Result,
     RouteRequest,
     RouteResponse,
+    RoutesRequest,
     RoutesResponse,
     type RouteWithUserIdAndId,
+    RunsOnRouteRequest,
+    RunsOnRouteResponse,
+    RunWithUserIdAndId,
     User,
     UserRequest,
     UserResponse,
@@ -24,6 +28,9 @@ import {
 import z from "zod";
 
 export interface UnauthorizedServer {
+    runsOnRoute(
+        request: RunsOnRouteRequest,
+    ): Promise<Result<RunWithUserIdAndId[], string>>;
     routes(): Promise<Result<RouteWithUserIdAndId[], string>>;
     route(request: RouteRequest): Promise<Result<RouteWithUserIdAndId, string>>;
     register(
@@ -49,14 +56,22 @@ export interface AuthorizedServer extends UnauthorizedServer {
     ): Promise<Result<void, string>>;
 }
 
-type Requests =
-    | RegisterRequest
-    | LoginRequest
-    | AddRouteRequest
-    | LogoutRequest
-    | UserRequest
-    | AddRunRequest
-    | RouteRequest;
+const ReqResMap = {
+    "/register": { req: RegisterRequest, res: RegisterResponse },
+    "/login": { req: LoginRequest, res: LoginResponse },
+    "/add-route": { req: AddRouteRequest, res: AddRouteResponse },
+    "/logout": { req: LogoutRequest, res: LogoutResponse },
+    "/user": { req: UserRequest, res: UserResponse },
+    "/add-run": { req: AddRunRequest, res: AddRunResponse },
+    "/runs-on-route": { req: RunsOnRouteRequest, res: RunsOnRouteResponse },
+    "/route": { req: RouteRequest, res: RouteResponse },
+    "/routes": { req: RoutesRequest, res: RoutesResponse },
+} as const;
+
+type ReqResMap = typeof ReqResMap;
+type ApiRoutes = keyof ReqResMap;
+type Req<ApiRoute extends ApiRoutes> = z.infer<ReqResMap[ApiRoute]["req"]>;
+type Res<ApiRoute extends ApiRoutes> = z.infer<ReqResMap[ApiRoute]["res"]>;
 
 abstract class BaseHttpServer {
     constructor(protected serverUrl: string) {
@@ -66,11 +81,10 @@ abstract class BaseHttpServer {
             );
         }
     }
-    protected async postRequest<Res>(
-        data: Requests | null,
-        route: string,
-        response: z.ZodType<Res>,
-    ): Promise<Res> {
+    protected async postRequest<ApiRoute extends ApiRoutes>(
+        route: ApiRoute,
+        data: Req<ApiRoute>,
+    ): Promise<Res<ApiRoute>> {
         if (!route.startsWith("/")) {
             throw new Error(
                 `contract broken: ${route} does not start with '/'`,
@@ -86,7 +100,11 @@ abstract class BaseHttpServer {
             method,
         })
             .then((x) => x.json())
-            .then((x) => response.parse(x));
+            .then((x) => {
+                const y = ReqResMap[route].res.parse(x);
+                // TODO: pls fix :(
+                return y as Res<ApiRoute>;
+            });
     }
 }
 
@@ -95,10 +113,22 @@ export class UnauthorizedHttpServer extends BaseHttpServer
     constructor(serverUrl: string) {
         super(serverUrl);
     }
+    async runsOnRoute(
+        request: RunsOnRouteRequest,
+    ): Promise<Result<RunWithUserIdAndId[], string>> {
+        const body = await this.postRequest(
+            "/runs-on-route",
+            request,
+        );
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok(body.data);
+    }
     async route(
         request: RouteRequest,
     ): Promise<Result<RouteWithUserIdAndId, string>> {
-        const body = await this.postRequest(request, `/route`, RouteResponse);
+        const body = await this.postRequest("/route", request);
         if (!body.success) {
             return err(body.error);
         }
@@ -106,7 +136,7 @@ export class UnauthorizedHttpServer extends BaseHttpServer
     }
 
     async routes(): Promise<Result<RouteWithUserIdAndId[], string>> {
-        const body = await this.postRequest(null, `/routes`, RoutesResponse);
+        const body = await this.postRequest("/routes", null);
         if (!body.success) {
             return err(body.error);
         }
@@ -117,9 +147,8 @@ export class UnauthorizedHttpServer extends BaseHttpServer
         request: RegisterRequest,
     ): Promise<Result<void, string>> {
         const body = await this.postRequest(
-            request,
             "/register",
-            RegisterResponse,
+            request,
         );
         if (!body.success) {
             return err(body.error);
@@ -130,7 +159,7 @@ export class UnauthorizedHttpServer extends BaseHttpServer
     async login(
         request: LoginRequest,
     ): Promise<Result<string, string>> {
-        const body = await this.postRequest(request, "/login", LoginResponse);
+        const body = await this.postRequest("/login", request);
         if (!body.success) {
             return err(body.error);
         }
@@ -148,9 +177,8 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
         request: Forget<AddRouteRequest, "token">,
     ): Promise<Result<void, string>> {
         const body = await this.postRequest(
-            { token: this.token, ...request },
             "/add-route",
-            AddRouteResponse,
+            { token: this.token, ...request },
         );
         if (!body.success) {
             return err(body.error);
@@ -162,9 +190,8 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
         request: Forget<LogoutRequest, "token">,
     ): Promise<Result<void, string>> {
         const body = await this.postRequest(
-            { token: this.token, ...request },
             "/logout",
-            LogoutResponse,
+            { token: this.token, ...request },
         );
         if (!body.success) {
             return err(body.error);
@@ -176,9 +203,8 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
         request: Forget<UserRequest, "token">,
     ): Promise<Result<User | null, string>> {
         const body = await this.postRequest(
-            { token: this.token, ...request },
             "/user",
-            UserResponse,
+            { token: this.token, ...request },
         );
         if (!body.success) {
             return err(body.error);
@@ -190,9 +216,8 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
         request: Forget<AddRunRequest, "token">,
     ): Promise<Result<void, string>> {
         const body = await this.postRequest(
-            { token: this.token, ...request },
             "/add-run",
-            AddRunResponse,
+            { token: this.token, ...request },
         );
         if (!body.success) {
             return err(body.error);

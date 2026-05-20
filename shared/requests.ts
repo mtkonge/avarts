@@ -45,3 +45,11 @@ export type AddRunRequest = z.infer<typeof AddRunRequest>;
 export const RouteRequest = z.strictObject({ id: z.number() });
 
 export type RouteRequest = z.infer<typeof RouteRequest>;
+
+export const RoutesRequest = z.null();
+
+export type RoutesRequest = z.infer<typeof RouteRequest>;
+
+export const RunsOnRouteRequest = z.strictObject({ routeId: z.number() });
+
+export type RunsOnRouteRequest = z.infer<typeof RunsOnRouteRequest>;

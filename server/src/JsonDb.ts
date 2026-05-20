@@ -153,4 +153,14 @@ export class JsonDb implements Database {
         this.save();
         return ok();
     }
+
+    async runsOnRoute(
+        route: number,
+    ): Promise<DbResult<RunWithUserIdAndId[] | null>> {
+        const validRoute = this.routes.some((x) => x.id === route);
+        if (!validRoute) return ok(null);
+
+        const runs = this.runs.filter((x) => x.routeId === route);
+        return await Promise.resolve(ok(runs));
+    }
 }

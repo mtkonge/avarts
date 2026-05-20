@@ -1,6 +1,7 @@
 import z from "zod";
 import { UserWithId } from "./User.ts";
 import { RouteWithUserIdAndId } from "./Route.ts";
+import { RunWithUserIdAndId } from "@avarts/shared";
 
 const GenericErrorResponse = z.strictObject({
     success: z.literal(false),
@@ -58,3 +59,10 @@ export const AddRunResponse = z.strictObject({
 }).or(GenericErrorResponse);
 
 export type AddRunResponse = z.infer<typeof AddRunResponse>;
+
+export const RunsOnRouteResponse = z.strictObject({
+    success: z.literal(true),
+    data: z.array(RunWithUserIdAndId),
+}).or(GenericErrorResponse);
+
+export type RunsOnRouteResponse = z.infer<typeof RunsOnRouteResponse>;

@@ -5,11 +5,12 @@ import {
     AddRouteRequest,
     AddRouteResponse,
     assertUnreachable,
+    RouteRequest,
     RouteResponse,
+    RoutesRequest,
     RoutesResponse,
 } from "@avarts/shared";
 import { parse, Pmr } from "./parserMiddleware.ts";
-import z from "zod";
 import * as beeswax from "../beeswax/mod.ts";
 
 export function addRouteRoutes(
@@ -20,7 +21,7 @@ export function addRouteRoutes(
     router.post(
         "/route",
         parse(
-            z.strictObject({ id: z.number() }),
+            RouteRequest,
             RouteResponse,
             async (req): Pmr<RouteResponse> => {
                 const result = await beeswax.routeWithId(
@@ -93,7 +94,7 @@ export function addRouteRoutes(
     router.post(
         "/routes",
         parse(
-            z.null(),
+            RoutesRequest,
             RoutesResponse,
             async (): Pmr<RoutesResponse> => {
                 const result = await beeswax.allRoutes(database);

@@ -3,6 +3,7 @@ import {
     RouteWithUserId,
     RouteWithUserIdAndId,
     Run,
+    RunWithUserIdAndId,
     UserWithPassword,
     UserWithPasswordAndId,
 } from "@avarts/shared";
@@ -19,4 +20,5 @@ export interface Database {
     ): Promise<Result<UserWithPasswordAndId | null>>;
     addUser(user: UserWithPassword): Promise<Result<void>>;
     addRun(run: Run, userId: number): Promise<Result<void>>;
+    runsOnRoute(route: number): Promise<Result<RunWithUserIdAndId[] | null>>;
 }
