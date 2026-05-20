@@ -101,9 +101,7 @@ abstract class BaseHttpServer {
         })
             .then((x) => x.json())
             .then((x) => {
-                const y = ReqResMap[route].res.parse(x);
-                // TODO: pls fix :(
-                return y as Res<ApiRoute>;
+                return ReqResMap[route].res.parse(x) as Res<ApiRoute>;
             });
     }
 }
