@@ -48,7 +48,7 @@ export function addRouteRoutes(
                     }
                 }
                 return {
-                    body: { success: true, data: result.data.route },
+                    body: { success: true, route: result.data.route },
                 };
             },
         ),
@@ -116,7 +116,7 @@ export function addRouteRoutes(
 
                 return {
                     status: 200,
-                    body: { success: true, data: result.data.routes },
+                    body: { success: true, routes: result.data.routes },
                 };
             },
         ),

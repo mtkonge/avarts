@@ -121,7 +121,7 @@ export class UnauthorizedHttpServer extends BaseHttpServer
         if (!body.success) {
             return err(body.error);
         }
-        return ok(body.data);
+        return ok(body.runs);
     }
     async route(
         request: RouteRequest,
@@ -130,7 +130,7 @@ export class UnauthorizedHttpServer extends BaseHttpServer
         if (!body.success) {
             return err(body.error);
         }
-        return ok(body.data);
+        return ok(body.route);
     }
 
     async routes(): Promise<Result<RouteWithUserIdAndId[], string>> {
@@ -138,7 +138,7 @@ export class UnauthorizedHttpServer extends BaseHttpServer
         if (!body.success) {
             return err(body.error);
         }
-        return ok(body.data);
+        return ok(body.routes);
     }
 
     async register(

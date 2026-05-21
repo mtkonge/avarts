@@ -91,7 +91,7 @@ export function addRunRoutes(
                             assertUnreachable(result);
                     }
                 }
-                return { body: { success: true, data: result.data } };
+                return { body: { success: true, runs: result.data } };
             },
         ),
     );
