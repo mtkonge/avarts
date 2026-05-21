@@ -1,32 +1,21 @@
 import * as esbuild from "esbuild";
 import { denoPlugins } from "@luca/esbuild-deno-loader";
 
+async function build(path: string) {
+    await esbuild.build({
+        plugins: [...denoPlugins()],
+        entryPoints: [`./src/${path}.ts`],
+        outfile: `./dist/${path}.js`,
+        bundle: true,
+        format: "esm",
+    });
+}
+
 async function buildCode() {
-    await esbuild.build({
-        plugins: [...denoPlugins()],
-        entryPoints: ["./src/main.ts"],
-        outfile: "./dist/bundle.js",
-        bundle: true,
-        format: "esm",
-    });
-
-    await esbuild.build({
-        plugins: [...denoPlugins()],
-        entryPoints: ["./src/login.ts"],
-        outfile: "./dist/login.js",
-        bundle: true,
-        format: "esm",
-    });
-
-    await esbuild.build({
-        plugins: [...denoPlugins()],
-        entryPoints: ["./src/register.ts"],
-        outfile: "./dist/register.js",
-        bundle: true,
-        format: "esm",
-    });
-
-    esbuild.stop();
+    await build("main");
+    await build("login");
+    await build("register");
+    await esbuild.stop();
 }
 
 async function copyStatic(path: string[] = []) {
