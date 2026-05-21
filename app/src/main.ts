@@ -41,8 +41,10 @@ async function main() {
     });
 }
 
+const errors: string[] = [];
 await main().catch((error) => {
+    errors.push(error.toString());
     document.body.style =
-        "text-align: center; font-size: 3rem; margin-top: 2rem;";
-    document.body.textContent = error.toString();
+        "font-size: 1.25rem; margin-top: 2rem; white-space: pre; font-family: monospace;";
+    document.body.textContent = errors.join("\n\n");
 });
