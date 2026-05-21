@@ -16,10 +16,11 @@
         <button id="finish-route" hidden>Finish route</button>
     </div>
 
-    <div id="leaderboard-popup" hidden="true">
+    <dialog id="leaderboard-dialog" popover>
         <div id="leaderboard-wrapper">
             <div id="close-btn-wrapper">
-                <button id="close-leaderboard-btn" class="maplibregl-popup-close-button">
+                <button id="close-leaderboard-btn" popovertarget="leaderboard-dialog" popovertargetaction="hide"
+                    class="maplibregl-popup-close-button">
                     x
                 </button>
             </div>
@@ -30,22 +31,8 @@
                 Loading...
             </div>
         </div>
-    </div>
-    <script>
-        document.getElementById("close-btn-wrapper").addEventListener("click", () => {
-            document.getElementById("leaderboard-popup").hidden = true
-        })
-    </script>
+    </dialog>
     <script src="main.js" type="module"></script>
 </body>
-
-</html>
-</div>
-<script>
-    document.getElementById("close-btn-wrapper").addEventListener("click", () => {
-        document.getElementById("leaderboard-popup").hidden = true
-    })
-</script>
-<script src="main.js" type="module"></script>
 
 </html>

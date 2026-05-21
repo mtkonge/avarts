@@ -165,39 +165,37 @@ class MapHelper {
             });
             const leaderboardButton = document.getElementById(
                 `leaderboard-${routeId}-button`,
-            );
+            ) as HTMLButtonElement;
             if (leaderboardButton === null) {
                 throw new Error("leaderboard-button id changed");
             }
-            leaderboardButton.addEventListener("click", () => {
-                const leaderboardTitleElement = document.getElementById(
-                    "leaderboard-title",
-                );
+            const leaderboardDialog = document.getElementById(
+                "leaderboard-dialog",
+            );
+            if (leaderboardDialog === null) {
+                throw new Error("leaderboard-dialog id changed");
+            }
 
-                if (leaderboardTitleElement === null) {
-                    throw new Error("leaderboard-title id changed");
-                }
+            leaderboardButton.popoverTargetElement = leaderboardDialog;
 
-                const leaderboardContentElement = document.getElementById(
-                    "leaderboard-content",
-                );
+            const leaderboardTitleElement = document.getElementById(
+                "leaderboard-title",
+            );
 
-                if (leaderboardContentElement === null) {
-                    throw new Error("leaderboard-content id changed");
-                }
+            if (leaderboardTitleElement === null) {
+                throw new Error("leaderboard-title id changed");
+            }
 
-                const leaderboardPopup = document.getElementById(
-                    "leaderboard-popup",
-                );
-                if (leaderboardPopup === null) {
-                    throw new Error("leaderboard-popup id changed");
-                }
+            const leaderboardContentElement = document.getElementById(
+                "leaderboard-content",
+            );
 
-                leaderboardContentElement.innerText = runInformation.runs.length
-                    .toString();
-                leaderboardContentElement.innerText = "idk";
-                leaderboardPopup.hidden = false;
-            });
+            if (leaderboardContentElement === null) {
+                throw new Error("leaderboard-content id changed");
+            }
+
+            leaderboardContentElement.innerText = runInformation.runs.length
+                .toString();
         });
     }
 
