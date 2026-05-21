@@ -8,7 +8,7 @@ import type {
     Coords,
     Forget,
     RouteWithUserIdAndId,
-    Run,
+    RunWithUserIdAndId,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 
@@ -69,7 +69,7 @@ type LineSourceId = typeof LineSource[keyof typeof LineSource];
 class MapHelper {
     private runInformation: (
         routeId: number,
-    ) => Promise<{ runs: Run[] } | null> = () => {
+    ) => Promise<{ runs: RunWithUserIdAndId[] } | null> = () => {
         return Promise.resolve(null);
     };
     private startRun: (routeId: number) => Promise<void | null> = () => {
@@ -118,7 +118,9 @@ class MapHelper {
     addLateFunctions(
         x: {
             startRun: (routeId: number) => Promise<void>;
-            runInformation: (routeId: number) => Promise<{ runs: Run[] }>;
+            runInformation: (
+                routeId: number,
+            ) => Promise<{ runs: RunWithUserIdAndId[] }>;
         },
     ) {
         this.startRun = x.startRun;
@@ -193,9 +195,23 @@ class MapHelper {
             if (leaderboardContentElement === null) {
                 throw new Error("leaderboard-content id changed");
             }
+            leaderboardTitleElement.innerText =
+                "TODO/IDEA: Should a route have a name?";
+            if (runInformation.runs.length === 0) {
+                leaderboardContentElement.innerText =
+                    "No one has run route yet";
+            }
 
-            leaderboardContentElement.innerText = runInformation.runs.length
-                .toString();
+            leaderboardContentElement.innerText = runInformation.runs.toSorted((
+                a,
+                b,
+            ) => a.coords[a.coords.length - 1].startOffset -
+                b.coords[b.coords.length - 1].startOffset
+            ).map((run) =>
+                `user with id: ${run.userId} has time ${
+                    run.coords[run.coords.length - 1].startOffset
+                }`
+            ).join("\n");
         });
     }
 
