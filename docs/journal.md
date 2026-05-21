@@ -78,3 +78,14 @@
 # 19/05
 
 - Created UI for clicking on a route on the map
+
+# 20/05
+
+- Type safety in app.Server interface
+- Runs on route
+
+# 21/05
+
+- User from Id route
+- Profile page sketch
+- Refactor response types
