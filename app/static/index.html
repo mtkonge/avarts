@@ -1,22 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="/style.css">
-        <title>Avarts</title>
-        <link
-            href="https://unpkg.com/maplibre-gl@^5.24.0/dist/maplibre-gl.css"
-            rel="stylesheet"
-        />
-    </head>
 
-    <body>
-        <div id="map"></div>
-        <div id="toolbar">
-            <button id="create-route">Create route</button>
-            <button id="finish-route" hidden>Finish route</button>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css">
+    <title>Avarts</title>
+    <link href="https://unpkg.com/maplibre-gl@^5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="toolbar">
+        <button id="create-route">Create route</button>
+        <button id="finish-route" hidden>Finish route</button>
+    </div>
+
+    <div id="leaderboard-popup" hidden="true">
+        <div id="leaderboard-wrapper">
+            <div id="close-btn-wrapper">
+                <button id="close-leaderboard-btn" class="maplibregl-popup-close-button">
+                    x
+                </button>
+            </div>
+            <div id="leaderboard-title">
+                Loading...
+            </div>
+            <div id="leaderboard-content">
+                Loading...
+            </div>
         </div>
-        <script src="main.js" type="module"></script>
-    </body>
+    </div>
+    <script>
+        document.getElementById("close-btn-wrapper").addEventListener("click", () => {
+            document.getElementById("leaderboard-popup").hidden = true
+        })
+    </script>
+    <script src="bundle.js" type="module"></script>
+
+    <script src="main.js" type="module"></script>
+</body>
+
+</html>
+
+
+
 </html>

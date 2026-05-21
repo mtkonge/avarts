@@ -43,10 +43,8 @@ function routesToGeoJson(
                 "description": html`
                     <div>
                         <p>
-                            Nothing to see here
+                            Loading...
                         </p>
-                        <button id="start-run-${route
-                            .id}-button">Start run</button>
                     </div>
                 `,
                 "id": route.id,
@@ -145,6 +143,7 @@ class MapHelper {
                         Runs recorded: ${runInformation.runs.length}
                     </p>
                     <button id="start-run-${routeId}-button">Start run</button>
+                    <button id="leaderboard-${routeId}-button">Leaderboard</button>
                 </div>
             `;
 
@@ -163,6 +162,41 @@ class MapHelper {
                 if (await this.startRun(routeId) === null) {
                     throw Error("start run function not defined");
                 }
+            });
+            const leaderboardButton = document.getElementById(
+                `leaderboard-${routeId}-button`,
+            );
+            if (leaderboardButton === null) {
+                throw new Error("leaderboard-button id changed");
+            }
+            leaderboardButton.addEventListener("click", () => {
+                const leaderboardTitleElement = document.getElementById(
+                    "leaderboard-title",
+                );
+
+                if (leaderboardTitleElement === null) {
+                    throw new Error("leaderboard-title id changed");
+                }
+
+                const leaderboardContentElement = document.getElementById(
+                    "leaderboard-content",
+                );
+
+                if (leaderboardContentElement === null) {
+                    throw new Error("leaderboard-content id changed");
+                }
+
+                const leaderboardPopup = document.getElementById(
+                    "leaderboard-popup",
+                );
+                if (leaderboardPopup === null) {
+                    throw new Error("leaderboard-popup id changed");
+                }
+
+                leaderboardContentElement.innerText = runInformation.runs.length
+                    .toString();
+                leaderboardContentElement.innerText = "idk";
+                leaderboardPopup.hidden = false;
             });
         });
     }
