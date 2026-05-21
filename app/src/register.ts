@@ -26,7 +26,7 @@ async function main() {
             errorElement.textContent = result.error;
             return;
         }
-        location.href = "/login.html";
+        location.href = "/login/";
     });
 }
 

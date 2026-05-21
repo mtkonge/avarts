@@ -25,10 +25,6 @@ async function main() {
     const finishRouteButton = document.getElementById("finish-route")!;
 
     createRouteButton.addEventListener("click", () => {
-        if (localStorage.getItem("token") === null) {
-            location.href = "/login.html";
-            return;
-        }
         createRouteButton.hidden = true;
         finishRouteButton.hidden = false;
         if (routeRecorder !== null) throw new Error("contract broken");

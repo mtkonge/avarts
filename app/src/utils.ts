@@ -5,6 +5,11 @@ import {
     UnauthorizedServer,
 } from "./Server.ts";
 
+function redirectToLogin(): never {
+    location.href = "/login/";
+    throw new Error("unreachable - href set (no token)");
+}
+
 function url() {
     if (
         location.hostname === "localhost" || location.hostname === "127.0.0.1"
@@ -24,14 +29,12 @@ export async function unauthorizedServer(): Promise<UnauthorizedServer> {
 export async function authorizedServer(): Promise<AuthorizedServer> {
     const token = localStorage.getItem("token");
     if (token === null) {
-        location.href = "/login.html";
-        throw new Error("unreachable - href set (no token)");
+        redirectToLogin();
     }
     const server = new AuthorizedHttpServer(url(), token);
     const user = await server.user({});
     if (!user.ok || user.ok && user.data === null) {
-        location.href = "/login.html";
-        throw new Error("unreachable - href set");
+        redirectToLogin();
     }
     return server;
 }

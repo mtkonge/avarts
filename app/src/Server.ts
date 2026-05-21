@@ -22,12 +22,18 @@ import {
     RunsOnRouteResponse,
     RunWithUserIdAndId,
     User,
+    UserFromIdRequest,
+    UserFromIdResponse,
     UserRequest,
     UserResponse,
+    UserWithId,
 } from "@avarts/shared";
 import z from "zod";
 
 export interface UnauthorizedServer {
+    userFromId(
+        request: UserFromIdRequest,
+    ): Promise<Result<UserWithId, string>>;
     runsOnRoute(
         request: RunsOnRouteRequest,
     ): Promise<Result<RunWithUserIdAndId[], string>>;
@@ -57,6 +63,7 @@ export interface AuthorizedServer extends UnauthorizedServer {
 }
 
 const ReqResMap = {
+    "/user-from-id": { req: UserFromIdRequest, res: UserFromIdResponse },
     "/register": { req: RegisterRequest, res: RegisterResponse },
     "/login": { req: LoginRequest, res: LoginResponse },
     "/add-route": { req: AddRouteRequest, res: AddRouteResponse },
@@ -162,6 +169,15 @@ export class UnauthorizedHttpServer extends BaseHttpServer
             return err(body.error);
         }
         return ok(body.token);
+    }
+    async userFromId(
+        request: UserFromIdRequest,
+    ): Promise<Result<UserWithId, string>> {
+        const body = await this.postRequest("/user-from-id", request);
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok(body.user);
     }
 }
 
