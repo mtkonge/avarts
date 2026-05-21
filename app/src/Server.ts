@@ -223,7 +223,7 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
         if (!body.success) {
             return err(body.error);
         }
-        return ok(body.data);
+        return ok(body.user);
     }
 
     async addRun(
