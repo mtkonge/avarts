@@ -89,3 +89,5 @@
 - User from Id route
 - Profile page sketch
 - Refactor response types
+- Leaderboard button when on route popup
+- Created a dialog window with a leaderboard data
