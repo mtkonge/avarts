@@ -125,3 +125,28 @@ body {
     margin: 20px;
     width: 100%;
 }
+
+.split {
+    display: flex;
+    & > * {
+        flex: 1;
+    }
+    gap: 1rem;
+}
+
+.profile-time-list {
+    list-style: none;
+    padding-left: 0;
+
+    li {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        placement {
+            font-weight: bold;
+            font-size: 1.25em;
+        }
+        margin-bottom: 0.25rem;
+    }
+}
