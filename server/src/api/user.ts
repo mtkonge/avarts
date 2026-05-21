@@ -10,6 +10,8 @@ import {
     LogoutResponse,
     RegisterRequest,
     RegisterResponse,
+    UserFromIdRequest,
+    UserFromIdResponse,
     UserRequest,
     UserResponse,
 } from "@avarts/shared";
@@ -144,12 +146,54 @@ export function addUserRoutes(
             return {
                 body: {
                     success: true,
-                    data: {
+                    user: {
                         id: result.data.user.id,
                         username: result.data.user.username,
                     },
                 },
             };
         }),
+    );
+
+    router.post(
+        "/user-from-id",
+        parse(
+            UserFromIdRequest,
+            UserFromIdResponse,
+            async (req): Pmr<UserFromIdResponse> => {
+                const result = await beeswax.userWithId(
+                    req,
+                    database,
+                );
+                if (!result.ok) {
+                    switch (result.error) {
+                        case "bad_user":
+                            return {
+                                status: 400,
+                                body: {
+                                    success: false,
+                                    error: "invalid id",
+                                },
+                            };
+                        case "db_error":
+                            return {
+                                status: 500,
+                                body: { success: false, error: "db error" },
+                            };
+                        default:
+                            assertUnreachable(result);
+                    }
+                }
+                return {
+                    body: {
+                        success: true,
+                        user: {
+                            id: result.data.user.id,
+                            username: result.data.user.username,
+                        },
+                    },
+                };
+            },
+        ),
     );
 }

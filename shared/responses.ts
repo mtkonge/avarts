@@ -23,7 +23,7 @@ export const LogoutResponse = SuccessResponse.or(ErrorResponse);
 export type LogoutResponse = z.infer<typeof LogoutResponse>;
 
 export const UserResponse = SuccessResponse.extend({
-    data: UserWithId,
+    user: UserWithId,
 }).or(ErrorResponse);
 
 export type UserResponse = z.infer<typeof UserResponse>;

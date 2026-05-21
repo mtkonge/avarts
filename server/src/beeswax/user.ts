@@ -96,3 +96,19 @@ export async function userWithToken(
     }
     return ok({ user: userResult.data });
 }
+
+type UserWithIdError = "bad_user" | "db_error";
+
+export async function userWithId(
+    request: { id: number },
+    database: Database,
+): Promise<Result<{ user: UserWithId }, UserWithIdError>> {
+    const userResult = await database.getUserById(request.id);
+    if (!userResult.ok) {
+        return err("db_error");
+    }
+    if (userResult.data === null) {
+        return err("bad_user");
+    }
+    return ok({ user: userResult.data });
+}
