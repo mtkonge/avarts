@@ -10,7 +10,6 @@ import {
     Route,
     type RouteWithUserIdAndId,
     type RunWithUserIdAndId,
-    timeForRun,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 
@@ -71,7 +70,13 @@ type LineSourceId = typeof LineSource[keyof typeof LineSource];
 class MapHelper {
     private runInformation: (
         routeId: number,
-    ) => Promise<{ route: Route; runs: RunWithUserIdAndId[] } | null> = () => {
+    ) => Promise<
+        {
+            route: Route;
+            runs: RunWithUserIdAndId[];
+            users: { username: string; id: number }[];
+        } | null
+    > = () => {
         return Promise.resolve(null);
     };
     private startRun: (routeId: number) => Promise<void | null> = () => {
@@ -122,7 +127,13 @@ class MapHelper {
             startRun: (routeId: number) => Promise<void>;
             runInformation: (
                 routeId: number,
-            ) => Promise<{ route: Route; runs: RunWithUserIdAndId[] }>;
+            ) => Promise<
+                {
+                    route: Route;
+                    runs: RunWithUserIdAndId[];
+                    users: { username: string; id: number }[];
+                }
+            >;
         },
     ) {
         this.startRun = x.startRun;
@@ -201,7 +212,7 @@ class MapHelper {
                 "TODO/IDEA: Should a route have a name?";
             if (runInformation.runs.length === 0) {
                 leaderboardContentElement.innerText =
-                    "No one has run route yet";
+                    "No one has run the route yet";
             }
 
             const runsWithTimes = runInformation.runs.map((run) => {
@@ -211,11 +222,20 @@ class MapHelper {
                 };
             });
 
-            leaderboardContentElement.innerText = runsWithTimes
+            leaderboardContentElement.innerHTML = runsWithTimes
                 .toSorted((a, b) => a.time - b.time)
-                .map((run) =>
-                    `user with id: ${run.userId} has time ${formatMs(run.time)}`
-                ).join("\n");
+                .map((run) => {
+                    const userFound = runInformation.users.find((user) =>
+                        user.id === run.userId
+                    );
+                    if (userFound === undefined) {
+                        console.log("what");
+                        return null;
+                    }
+                    return html`
+                        <li>${userFound.username}: ${formatMs(run.time)}</li>
+                    `;
+                }).filter((line) => line !== null).join("\n");
         });
     }
 
@@ -288,13 +308,30 @@ export class GeoMap {
                 const runs = await server.runsOnRoute({ routeId });
                 if (!runs.ok) {
                     console.error(runs.error);
-                    return { runs: [], route: { coords: [] } };
+                    return { runs: [], route: { coords: [] }, users: [] };
                 }
                 if (!route.ok) {
                     console.error(route.error);
-                    return { runs: [], route: { coords: [] } };
+                    return { runs: [], route: { coords: [] }, users: [] };
                 }
-                return { runs: runs.data, route: route.data };
+                const distinctUserIds = [
+                    ...new Set(runs.data.map((run) => run.userId)),
+                ];
+                const distinctUsers = (await Promise.all(
+                    distinctUserIds.map(async (id) => {
+                        const user = await server.userFromId({ id });
+                        if (!user.ok) {
+                            console.error(user.error);
+                            return null;
+                        }
+                        return user.data;
+                    }),
+                )).filter((user) => user !== null);
+                return {
+                    runs: runs.data,
+                    route: route.data,
+                    users: distinctUsers,
+                };
             },
         });
     }
