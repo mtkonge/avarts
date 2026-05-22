@@ -1,6 +1,6 @@
-import { Router } from "@oak/oak/router";
-import { Database } from "../Database.ts";
-import { Sessions } from "../Session.ts";
+import type { Router } from "@oak/oak/router";
+import type { Database } from "../Database.ts";
+import type { Sessions } from "../Session.ts";
 import * as beeswax from "../beeswax/mod.ts";
 import {
     assertUnreachable,
@@ -15,7 +15,7 @@ import {
     UserRequest,
     UserResponse,
 } from "@avarts/shared";
-import { parse, Pmr as Pmr } from "./parserMiddleware.ts";
+import { parse, type Pmr as Pmr } from "./parserMiddleware.ts";
 
 export function addUserRoutes(
     router: Router,

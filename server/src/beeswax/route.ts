@@ -1,6 +1,6 @@
-import { err, ok, Result, Route, RouteWithUserIdAndId } from "@avarts/shared";
-import { Database } from "../Database.ts";
-import { Sessions } from "../Session.ts";
+import { err, ok, type Result, type Route, type RouteWithUserIdAndId } from "@avarts/shared";
+import type { Database } from "../Database.ts";
+import type { Sessions } from "../Session.ts";
 
 type AllRoutesError = "db_error";
 

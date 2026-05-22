@@ -1,15 +1,15 @@
-import maplibregl, { LngLatLike } from "maplibre-gl";
-import { Geolocator } from "./Geolocator.ts";
-import { AuthorizedServer } from "./Server.ts";
-import { Compass } from "./Compass.ts";
+import maplibregl, { type LngLatLike } from "maplibre-gl";
+import type { Geolocator } from "./Geolocator.ts";
+import type { AuthorizedServer } from "./Server.ts";
+import type { Compass } from "./Compass.ts";
 import { formatMs, html } from "./utils.ts";
-import {
-    type AddRouteRequest,
-    type Coords,
-    type Forget,
+import type {
+    AddRouteRequest,
+    Coords,
+    Forget,
     Route,
-    type RouteWithUserIdAndId,
-    type RunWithUserIdAndId,
+    RouteWithUserIdAndId,
+    RunWithUserIdAndId,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 

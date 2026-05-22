@@ -1,4 +1,4 @@
-import {
+import type {
     Result as InnerResult,
     RouteWithUserId,
     RouteWithUserIdAndId,

@@ -2,11 +2,11 @@ import type { Database, Result as DbResult } from "./Database.ts";
 import {
     err,
     ok,
-    RouteWithUserId,
+    type RouteWithUserId,
     RouteWithUserIdAndId,
-    Run,
+    type Run,
     RunWithUserIdAndId,
-    UserWithPassword,
+    type UserWithPassword,
     UserWithPasswordAndId,
 } from "@avarts/shared";
 import * as z from "zod";

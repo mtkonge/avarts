@@ -4,7 +4,7 @@ import {
     AddRunRequest,
     AddRunResponse,
     err,
-    Forget,
+    type Forget,
     LoginRequest,
     LoginResponse,
     LogoutRequest,
@@ -20,14 +20,14 @@ import {
     type RouteWithUserIdAndId,
     RunsOnRouteRequest,
     RunsOnRouteResponse,
-    RunWithUserIdAndId,
+    type RunWithUserIdAndId,
     UserFromIdRequest,
     UserFromIdResponse,
     UserRequest,
     UserResponse,
-    UserWithId,
+    type UserWithId,
 } from "@avarts/shared";
-import z from "zod";
+import type z from "zod";
 
 export interface UnauthorizedServer {
     userFromId(

@@ -1,13 +1,13 @@
 import {
     err,
     ok,
-    Result,
-    Run,
-    RunWithUserIdAndId,
+    type Result,
+    type Run,
+    type RunWithUserIdAndId,
     targetCheckpointIndex,
 } from "@avarts/shared";
-import { Database } from "../Database.ts";
-import { Sessions } from "../Session.ts";
+import type { Database } from "../Database.ts";
+import type { Sessions } from "../Session.ts";
 
 type AddRunError = "bad_login" | "db_error" | "bad_route" | "unfinished_run";
 

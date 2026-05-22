@@ -1,6 +1,6 @@
-import { Router } from "@oak/oak/router";
-import { Database } from "../Database.ts";
-import { Sessions } from "../Session.ts";
+import type { Router } from "@oak/oak/router";
+import type { Database } from "../Database.ts";
+import type { Sessions } from "../Session.ts";
 import {
     AddRunRequest,
     AddRunResponse,
@@ -8,7 +8,7 @@ import {
     RunsOnRouteRequest,
     RunsOnRouteResponse,
 } from "@avarts/shared";
-import { parse, Pmr } from "./parserMiddleware.ts";
+import { parse, type Pmr } from "./parserMiddleware.ts";
 import * as beeswax from "../beeswax/mod.ts";
 
 export function addRunRoutes(

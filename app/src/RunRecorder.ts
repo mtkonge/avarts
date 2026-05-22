@@ -1,9 +1,9 @@
 import {
-    RouteWithUserIdAndId,
-    Run,
+    type RouteWithUserIdAndId,
+    type Run,
     targetCheckpointIndex,
 } from "@avarts/shared";
-import { Geolocator } from "./Geolocator.ts";
+import type { Geolocator } from "./Geolocator.ts";
 
 export class RunRecorder {
     private run: Run;

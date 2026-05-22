@@ -1,8 +1,8 @@
 import {
     AuthorizedHttpServer,
-    AuthorizedServer,
+    type AuthorizedServer,
     UnauthorizedHttpServer,
-    UnauthorizedServer,
+    type UnauthorizedServer,
 } from "./Server.ts";
 
 function redirectToLogin(): never {

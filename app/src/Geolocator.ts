@@ -1,4 +1,4 @@
-import { Coords } from "@avarts/shared";
+import type { Coords } from "@avarts/shared";
 
 export interface Geolocator {
     coords(): Coords;

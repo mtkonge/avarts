@@ -1,5 +1,5 @@
-import { RouterContext } from "@oak/oak/router";
-import z from "zod";
+import type { RouterContext } from "@oak/oak/router";
+import type z from "zod";
 
 export type Pmr<Res> = Promise<{ body: Res; status?: number }>;
 

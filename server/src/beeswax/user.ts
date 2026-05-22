@@ -1,6 +1,6 @@
-import { err, ok, Result, UserWithId } from "@avarts/shared";
-import { Database } from "../Database.ts";
-import { Sessions } from "../Session.ts";
+import { err, ok, type Result, type UserWithId } from "@avarts/shared";
+import type { Database } from "../Database.ts";
+import type { Sessions } from "../Session.ts";
 import bcrypt from "bcryptjs";
 
 type LoginError = "db_error" | "bad_login";
