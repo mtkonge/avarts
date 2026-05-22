@@ -207,7 +207,7 @@ class MapHelper {
             const runsWithTimes = runInformation.runs.map((run) => {
                 return {
                     ...run,
-                    time: timeForRun(run, runInformation.route),
+                    time: run.coords[run.coords.length - 1].startOffset,
                 };
             });
 
