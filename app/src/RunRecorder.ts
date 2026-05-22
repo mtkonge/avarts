@@ -1,7 +1,7 @@
 import {
-    currentCheckpointIndex,
     RouteWithUserIdAndId,
     Run,
+    targetCheckpointIndex,
 } from "@avarts/shared";
 import { Geolocator } from "./Geolocator.ts";
 
@@ -27,7 +27,7 @@ export class RunRecorder {
     }
 
     public checkpointIndex(): number {
-        return currentCheckpointIndex(this.run, this.route);
+        return targetCheckpointIndex(this.run, this.route);
     }
 
     public routeId(): number {

@@ -109,7 +109,7 @@ function latitudeMetersToDegrees(
 
 const checkpointRadius = latitudeMetersToDegrees(5);
 
-export function currentCheckpointIndex(
+export function targetCheckpointIndex(
     run: Run,
     route: Route,
 ): number {
@@ -134,6 +134,33 @@ export function currentCheckpointIndex(
         }
     }
     return checkpointIndex;
+}
+
+export function timeForRun(
+    finishedRun: Run,
+    route: Route,
+): number {
+    const run = structuredClone(finishedRun);
+    const coords = run.coords.splice(1, Infinity);
+    let startOffset = null;
+    let endOffset = null;
+    while (true) {
+        const newest = coords.shift();
+        if (newest === undefined) break;
+        run.coords.push(newest);
+        const targetCheckpoint = targetCheckpointIndex(run, route);
+        if (targetCheckpoint > 0 && startOffset === null) {
+            startOffset = newest.startOffset;
+        }
+        if (targetCheckpoint === route.coords.length && endOffset === null) {
+            endOffset = newest.startOffset;
+            break;
+        }
+    }
+    if (startOffset === null || endOffset === null) {
+        throw new Error("contract broken: given unfinished run");
+    }
+    return endOffset - startOffset;
 }
 
 if (import.meta.main) {
@@ -165,7 +192,7 @@ if (import.meta.main) {
             { "latitude": 56.4654575, "longitude": 9.4114779 },
         ];
         function statusOfRun(run: Run) {
-            const index = currentCheckpointIndex(run, { coords });
+            const index = targetCheckpointIndex(run, { coords });
             console.log(`index=${index}`);
         }
         const run = {

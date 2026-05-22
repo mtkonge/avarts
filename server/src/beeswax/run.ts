@@ -1,10 +1,10 @@
 import {
-    currentCheckpointIndex,
     err,
     ok,
     Result,
     Run,
     RunWithUserIdAndId,
+    targetCheckpointIndex,
 } from "@avarts/shared";
 import { Database } from "../Database.ts";
 import { Sessions } from "../Session.ts";
@@ -41,7 +41,7 @@ export async function addRun(
     }
 
     if (
-        currentCheckpointIndex(
+        targetCheckpointIndex(
             request.run,
             routeResult.data,
         ) !== routeResult.data.coords.length
