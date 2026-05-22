@@ -91,3 +91,8 @@
 - Refactor response types
 - Leaderboard button when on route popup
 - Created a dialog window with a leaderboard data
+
+# 22/05
+
+- Profile page implementation (top runs, recent runs, accurate time and
+  placement)
