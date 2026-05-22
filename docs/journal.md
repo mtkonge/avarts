@@ -96,3 +96,4 @@
 
 - Profile page implementation (top runs, recent runs, accurate time and
   placement)
+- changed leaderboard to use username instead of id
