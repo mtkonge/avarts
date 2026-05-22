@@ -2,13 +2,15 @@ import maplibregl, { LngLatLike } from "maplibre-gl";
 import { Geolocator } from "./Geolocator.ts";
 import { AuthorizedServer } from "./Server.ts";
 import { Compass } from "./Compass.ts";
-import { html } from "./utils.ts";
-import type {
-    AddRouteRequest,
-    Coords,
-    Forget,
-    RouteWithUserIdAndId,
-    RunWithUserIdAndId,
+import { formatMs, html } from "./utils.ts";
+import {
+    type AddRouteRequest,
+    type Coords,
+    type Forget,
+    Route,
+    type RouteWithUserIdAndId,
+    type RunWithUserIdAndId,
+    timeForRun,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 
@@ -69,7 +71,7 @@ type LineSourceId = typeof LineSource[keyof typeof LineSource];
 class MapHelper {
     private runInformation: (
         routeId: number,
-    ) => Promise<{ runs: RunWithUserIdAndId[] } | null> = () => {
+    ) => Promise<{ route: Route; runs: RunWithUserIdAndId[] } | null> = () => {
         return Promise.resolve(null);
     };
     private startRun: (routeId: number) => Promise<void | null> = () => {
@@ -120,7 +122,7 @@ class MapHelper {
             startRun: (routeId: number) => Promise<void>;
             runInformation: (
                 routeId: number,
-            ) => Promise<{ runs: RunWithUserIdAndId[] }>;
+            ) => Promise<{ route: Route; runs: RunWithUserIdAndId[] }>;
         },
     ) {
         this.startRun = x.startRun;
@@ -202,16 +204,18 @@ class MapHelper {
                     "No one has run route yet";
             }
 
-            leaderboardContentElement.innerText = runInformation.runs.toSorted((
-                a,
-                b,
-            ) => a.coords[a.coords.length - 1].startOffset -
-                b.coords[b.coords.length - 1].startOffset
-            ).map((run) =>
-                `user with id: ${run.userId} has time ${
-                    run.coords[run.coords.length - 1].startOffset
-                }`
-            ).join("\n");
+            const runsWithTimes = runInformation.runs.map((run) => {
+                return {
+                    ...run,
+                    time: timeForRun(run, runInformation.route),
+                };
+            });
+
+            leaderboardContentElement.innerText = runsWithTimes
+                .toSorted((a, b) => a.time - b.time)
+                .map((run) =>
+                    `user with id: ${run.userId} has time ${formatMs(run.time)}`
+                ).join("\n");
         });
     }
 
@@ -280,12 +284,17 @@ export class GeoMap {
             runInformation: async (
                 routeId: number,
             ) => {
+                const route = await server.route({ id: routeId });
                 const runs = await server.runsOnRoute({ routeId });
                 if (!runs.ok) {
                     console.error(runs.error);
-                    return { runs: [] };
+                    return { runs: [], route: { coords: [] } };
                 }
-                return { runs: runs.data };
+                if (!route.ok) {
+                    console.error(route.error);
+                    return { runs: [], route: { coords: [] } };
+                }
+                return { runs: runs.data, route: route.data };
             },
         });
     }
