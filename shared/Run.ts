@@ -142,14 +142,6 @@ export function timeForRun(
 ): number {
     const run = structuredClone(finishedRun);
     const coords = run.coords.splice(1, Infinity);
-    for (const coord of coords) {
-        console.log(
-            `lat=${coord.latitude.toFixed(10)},lng=${
-                coord.longitude.toFixed(10)
-            }`,
-        );
-    }
-    console.log(structuredClone(coords));
     let startOffset = null;
     let endOffset = null;
     while (true) {

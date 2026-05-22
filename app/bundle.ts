@@ -15,6 +15,7 @@ async function buildCode() {
     await build("main");
     await build("login");
     await build("register");
+    await build("profile");
     await esbuild.stop();
 }
 

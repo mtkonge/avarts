@@ -21,7 +21,6 @@ import {
     RunsOnRouteRequest,
     RunsOnRouteResponse,
     RunWithUserIdAndId,
-    User,
     UserFromIdRequest,
     UserFromIdResponse,
     UserRequest,
@@ -56,7 +55,7 @@ export interface AuthorizedServer extends UnauthorizedServer {
     ): Promise<Result<void, string>>;
     user(
         request: Forget<UserRequest, "token">,
-    ): Promise<Result<User | null, string>>;
+    ): Promise<Result<UserWithId | null, string>>;
     addRun(
         request: Forget<AddRunRequest, "token">,
     ): Promise<Result<void, string>>;
@@ -215,7 +214,7 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
 
     async user(
         request: Forget<UserRequest, "token">,
-    ): Promise<Result<User | null, string>> {
+    ): Promise<Result<UserWithId | null, string>> {
         const body = await this.postRequest(
             "/user",
             { token: this.token, ...request },
