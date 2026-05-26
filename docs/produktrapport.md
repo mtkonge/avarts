@@ -37,7 +37,8 @@ på korten, zoom ind og ud.
 
 ## Backend server
 
-Backend serveren er også skrevet skrevet i Typescript med deno. Her køre vi
-Typescript filerne direkte med Deno.
+Backend serveren er også skrevet skrevet i Typescript med deno. Her kører vi
+Typescript filerne direkte med Deno. Vi bruger Oak til at håndtere vores http
+requests og middleware. Til kryptering af passwords bruger vi bcrypt.
 
 [^1]: https://github.com/mtkonge/avarts
