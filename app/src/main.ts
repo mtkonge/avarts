@@ -53,12 +53,12 @@ async function main() {
         loading.hide();
     });
     const sportDialog = document.querySelector<HTMLDialogElement>(
-        "sport-dialog",
+        "#sport-dialog",
     )!;
     const sportButton = document.getElementById("select-sport")!;
 
     sportButton.addEventListener("click", () => {
-        sportDialog.showModal();
+        sportDialog.showPopover();
     });
 }
 
