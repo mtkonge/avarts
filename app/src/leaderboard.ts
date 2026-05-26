@@ -44,7 +44,7 @@ function formatMs(milliseconds: number): HTMLElement {
         ret += `${pad(duration.days)}:`;
     }
     ret += `${pad(duration.minutes)}:${duration.seconds}`;
-    const ms = document.createElement("span");
+    const ms = document.createElement("ms");
 
     ms.textContent = `.${pad(duration.milliseconds, 3)}`;
 
@@ -64,25 +64,42 @@ export function renderLeaderboardRun(
     const divider = document.createElement("span");
     divider.classList.add("flex-divider");
 
-    let name;
+    const titleVerb = document.createElement("verb");
+    let title;
     if (run.title.tag === "route") {
-        name = run.title.route;
+        titleVerb.textContent = "on";
+        title = document.createElement("span");
+        title.textContent = run.title.route;
     } else if (run.title.tag === "user") {
-        name = document.createElement("a");
-        name.textContent = run.title.name,
-            name.href = `/profile/?user=${run.title.id}`;
+        titleVerb.textContent = "by";
+        title = document.createElement("a");
+        title.textContent = run.title.name;
+        title.href = `/profile/?user=${run.title.id}`;
     } else {
         assertUnreachable(run.title);
     }
+    title.classList.add("title");
+
+    const withVerb = document.createElement("verb");
+    withVerb.textContent = "with";
+
+    const container = document.createElement("div");
+    container.append(
+        withVerb,
+        " ",
+        display.emoji,
+        " ",
+        titleVerb,
+        " ",
+        title,
+    );
 
     li.append(
         placementEl,
         " ",
         formatMs(run.time),
         divider,
-        display.emoji,
-        " ",
-        name,
+        container,
     );
     return li;
 }

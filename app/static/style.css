@@ -102,16 +102,8 @@ dialog {
 }
 
 #leaderboard-dialog {
-    li {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-
-        placement {
-            font-weight: bold;
-            font-size: 1.25em;
-        }
-        margin-bottom: 0.25rem;
+    #leaderboard-title {
+        margin-top: 0;
     }
 }
 
@@ -159,6 +151,7 @@ dialog {
 
 .flex-divider {
     flex: 1;
+    min-width: 1rem;
 }
 
 .close-button-wrapper {
@@ -241,12 +234,23 @@ button {
         font-size: 1.25em;
     }
     margin-bottom: 0.25rem;
+    .title {
+        word-break: break-all;
+    }
+
+    verb {
+        font-weight: 500;
+    }
 
     time {
-        span {
+        ms {
             font-size: 0.8em;
         }
     }
+}
+
+.popup-button {
+    margin-top: 0.25rem;
 }
 
 .profile-time-list {

@@ -162,9 +162,14 @@ class MapHelper {
                     <p>
                         Runs recorded: ${runs.length}
                     </p>
-                    <button id="start-run-${route.id}-button">Start run</button>
-                    <button id="leaderboard-${route
-                        .id}-button">Leaderboard</button>
+                    <button class="popup-button" id="start-run-${route
+                        .id}-button">
+                        Start run
+                    </button>
+                    <button class="popup-button" id="leaderboard-${route
+                        .id}-button">
+                        Leaderboard
+                    </button>
                 </div>
             `;
 
