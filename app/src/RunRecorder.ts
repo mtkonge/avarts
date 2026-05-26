@@ -1,7 +1,7 @@
 import {
     type RouteWithUserIdAndId,
     type Run,
-    SportId,
+    type SportId,
     targetCheckpointIndex,
 } from "@avarts/shared";
 import type { Geolocator } from "./Geolocator.ts";
