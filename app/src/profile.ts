@@ -80,9 +80,6 @@ async function renderRuns() {
 
     const usernameEl = query("#username");
     usernameEl.textContent = user.username;
-    const descriptionEl = query("#description");
-    descriptionEl.textContent =
-        `${user.username} has yet to add a description.`;
 
     const routes = await server.routes();
     if (!routes.ok) {
