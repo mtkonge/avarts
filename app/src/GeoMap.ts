@@ -14,7 +14,7 @@ import {
     timeForRun,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
-import { LeaderboardRun, renderLeaderboardRun } from "./leaderboard.ts";
+import { type LeaderboardRun, renderLeaderboardRun } from "./leaderboard.ts";
 
 export function coordsToMapLibreCoords(
     coords: Coords,

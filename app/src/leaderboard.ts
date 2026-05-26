@@ -1,4 +1,4 @@
-import { assertUnreachable, SportId, sportNames } from "@avarts/shared";
+import { assertUnreachable, type SportId, sportNames } from "@avarts/shared";
 
 export type LeaderboardRun = {
     title: { tag: "route"; route: string } | {
