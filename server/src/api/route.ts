@@ -72,6 +72,14 @@ export function addRouteRoutes(
                                 status: 400,
                                 body: { success: false, error: "bad login" },
                             };
+                        case "bad_name":
+                            return {
+                                status: 400,
+                                body: {
+                                    success: false,
+                                    error: "bad name",
+                                },
+                            };
                         case "db_error":
                             return {
                                 status: 500,
@@ -80,6 +88,7 @@ export function addRouteRoutes(
                                     error: "db error",
                                 },
                             };
+
                         default:
                             assertUnreachable(result);
                     }

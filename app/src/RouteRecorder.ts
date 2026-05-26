@@ -1,4 +1,4 @@
-import type { Coords, Route } from "@avarts/shared";
+import type { Coords } from "@avarts/shared";
 import type { Geolocator } from "./Geolocator.ts";
 
 export class RouteRecorder {
@@ -22,12 +22,12 @@ export class RouteRecorder {
         }, 1000);
     }
 
-    public stop(): Route {
+    public stop(): Coords[] {
         if (!this.recordingLoopId) {
             throw new Error("called stop without start");
         }
         clearInterval(this.recordingLoopId);
         this.recordingLoopId = null;
-        return { coords: [...this.currentRecording] };
+        return [...this.currentRecording];
     }
 }

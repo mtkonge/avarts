@@ -2,6 +2,7 @@ import * as z from "zod";
 import { Coords } from "./Coords.ts";
 
 export const Route = z.strictObject({
+    name: z.string(),
     coords: z.array(Coords),
 });
 

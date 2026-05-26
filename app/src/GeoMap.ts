@@ -209,7 +209,7 @@ class MapHelper {
                 throw new Error("leaderboard-content id changed");
             }
             leaderboardTitleElement.innerText =
-                "TODO/IDEA: Should a route have a name?";
+                `Leaderboard for route: ${runInformation.route.name}`;
             if (runInformation.runs.length === 0) {
                 leaderboardContentElement.innerText =
                     "No one has run the route yet";
@@ -308,11 +308,19 @@ export class GeoMap {
                 const runs = await server.runsOnRoute({ routeId });
                 if (!runs.ok) {
                     console.error(runs.error);
-                    return { runs: [], route: { coords: [] }, users: [] };
+                    return {
+                        runs: [],
+                        route: { coords: [], name: "" },
+                        users: [],
+                    };
                 }
                 if (!route.ok) {
                     console.error(route.error);
-                    return { runs: [], route: { coords: [] }, users: [] };
+                    return {
+                        runs: [],
+                        route: { coords: [], name: "" },
+                        users: [],
+                    };
                 }
                 const distinctUserIds = [
                     ...new Set(runs.data.map((run) => run.userId)),
@@ -383,6 +391,7 @@ export class GeoMap {
             LineSource.runReached,
             {
                 coords: route.coords.filter((_, i) => i < checkpointReached),
+                name: route.name,
                 userId: route.userId,
                 id: route.id,
             },
@@ -391,6 +400,7 @@ export class GeoMap {
             LineSource.runNotReached,
             {
                 coords: route.coords.filter((_, i) => i >= checkpointReached),
+                name: route.name,
                 userId: route.userId,
                 id: route.id,
             },

@@ -107,7 +107,7 @@ function latitudeMetersToDegrees(
     return meters / metersInADegree;
 }
 
-const checkpointRadius = latitudeMetersToDegrees(5);
+const checkpointRadius = latitudeMetersToDegrees(15);
 
 export function targetCheckpointIndex(
     run: Run,
@@ -194,7 +194,10 @@ if (import.meta.main) {
             { "latitude": 56.4654575, "longitude": 9.4114779 },
         ];
         function statusOfRun(run: Run) {
-            const index = targetCheckpointIndex(run, { coords });
+            const index = targetCheckpointIndex(run, {
+                coords,
+                name: "placeholder",
+            });
             console.log(`index=${index}`);
         }
         const run = {
@@ -210,6 +213,6 @@ if (import.meta.main) {
             statusOfRun(run);
             i += 5000;
         }
-        console.log(timeForRun(run, { coords }));
+        console.log(timeForRun(run, { coords, name: "placeholder" }));
     })();
 }

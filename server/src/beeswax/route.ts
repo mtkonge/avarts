@@ -1,4 +1,10 @@
-import { err, ok, type Result, type Route, type RouteWithUserIdAndId } from "@avarts/shared";
+import {
+    err,
+    ok,
+    type Result,
+    type Route,
+    type RouteWithUserIdAndId,
+} from "@avarts/shared";
 import type { Database } from "../Database.ts";
 import type { Sessions } from "../Session.ts";
 
@@ -14,13 +20,17 @@ export async function allRoutes(
     return ok({ routes: result.data });
 }
 
-type AddRouteError = "bad_login" | "db_error";
+type AddRouteError = "bad_login" | "db_error" | "bad_name";
 
 export async function addRoute(
     request: { route: Route; token: string },
     database: Database,
     sessions: Sessions,
 ): Promise<Result<void, AddRouteError>> {
+    if (request.route.name.length === 0) {
+        return err("bad_name");
+    }
+
     const userId = sessions.userIdFromToken(request.token);
     if (userId === null) {
         return err("bad_login");
@@ -36,6 +46,7 @@ export async function addRoute(
     const dbResult = await database.addRoute({
         userId,
         coords: request.route.coords,
+        name: request.route.name,
     });
     if (!dbResult.ok) {
         return err("db_error");

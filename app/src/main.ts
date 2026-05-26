@@ -36,9 +36,14 @@ async function main() {
         createRouteButton.hidden = false;
         finishRouteButton.hidden = true;
         if (routeRecorder === null) throw new Error("contract broken");
-        const route = routeRecorder.stop();
+        const coords = routeRecorder.stop();
         routeRecorder = null;
-        await map.addRoute({ route });
+        const name = prompt("What is the name of this route?");
+        if (name === null || name.length === 0) {
+            console.error("Name not provided for route");
+            return;
+        }
+        await map.addRoute({ route: { coords, name } });
     });
 
     logOutButton.addEventListener("click", async () => {
