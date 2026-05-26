@@ -213,7 +213,11 @@ class MapHelper {
                         if (user === undefined) throw new Error("unreachable");
                         return {
                             time: timeForRun(run, route),
-                            name: user.username,
+                            title: {
+                                tag: "user",
+                                id: user.id,
+                                name: user.username,
+                            },
                             sport: run.sport,
                             placement: -1,
                         } satisfies LeaderboardRun;

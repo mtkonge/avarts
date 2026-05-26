@@ -44,8 +44,11 @@ export const html = (
     ...values: unknown[]
 ) => String.raw({ raw: strings }, ...values);
 
-export function query<T extends HTMLElement>(tag: string): T {
-    const x = document.querySelector<T>(tag);
+export function query<T extends HTMLElement>(
+    tag: string,
+    parent: ParentNode = document,
+): T {
+    const x = parent.querySelector<T>(tag);
     if (x === null) {
         throw new Error(`contract broken: '${tag}' is an invalid selector`);
     }

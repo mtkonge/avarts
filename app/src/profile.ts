@@ -68,7 +68,7 @@ async function renderRuns() {
                 .map((run) => ({
                     ...run,
                     time: timeForRun(run, x.route),
-                    name: x.route.name,
+                    routeName: x.route.name,
                 }))
                 .toSorted((a, b) => a.time - b.time)
                 .map((run, i) => ({
@@ -77,7 +77,11 @@ async function renderRuns() {
                 }))
         )
         .flat()
-        .filter((x) => x.userId === user.id);
+        .filter((x) => x.userId === user.id)
+        .map((x) => ({
+            ...x,
+            title: { tag: "route", route: x.routeName } as const,
+        }));
 
     if (runs.length === 0) {
         const title = document.createElement("h2");
