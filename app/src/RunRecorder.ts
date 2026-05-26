@@ -1,6 +1,7 @@
 import {
     type RouteWithUserIdAndId,
     type Run,
+    SportId,
     targetCheckpointIndex,
 } from "@avarts/shared";
 import type { Geolocator } from "./Geolocator.ts";
@@ -10,6 +11,7 @@ export class RunRecorder {
     private recordingLoopId: number | null = null;
 
     constructor(
+        sport: SportId,
         private geolocator: Geolocator,
         private route: RouteWithUserIdAndId,
     ) {
@@ -17,11 +19,16 @@ export class RunRecorder {
             routeId: route.id,
             startTime: Temporal.Now.instant().epochMilliseconds,
             coords: [],
+            sport,
         };
     }
 
-    public static record(geolocator: Geolocator, route: RouteWithUserIdAndId) {
-        const recorder = new RunRecorder(geolocator, route);
+    public static record(
+        sport: SportId,
+        geolocator: Geolocator,
+        route: RouteWithUserIdAndId,
+    ) {
+        const recorder = new RunRecorder(sport, geolocator, route);
         recorder.record();
         return recorder;
     }

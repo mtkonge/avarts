@@ -10,6 +10,7 @@ import type {
     Route,
     RouteWithUserIdAndId,
     RunWithUserIdAndId,
+    SportId,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 
@@ -289,6 +290,7 @@ export class GeoMap {
         private compass: Compass,
         private server: AuthorizedServer,
         private map: MapHelper,
+        private selectedSport: () => SportId,
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
             .addTo(map.raw);
@@ -349,6 +351,7 @@ export class GeoMap {
         compass: Compass,
         server: AuthorizedServer,
         mapContainer: HTMLElement,
+        selectedSport: () => SportId,
     ): Promise<GeoMap> {
         const coords = geolocator.coords();
         const map = new maplibregl.Map({
@@ -365,6 +368,7 @@ export class GeoMap {
                     compass,
                     server,
                     mapHelper,
+                    selectedSport,
                 );
                 geoMap.reloadRoutes();
                 resolve(geoMap);
@@ -436,7 +440,11 @@ export class GeoMap {
     public startRun(route: RouteWithUserIdAndId) {
         if (this.run !== null) throw new Error("run already exists");
         this.map.lock();
-        this.run = RunRecorder.record(this.geolocator, route);
+        this.run = RunRecorder.record(
+            this.selectedSport(),
+            this.geolocator,
+            route,
+        );
         const compassEvent = this.rotateWithCompass();
         const geolocatorEvent = this.followLocation();
 

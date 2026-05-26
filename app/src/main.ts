@@ -4,6 +4,7 @@ import { GeolocatorFactory } from "./Geolocator.ts";
 import * as utils from "./utils.ts";
 import { LoadingDialog } from "./loading.ts";
 import { CompassFactory } from "./Compass.ts";
+import { SportSelector } from "./sports.ts";
 
 async function main() {
     const loading = new LoadingDialog();
@@ -11,11 +12,15 @@ async function main() {
     const server = await utils.authorizedServer();
     const compass = await CompassFactory.fromWebApi();
     const geolocator = await GeolocatorFactory.fromWebApi();
+    const sportSelector = new SportSelector(
+        document.getElementById("select-sport")!,
+    );
     const map = await GeoMap.create(
         geolocator,
         compass,
         server,
         document.getElementById("map")!,
+        () => sportSelector.selectedSport,
     );
     loading.hide();
     map.startMarker();
@@ -43,7 +48,9 @@ async function main() {
             console.error("Name not provided for route");
             return;
         }
-        await map.addRoute({ route: { coords, name } });
+        await map.addRoute({
+            route: { coords, name },
+        });
     });
 
     logOutButton.addEventListener("click", async () => {
@@ -51,14 +58,6 @@ async function main() {
         await server.logout({});
         location.href = "/";
         loading.hide();
-    });
-    const sportDialog = document.querySelector<HTMLDialogElement>(
-        "#sport-dialog",
-    )!;
-    const sportButton = document.getElementById("select-sport")!;
-
-    sportButton.addEventListener("click", () => {
-        sportDialog.showPopover();
     });
 }
 
