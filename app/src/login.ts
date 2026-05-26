@@ -3,10 +3,10 @@ import * as utils from "./utils.ts";
 
 async function main() {
     const loginUsernameInput = utils.query<HTMLInputElement>(
-        "username-login-input",
+        "#username-login-input",
     );
     const loginPasswordInput = utils.query<HTMLInputElement>(
-        "password-login-input",
+        "#password-login-input",
     );
     const loginButton = utils.query("#login-button")!;
     const errorElement = utils.query("#error")!;
