@@ -38,8 +38,7 @@ body {
     color: red;
 }
 
-.loading-dialog {
-    text-align: center;
+dialog {
     border: 1px solid gray;
     border-radius: 1rem;
     padding: 1rem;
@@ -50,6 +49,10 @@ body {
     &::backdrop {
         backdrop-filter: blur(5px);
     }
+}
+
+.loading-dialog {
+    text-align: center;
 
     pre {
         margin: 0;
