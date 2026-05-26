@@ -75,10 +75,8 @@ export function formatMs(milliseconds: number) {
     if (duration.minutes > 0 || ret.length > 0) {
         ret += `${pad(duration.minutes)}:`;
     }
-    if (duration.seconds > 0 || ret.length > 0) {
-        ret += `${pad(duration.seconds)}:`;
-    }
-    ret += `.${pad(duration.milliseconds, 3)}:`;
+    ret += `${pad(duration.seconds)}`;
+    ret += `.${pad(duration.milliseconds, 3)}`;
 
     return ret;
 }
