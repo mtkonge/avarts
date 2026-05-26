@@ -2,6 +2,7 @@ import maplibregl, { type LngLatLike } from "maplibre-gl";
 import type { Geolocator } from "./Geolocator.ts";
 import type { AuthorizedServer } from "./Server.ts";
 import type { Compass } from "./Compass.ts";
+import * as utils from "./utils.ts";
 import { html } from "./utils.ts";
 import {
     type AddRouteRequest,
@@ -172,8 +173,8 @@ class MapHelper {
                 .setHTML(description)
                 .addTo(this.raw);
 
-            const startRunButton = document.getElementById(
-                `start-run-${routeId}-button`,
+            const startRunButton = utils.query(
+                `#start-run-${routeId}-button`,
             );
             if (startRunButton === null) {
                 throw new Error("start-run-button id changed");
@@ -183,57 +184,46 @@ class MapHelper {
                     throw new Error("start run function not defined");
                 }
             });
-            const leaderboardButton = document.getElementById(
-                `leaderboard-${routeId}-button`,
-            ) as HTMLButtonElement;
-            if (leaderboardButton === null) {
-                throw new Error("leaderboard-button id changed");
-            }
-            const leaderboardDialog = document.getElementById(
-                "leaderboard-dialog",
+            const leaderboardButton = utils.query(
+                `#leaderboard-${routeId}-button`,
             );
-            if (leaderboardDialog === null) {
-                throw new Error("leaderboard-dialog id changed");
-            }
-
-            leaderboardButton.popoverTargetElement = leaderboardDialog;
-
-            const leaderboardTitleElement = document.getElementById(
-                "leaderboard-title",
+            const leaderboardDialog = utils.query<HTMLDialogElement>(
+                "#leaderboard-dialog",
+            );
+            const leaderboardTitleElement = utils.query(
+                "#leaderboard-title",
             );
 
-            if (leaderboardTitleElement === null) {
-                throw new Error("leaderboard-title id changed");
-            }
-
-            const leaderboardContentElement = document.getElementById(
-                "leaderboard-content",
+            const leaderboardContentElement = utils.query(
+                "#leaderboard-content",
             );
 
-            if (leaderboardContentElement === null) {
-                throw new Error("leaderboard-content id changed");
-            }
-            leaderboardTitleElement.innerText = `${route.name} Leaderboard`;
-            if (runs.length === 0) {
-                leaderboardContentElement.textContent =
-                    "No one has run the route yet";
-                return;
-            }
+            leaderboardButton.addEventListener("click", () => {
+                leaderboardDialog.showModal();
+                leaderboardTitleElement.innerText = `${route.name} Leaderboard`;
+                if (runs.length === 0) {
+                    leaderboardContentElement.textContent =
+                        "No one has run the route yet";
+                    return;
+                }
 
-            const runsWithTimes = runs
-                .map((run) => {
-                    return {
-                        time: timeForRun(run, route),
-                        name: users.find((x) => x.id === run.userId)!.username,
-                        sport: run.sport,
-                        placement: -1,
-                    } satisfies LeaderboardRun;
-                })
-                .sort((a, b) => a.time - b.time)
-                .map((run, index) => ({ ...run, placement: index + 1 }))
-                .map(renderLeaderboardRun);
+                const runsWithTimes = runs
+                    .map((run) => {
+                        const user = users.find((x) => x.id === run.userId);
+                        if (user === undefined) throw new Error("unreachable");
+                        return {
+                            time: timeForRun(run, route),
+                            name: user.username,
+                            sport: run.sport,
+                            placement: -1,
+                        } satisfies LeaderboardRun;
+                    })
+                    .sort((a, b) => a.time - b.time)
+                    .map((run, index) => ({ ...run, placement: index + 1 }))
+                    .map(renderLeaderboardRun);
 
-            leaderboardContentElement.replaceChildren(...runsWithTimes);
+                leaderboardContentElement.replaceChildren(...runsWithTimes);
+            });
         });
     }
 

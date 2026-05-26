@@ -43,3 +43,11 @@ export const html = (
     strings: ArrayLike<string>,
     ...values: unknown[]
 ) => String.raw({ raw: strings }, ...values);
+
+export function query<T extends HTMLElement>(tag: string): T {
+    const x = document.querySelector<T>(tag);
+    if (x === null) {
+        throw new Error(`contract broken: '${tag}' is an invalid selector`);
+    }
+    return x;
+}

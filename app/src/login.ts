@@ -2,14 +2,14 @@ import { LoadingDialog } from "./loading.ts";
 import * as utils from "./utils.ts";
 
 async function main() {
-    const loginUsernameInput = document.getElementById(
+    const loginUsernameInput = utils.query<HTMLInputElement>(
         "username-login-input",
-    ) as HTMLInputElement;
-    const loginPasswordInput = document.getElementById(
+    );
+    const loginPasswordInput = utils.query<HTMLInputElement>(
         "password-login-input",
-    ) as HTMLInputElement;
-    const loginButton = document.getElementById("login-button")!;
-    const errorElement = document.getElementById("error")!;
+    );
+    const loginButton = utils.query("#login-button")!;
+    const errorElement = utils.query("#error")!;
     const loading = new LoadingDialog();
     const server = await utils.unauthorizedServer();
 

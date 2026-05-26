@@ -32,12 +32,6 @@ async function userId(): Promise<number> {
     return await authenticatedUser();
 }
 
-function query<T extends HTMLElement>(tag: string): T {
-    const x = document.querySelector<T>(tag);
-    if (!x) throw new Error(`contract broken: '${x}' is an invalid selector`);
-    return x;
-}
-
 async function renderRuns() {
     const server = await utils.unauthorizedServer();
     const id = await userId();
@@ -50,7 +44,7 @@ async function renderRuns() {
     }
     const user = userRes.data;
 
-    const usernameEl = query("#username");
+    const usernameEl = utils.query("#username");
     usernameEl.textContent = user.username;
 
     const routes = await server.routes();
@@ -88,7 +82,7 @@ async function renderRuns() {
     if (runs.length === 0) {
         const title = document.createElement("h2");
         title.textContent = `${user.username} has no runs`;
-        query("#runs").replaceChildren(title);
+        utils.query("#runs").replaceChildren(title);
         return;
     }
 
@@ -100,8 +94,8 @@ async function renderRuns() {
         .toSorted((a, b) => a.placement - b.placement)
         .map(renderLeaderboardRun);
 
-    query("#top-runs").replaceChildren(...top);
-    query("#recent-runs").replaceChildren(...recent);
+    utils.query("#top-runs").replaceChildren(...top);
+    utils.query("#recent-runs").replaceChildren(...recent);
 }
 
 async function main() {

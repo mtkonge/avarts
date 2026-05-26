@@ -10,7 +10,7 @@ async function main() {
     const loading = new LoadingDialog();
     loading.show();
     const sportSelector = new SportSelector(
-        document.getElementById("select-sport")!,
+        utils.query("#select-sport")!,
     );
     const server = await utils.authorizedServer();
     const compass = await CompassFactory.fromWebApi();
@@ -19,16 +19,16 @@ async function main() {
         geolocator,
         compass,
         server,
-        document.getElementById("map")!,
+        utils.query("#map"),
         () => sportSelector.selectedSport,
     );
     loading.hide();
     map.startMarker();
     let routeRecorder: RouteRecorder | null = null;
 
-    const createRouteButton = document.getElementById("create-route")!;
-    const finishRouteButton = document.getElementById("finish-route")!;
-    const logOutButton = document.getElementById("log-out")!;
+    const createRouteButton = utils.query("#create-route");
+    const finishRouteButton = utils.query("#finish-route");
+    const logOutButton = utils.query("#log-out");
 
     createRouteButton.addEventListener("click", () => {
         createRouteButton.hidden = true;
@@ -58,10 +58,29 @@ async function main() {
         await server.logout({});
         location.href = "/";
     });
+
+    const leaderboardDialog = utils.query<HTMLDialogElement>(
+        "#leaderboard-dialog",
+    );
+
+    const leaderboardCloseButton = utils.query(
+        "#leaderboard-close-button",
+    );
+
+    leaderboardCloseButton.addEventListener("click", () => {
+        leaderboardDialog.close();
+    });
+
+    leaderboardDialog.addEventListener("mousedown", (event) => {
+        if (event.target === event.currentTarget) {
+            leaderboardDialog.close();
+        }
+    });
 }
 
 const errors: string[] = [];
 await main().catch((error) => {
+    console.error(error);
     errors.push(error.toString());
     document.body.style =
         "font-size: 1.25rem; margin-top: 2rem; white-space: pre; font-family: monospace;";
