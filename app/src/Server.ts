@@ -81,7 +81,7 @@ type Res<ApiRoute extends ApiRoutes> = z.infer<ReqResMap[ApiRoute]["res"]>;
 
 abstract class BaseHttpServer {
     constructor(protected serverUrl: string) {
-        if (serverUrl.endsWith("/")) {
+        if (this.serverUrl.endsWith("/")) {
             throw new Error(
                 `contract broken: ${this.serverUrl} ends with '/'`,
             );
