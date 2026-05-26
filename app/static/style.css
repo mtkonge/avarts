@@ -80,8 +80,14 @@ dialog {
 .dialog-wrapper {
     border-radius: inherit;
     > :not(.close-button-wrapper) {
-        padding: 1rem;
-        padding-top: 0;
+        padding-inline: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    > hr {
+        padding: 0;
+        max-width: 90%;
+        margin: 0 auto;
     }
 }
 
@@ -95,12 +101,26 @@ dialog {
     }
 }
 
+#leaderboard-dialog {
+    li {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        placement {
+            font-weight: bold;
+            font-size: 1.25em;
+        }
+        margin-bottom: 0.25rem;
+    }
+}
+
 .sport-dialog {
     ul {
         list-style: none;
         margin: 0;
 
-        li:not(:last-child) {
+        li {
             margin-bottom: 1rem;
         }
     }
@@ -135,16 +155,17 @@ dialog {
             background-color: #efefef;
         }
     }
+}
 
-    .toolbar-seperator {
-        flex: 1;
-    }
+.flex-divider {
+    flex: 1;
 }
 
 .close-button-wrapper {
     display: flex;
     justify-content: right;
     border-radius: inherit;
+    margin-bottom: 0.25rem;
 }
 
 button {
@@ -164,6 +185,13 @@ button {
 
 .maplibregl-popup .maplibregl-popup-content {
     border-radius: var(--border-radius);
+    padding: 1rem;
+
+    h1 {
+        font-size: 1.5em;
+        margin-top: 0.66rem;
+        word-break: break-word;
+    }
 }
 
 .close-button, .maplibregl-popup-close-button {
@@ -190,27 +218,40 @@ button {
 
 .split {
     display: flex;
+    gap: 1rem;
     & > * {
         flex: 1;
     }
-    gap: 1rem;
+}
+
+#runs {
+    justify-content: space-between;
+    > div {
+        max-width: 48%;
+    }
+}
+
+.leaderboard-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    placement {
+        font-weight: bold;
+        font-size: 1.25em;
+    }
+    margin-bottom: 0.25rem;
+
+    time {
+        span {
+            font-size: 0.8em;
+        }
+    }
 }
 
 .profile-time-list {
     list-style: none;
     padding-left: 0;
-
-    li {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-
-        placement {
-            font-weight: bold;
-            font-size: 1.25em;
-        }
-        margin-bottom: 0.25rem;
-    }
 }
 
 hr {

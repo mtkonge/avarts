@@ -1,12 +1,7 @@
-import {
-    type Ok,
-    type Result,
-    SportId,
-    sportNames,
-    timeForRun,
-} from "@avarts/shared";
+import { type Ok, type Result, timeForRun } from "@avarts/shared";
 import { LoadingDialog } from "./loading.ts";
 import * as utils from "./utils.ts";
+import { renderLeaderboardRun } from "./leaderboard.ts";
 
 async function authenticatedUser(): Promise<number> {
     const server = await utils.authorizedServer();
@@ -41,29 +36,6 @@ function query<T extends HTMLElement>(tag: string): T {
     const x = document.querySelector<T>(tag);
     if (!x) throw new Error(`contract broken: '${x}' is an invalid selector`);
     return x;
-}
-
-type Run = {
-    route: string;
-    time: number;
-    sport: SportId;
-    placement: number;
-};
-
-function runElement(
-    run: Run,
-) {
-    const li = document.createElement("li");
-    const placementEl = document.createElement("placement");
-    placementEl.textContent = `#${run.placement}`;
-    const display = sportNames()[run.sport];
-
-    li.append(
-        placementEl,
-        " ",
-        `${utils.formatMs(run.time)} - ${display.emoji} ${run.route}`,
-    );
-    return li;
 }
 
 async function renderRuns() {
@@ -102,7 +74,7 @@ async function renderRuns() {
                 .map((run) => ({
                     ...run,
                     time: timeForRun(run, x.route),
-                    route: x.route.name,
+                    name: x.route.name,
                 }))
                 .toSorted((a, b) => a.time - b.time)
                 .map((run, i) => ({
@@ -122,11 +94,11 @@ async function renderRuns() {
 
     const recent = runs
         .toSorted((a, b) => a.startTime - b.startTime)
-        .map(runElement);
+        .map(renderLeaderboardRun);
 
     const top = runs
         .toSorted((a, b) => a.placement - b.placement)
-        .map(runElement);
+        .map(renderLeaderboardRun);
 
     query("#top-runs").replaceChildren(...top);
     query("#recent-runs").replaceChildren(...recent);

@@ -39,44 +39,7 @@ export async function authorizedServer(): Promise<AuthorizedServer> {
     return server;
 }
 
-export const html = <T>(strings: TemplateStringsArray, ...values: T[]) =>
-    String.raw({ raw: strings }, ...values);
-
-function msToDuration(millisecondsTotal: number) {
-    const milliseconds = millisecondsTotal % 1000;
-    const seconds = (millisecondsTotal - milliseconds) % 60_000;
-    const minutes = (millisecondsTotal - seconds - milliseconds) % 3_600_000;
-    const hours = (millisecondsTotal - minutes - seconds - milliseconds) %
-        86_400_000;
-    const days = millisecondsTotal - hours - minutes - seconds - milliseconds;
-
-    return {
-        milliseconds,
-        seconds: seconds / 1000,
-        minutes: minutes / 60_000,
-        hours: hours / 3_600_000,
-        days: days / 86_400_000,
-    };
-}
-
-export function formatMs(milliseconds: number) {
-    function pad(x: number, count: number = 2) {
-        return x.toString().padStart(count, "0");
-    }
-
-    const duration = msToDuration(milliseconds);
-    let ret = "";
-    if (duration.days > 0) {
-        ret += `${duration.days}:`;
-    }
-    if (duration.hours > 0 || ret.length > 0) {
-        ret += `${pad(duration.days)}:`;
-    }
-    if (duration.minutes > 0 || ret.length > 0) {
-        ret += `${pad(duration.minutes)}:`;
-    }
-    ret += `${pad(duration.seconds)}`;
-    ret += `.${pad(duration.milliseconds, 3)}`;
-
-    return ret;
-}
+export const html = (
+    strings: ArrayLike<string>,
+    ...values: unknown[]
+) => String.raw({ raw: strings }, ...values);

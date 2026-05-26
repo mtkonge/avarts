@@ -2,17 +2,18 @@ import maplibregl, { type LngLatLike } from "maplibre-gl";
 import type { Geolocator } from "./Geolocator.ts";
 import type { AuthorizedServer } from "./Server.ts";
 import type { Compass } from "./Compass.ts";
-import { formatMs, html } from "./utils.ts";
-import type {
-    AddRouteRequest,
-    Coords,
-    Forget,
-    Route,
-    RouteWithUserIdAndId,
-    RunWithUserIdAndId,
-    SportId,
+import { html } from "./utils.ts";
+import {
+    type AddRouteRequest,
+    type Coords,
+    type Forget,
+    type RouteWithUserIdAndId,
+    type RunWithUserIdAndId,
+    type SportId,
+    timeForRun,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
+import { LeaderboardRun, renderLeaderboardRun } from "./leaderboard.ts";
 
 export function coordsToMapLibreCoords(
     coords: Coords,
@@ -69,11 +70,9 @@ const LineSource = {
 type LineSourceId = typeof LineSource[keyof typeof LineSource];
 
 class MapHelper {
-    private runInformation: (
-        routeId: number,
-    ) => Promise<
+    private runInformation: (routeId: number) => Promise<
         {
-            route: Route;
+            route: RouteWithUserIdAndId;
             runs: RunWithUserIdAndId[];
             users: { username: string; id: number }[];
         } | null
@@ -130,7 +129,7 @@ class MapHelper {
                 routeId: number,
             ) => Promise<
                 {
-                    route: Route;
+                    route: RouteWithUserIdAndId;
                     runs: RunWithUserIdAndId[];
                     users: { username: string; id: number }[];
                 }
@@ -149,17 +148,22 @@ class MapHelper {
             }
             const coordinates = event.lngLat;
             const routeId: number = firstFeature.properties.id;
-            const runInformation = await this.runInformation(routeId);
-            if (runInformation === null) {
-                throw Error("run information function not defined");
+            const maybeRunInformation = await this.runInformation(routeId);
+            if (maybeRunInformation === null) {
+                throw new Error("run information function not defined");
             }
+            const { runs, route, users } = maybeRunInformation;
             const description = html`
                 <div>
+                    <h1>
+                        ${route.name}
+                    </h1>
                     <p>
-                        Runs recorded: ${runInformation.runs.length}
+                        Runs recorded: ${runs.length}
                     </p>
-                    <button id="start-run-${routeId}-button">Start run</button>
-                    <button id="leaderboard-${routeId}-button">Leaderboard</button>
+                    <button id="start-run-${route.id}-button">Start run</button>
+                    <button id="leaderboard-${route
+                        .id}-button">Leaderboard</button>
                 </div>
             `;
 
@@ -176,7 +180,7 @@ class MapHelper {
             }
             startRunButton.addEventListener("click", async () => {
                 if (await this.startRun(routeId) === null) {
-                    throw Error("start run function not defined");
+                    throw new Error("start run function not defined");
                 }
             });
             const leaderboardButton = document.getElementById(
@@ -209,34 +213,27 @@ class MapHelper {
             if (leaderboardContentElement === null) {
                 throw new Error("leaderboard-content id changed");
             }
-            leaderboardTitleElement.innerText =
-                `Leaderboard for route: ${runInformation.route.name}`;
-            if (runInformation.runs.length === 0) {
-                leaderboardContentElement.innerText =
+            leaderboardTitleElement.innerText = `${route.name} Leaderboard`;
+            if (runs.length === 0) {
+                leaderboardContentElement.textContent =
                     "No one has run the route yet";
+                return;
             }
 
-            const runsWithTimes = runInformation.runs.map((run) => {
-                return {
-                    ...run,
-                    time: run.coords[run.coords.length - 1].startOffset,
-                };
-            });
-
-            leaderboardContentElement.innerHTML = runsWithTimes
-                .toSorted((a, b) => a.time - b.time)
+            const runsWithTimes = runs
                 .map((run) => {
-                    const userFound = runInformation.users.find((user) =>
-                        user.id === run.userId
-                    );
-                    if (userFound === undefined) {
-                        console.log("what");
-                        return null;
-                    }
-                    return html`
-                        <li>${userFound.username}: ${formatMs(run.time)}</li>
-                    `;
-                }).filter((line) => line !== null).join("\n");
+                    return {
+                        time: timeForRun(run, route),
+                        name: users.find((x) => x.id === run.userId)!.username,
+                        sport: run.sport,
+                        placement: -1,
+                    } satisfies LeaderboardRun;
+                })
+                .sort((a, b) => a.time - b.time)
+                .map((run, index) => ({ ...run, placement: index + 1 }))
+                .map(renderLeaderboardRun);
+
+            leaderboardContentElement.replaceChildren(...runsWithTimes);
         });
     }
 
@@ -305,24 +302,20 @@ export class GeoMap {
             },
             runInformation: async (
                 routeId: number,
-            ) => {
+            ): Promise<{
+                route: RouteWithUserIdAndId;
+                runs: RunWithUserIdAndId[];
+                users: { username: string; id: number }[];
+            }> => {
                 const route = await server.route({ id: routeId });
                 const runs = await server.runsOnRoute({ routeId });
                 if (!runs.ok) {
                     console.error(runs.error);
-                    return {
-                        runs: [],
-                        route: { coords: [], name: "" },
-                        users: [],
-                    };
+                    throw new Error("todo: error handling");
                 }
                 if (!route.ok) {
                     console.error(route.error);
-                    return {
-                        runs: [],
-                        route: { coords: [], name: "" },
-                        users: [],
-                    };
+                    throw new Error("todo: error handling");
                 }
                 const distinctUserIds = [
                     ...new Set(runs.data.map((run) => run.userId)),

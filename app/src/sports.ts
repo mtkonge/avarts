@@ -47,6 +47,7 @@ export class SportSelector {
         const ul = document.createElement("ul");
         for (const [id, display] of Object.entries(sportNames())) {
             const li = document.createElement("li");
+            li.classList.add("leaderboard-item");
             const button = document.createElement("button");
             button.textContent = `${display.emoji} ${display.name}`;
             button.addEventListener("click", () => {

@@ -133,14 +133,12 @@ export function timeForRun(
         if (targetCheckpoint > 0 && startOffset === null) {
             startOffset = newest.startOffset;
         }
-        console.log(targetCheckpoint, run.coords.length);
         if (targetCheckpoint === route.coords.length && endOffset === null) {
             endOffset = newest.startOffset;
             break;
         }
     }
     if (startOffset === null || endOffset === null) {
-        console.log(startOffset, endOffset);
         throw new Error("contract broken: given unfinished run");
     }
     return endOffset - startOffset;
