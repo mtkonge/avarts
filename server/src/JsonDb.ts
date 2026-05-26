@@ -114,10 +114,12 @@ export class JsonDb implements Database {
         return await Promise.resolve(ok(structuredClone(this.routes)));
     }
 
-    async getUserById(id: number): Promise<DbResult<UserWithPasswordAndId>> {
+    async getUserById(
+        id: number,
+    ): Promise<DbResult<UserWithPasswordAndId | null>> {
         const user = this.users.find((x) => x.id === id);
         if (!user) {
-            return err(`invalid id ${id}`);
+            return ok(null);
         }
         return await Promise.resolve(ok(structuredClone(user)));
     }

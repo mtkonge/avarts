@@ -105,6 +105,7 @@ export async function userWithId(
 ): Promise<Result<{ user: UserWithId }, UserWithIdError>> {
     const userResult = await database.getUserById(request.id);
     if (!userResult.ok) {
+        console.error(userResult.error);
         return err("db_error");
     }
     if (userResult.data === null) {
