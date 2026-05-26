@@ -2,6 +2,11 @@
     box-sizing: border-box;
 }
 
+:root {
+    --shadow: box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --border-radius: 0.5rem;
+}
+
 body {
     font-family: system-ui;
 }
@@ -17,10 +22,26 @@ body {
     flex-direction: column;
 }
 
+body:has(.profile-page) {
+    background: url("bg.png") #222;
+}
+
 .profile-page {
     max-width: 1000px;
     margin: auto;
     padding: 1rem;
+
+    > * {
+        background-color: white;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 1rem;
+    }
+
+    h1 {
+        margin-top: 0;
+    }
 }
 
 .form-page {
@@ -44,7 +65,7 @@ body {
 
 dialog {
     padding: 0;
-    border-radius: 1rem;
+    border-radius: var(--border-radius);
     border: none;
 
     &:focus-visible {
@@ -58,8 +79,9 @@ dialog {
 
 .dialog-wrapper {
     border-radius: inherit;
-    > *:not(.close-button-wrapper) {
+    > :not(.close-button-wrapper) {
         padding: 1rem;
+        padding-top: 0;
     }
 }
 
@@ -69,6 +91,7 @@ dialog {
 
     pre {
         margin: 0;
+        font-weight: bold;
     }
 }
 
@@ -140,7 +163,7 @@ button {
 }
 
 .maplibregl-popup .maplibregl-popup-content {
-    border-radius: 1rem;
+    border-radius: var(--border-radius);
 }
 
 .close-button, .maplibregl-popup-close-button {
@@ -188,4 +211,8 @@ button {
         }
         margin-bottom: 0.25rem;
     }
+}
+
+hr {
+    border-color: #eee;
 }

@@ -1,4 +1,10 @@
-import { type Ok, type Result, timeForRun } from "@avarts/shared";
+import {
+    type Ok,
+    type Result,
+    SportId,
+    sportNames,
+    timeForRun,
+} from "@avarts/shared";
 import { LoadingDialog } from "./loading.ts";
 import * as utils from "./utils.ts";
 
@@ -37,22 +43,30 @@ function query<T extends HTMLElement>(tag: string): T {
     return x;
 }
 
-function placementElement(
-    name: string,
-    time: ReturnType<typeof utils.formatMs>,
-    placement: number,
+type Run = {
+    route: string;
+    time: number;
+    sport: SportId;
+    placement: number;
+};
+
+function runElement(
+    run: Run,
 ) {
     const li = document.createElement("li");
     const placementEl = document.createElement("placement");
-    placementEl.textContent = `#${placement}`;
+    placementEl.textContent = `#${run.placement}`;
+    const display = sportNames()[run.sport];
 
-    li.append(placementEl, " ", `${time} - ${name}`);
+    li.append(
+        placementEl,
+        " ",
+        `${utils.formatMs(run.time)} - ${display.emoji} ${run.route}`,
+    );
     return li;
 }
 
-async function main() {
-    const loading = new LoadingDialog();
-    loading.show();
+async function renderRuns() {
     const server = await utils.unauthorizedServer();
     const id = await userId();
     const userRes = await server.userFromId({ id });
@@ -83,6 +97,7 @@ async function main() {
             route: x,
             runs: await server.runsOnRoute({ routeId: x.id }),
         })));
+
     const runs = runResults
         .map((x) => ({ ...x, runs: allOk(x.runs).data }))
         .map((x) =>
@@ -90,42 +105,40 @@ async function main() {
                 .map((run) => ({
                     ...run,
                     time: timeForRun(run, x.route),
-                    route: x.route,
+                    route: x.route.name,
                 }))
                 .toSorted((a, b) => a.time - b.time)
                 .map((run, i) => ({
                     ...run,
                     placement: i + 1,
                 }))
-        );
+        )
+        .flat()
+        .filter((x) => x.userId === user.id);
+
+    if (runs.length === 0) {
+        const title = document.createElement("h2");
+        title.textContent = `${user.username} has no runs`;
+        query("#runs").replaceChildren(title);
+        return;
+    }
 
     const recent = runs
-        .flat()
-        .filter((x) => x.userId === user.id)
         .toSorted((a, b) => a.startTime - b.startTime)
-        .map((run) =>
-            placementElement(
-                run.routeId.toString(),
-                utils.formatMs(run.time),
-                run.placement,
-            )
-        );
+        .map(runElement);
 
     const top = runs
-        .flat()
-        .filter((x) => x.userId === user.id)
         .toSorted((a, b) => a.placement - b.placement)
-        .map((run) =>
-            placementElement(
-                run.routeId.toString(),
-                utils.formatMs(run.time),
-                run.placement,
-            )
-        );
+        .map(runElement);
 
     query("#top-runs").replaceChildren(...top);
     query("#recent-runs").replaceChildren(...recent);
+}
 
+async function main() {
+    const loading = new LoadingDialog();
+    loading.show();
+    await renderRuns();
     loading.hide();
 }
 

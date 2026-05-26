@@ -5,9 +5,9 @@ import {
     type UnauthorizedServer,
 } from "./Server.ts";
 
-function redirectToLogin(): never {
+function redirectToLogin(): Promise<never> {
     location.href = "/login/";
-    throw new Error("unreachable - href set (no token)");
+    return new Promise(() => {});
 }
 
 function url() {
@@ -29,12 +29,12 @@ export async function unauthorizedServer(): Promise<UnauthorizedServer> {
 export async function authorizedServer(): Promise<AuthorizedServer> {
     const token = localStorage.getItem("token");
     if (token === null) {
-        redirectToLogin();
+        return await redirectToLogin();
     }
     const server = new AuthorizedHttpServer(url(), token);
     const user = await server.user({});
     if (!user.ok || user.ok && user.data === null) {
-        redirectToLogin();
+        return await redirectToLogin();
     }
     return server;
 }

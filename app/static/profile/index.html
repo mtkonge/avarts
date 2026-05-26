@@ -7,44 +7,27 @@
         <title>Avarts</title>
     </head>
 
-    <body class="profile-page">
-        <a href="/">Back to map page</a>
-        <div>
-            <h1 id="username">User</h1>
-            <p id="description">User has yet to add a description.</p>
-            <div class="split">
-                <div>
-                    <h2>Recent runs</h2>
-                    <hr>
-                    <ul class="profile-time-list" id="recent-runs">
-                        <li>
-                            <placement>#1</placement> 02:17.11 - Castlevania
-                        </li>
-                        <li>
-                            <placement>#1</placement> 02:17.11 - Castlevania
-                        </li>
-                        <li>
-                            <placement>#1</placement> 02:17.11 - Castlevania
-                        </li>
-                    </ul>
-                </div>
-                <div>
-                    <h2>Top runs</h2>
-                    <hr>
-                    <ul class="profile-time-list" id="top-runs">
-                        <li>
-                            <placement>#1</placement> 02:17.11 - Castlevania
-                        </li>
-                        <li>
-                            <placement>#13242</placement> 02:17.11 - Castlevania
-                        </li>
-                        <li>
-                            <placement>#1</placement> 02:17.11 - Castlevania
-                        </li>
-                    </ul>
+    <body>
+        <div class="profile-page">
+            <div><a href="/">Back to map page</a></div>
+            <div>
+                <h1 id="username"></h1>
+                <p id="description"></p>
+                <hr>
+                <div class="split" id="runs">
+                    <div>
+                        <h2>Recent runs</h2>
+                        <hr>
+                        <ul class="profile-time-list" id="recent-runs"></ul>
+                    </div>
+                    <div>
+                        <h2>Top runs</h2>
+                        <hr>
+                        <ul class="profile-time-list" id="top-runs"></ul>
+                    </div>
                 </div>
             </div>
-            <script src="/profile.js" type="module"></script>
         </div>
+        <script src="/profile.js" type="module"></script>
     </body>
 </html>

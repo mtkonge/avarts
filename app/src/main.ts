@@ -9,12 +9,12 @@ import { SportSelector } from "./sports.ts";
 async function main() {
     const loading = new LoadingDialog();
     loading.show();
-    const server = await utils.authorizedServer();
-    const compass = await CompassFactory.fromWebApi();
-    const geolocator = await GeolocatorFactory.fromWebApi();
     const sportSelector = new SportSelector(
         document.getElementById("select-sport")!,
     );
+    const server = await utils.authorizedServer();
+    const compass = await CompassFactory.fromWebApi();
+    const geolocator = await GeolocatorFactory.fromWebApi();
     const map = await GeoMap.create(
         geolocator,
         compass,
@@ -57,7 +57,6 @@ async function main() {
         loading.show();
         await server.logout({});
         location.href = "/";
-        loading.hide();
     });
 }
 
