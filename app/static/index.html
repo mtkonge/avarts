@@ -16,13 +16,14 @@
         <div id="toolbar">
             <button id="create-route">Create route</button>
             <button id="finish-route" hidden>Finish route</button>
+            <button id="select-sport">🛼</button>
             <span class="toolbar-seperator"></span>
             <a href="/profile"><button id="profile">My profile</button></a>
             <button id="log-out">Log out</button>
         </div>
 
         <dialog id="leaderboard-dialog" popover>
-            <div id="leaderboard-flex-wrapper">
+            <div id="dialog-flex-wrapper">
                 <div class="close-button-wrapper">
                     <button
                         id="close-leaderboard-btn"
@@ -41,7 +42,24 @@
                 </ol>
             </div>
         </dialog>
+
+        <dialog id="sport-dialog" popover>
+            <div id="dialog-flex-wrapper">
+                <div class="close-button-wrapper">
+                    <button
+                        id="close-leaderboard-btn"
+                        class="close-button"
+                        popovertarget="sport-dialog"
+                        popovertargetaction="hide"
+                    >
+                        ×
+                    </button>
+                </div>
+                <ul id="sport-content">
+                    Loading...
+                </ul>
+            </div>
+        </dialog>
         <script src="main.js" type="module"></script>
     </body>
 </html>
-

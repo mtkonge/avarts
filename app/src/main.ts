@@ -52,6 +52,14 @@ async function main() {
         location.href = "/";
         loading.hide();
     });
+    const sportDialog = document.querySelector<HTMLDialogElement>(
+        "sport-dialog",
+    )!;
+    const sportButton = document.getElementById("select-sport")!;
+
+    sportButton.addEventListener("click", () => {
+        sportDialog.showModal();
+    });
 }
 
 const errors: string[] = [];
