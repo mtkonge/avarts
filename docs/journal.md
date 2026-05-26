@@ -97,3 +97,14 @@
 - Profile page implementation (top runs, recent runs, accurate time and
   placement)
 - changed leaderboard to use username instead of id
+
+# 26/05
+
+- Implement leaderboard UI
+- Ability to select sport user is competing in
+- `document.getElementById` -> `utils.query` invalid user id
+- Tripled checkpoint radius (5m -> 15m) after in-person test of application
+- Add ability to name route
+- Log out, profile buttons added to toolbar
+- Fix database interface returning error instead of null when looking up with
+- Consolidate styling
