@@ -102,9 +102,10 @@
 
 - Implement leaderboard UI
 - Ability to select sport user is competing in
-- `document.getElementById` -> `utils.query` invalid user id
+- `document.getElementById` -> `utils.query`
 - Tripled checkpoint radius (5m -> 15m) after in-person test of application
 - Add ability to name route
 - Log out, profile buttons added to toolbar
 - Fix database interface returning error instead of null when looking up with
+  invalid user id
 - Consolidate styling
