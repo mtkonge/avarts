@@ -23,6 +23,7 @@ async function main() {
 
     const createRouteButton = document.getElementById("create-route")!;
     const finishRouteButton = document.getElementById("finish-route")!;
+    const logOutButton = document.getElementById("log-out")!;
 
     createRouteButton.addEventListener("click", () => {
         createRouteButton.hidden = true;
@@ -38,6 +39,13 @@ async function main() {
         const route = routeRecorder.stop();
         routeRecorder = null;
         await map.addRoute({ route });
+    });
+
+    logOutButton.addEventListener("click", async () => {
+        loading.show();
+        await server.logout({});
+        location.href = "/";
+        loading.hide();
     });
 }
 

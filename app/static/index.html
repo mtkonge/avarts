@@ -1,38 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="style.css">
+        <title>Avarts</title>
+        <link
+            href="https://unpkg.com/maplibre-gl@^5.24.0/dist/maplibre-gl.css"
+            rel="stylesheet"
+        />
+    </head>
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css">
-    <title>Avarts</title>
-    <link href="https://unpkg.com/maplibre-gl@^5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
-</head>
-
-<body class="map-page">
-    <div id="map"></div>
-    <div id="toolbar">
-        <button id="create-route">Create route</button>
-        <button id="finish-route" hidden>Finish route</button>
-    </div>
-
-    <dialog id="leaderboard-dialog" popover>
-        <div id="leaderboard-wrapper">
-            <div id="close-btn-wrapper">
-                <button id="close-leaderboard-btn" popovertarget="leaderboard-dialog" popovertargetaction="hide"
-                    class="maplibregl-popup-close-button">
-                    x
-                </button>
-            </div>
-            <div id="leaderboard-title">
-                Loading...
-            </div>
-            <ol id="leaderboard-content">
-                Loading...
-            </ol>
+    <body class="map-page">
+        <div id="map"></div>
+        <div id="toolbar">
+            <button id="create-route">Create route</button>
+            <button id="finish-route" hidden>Finish route</button>
+            <span class="toolbar-seperator"></span>
+            <a href="/profile"><button id="profile">My profile</button></a>
+            <button id="log-out">Log out</button>
         </div>
-    </dialog>
-    <script src="main.js" type="module"></script>
-</body>
 
+        <dialog id="leaderboard-dialog" popover>
+            <div id="leaderboard-wrapper">
+                <div id="close-btn-wrapper">
+                    <button
+                        id="close-leaderboard-btn"
+                        popovertarget="leaderboard-dialog"
+                        popovertargetaction="hide"
+                        class="maplibregl-popup-close-button"
+                    >
+                        x
+                    </button>
+                </div>
+                <div id="leaderboard-title">
+                    Loading...
+                </div>
+                <ol id="leaderboard-content">
+                    Loading...
+                </ol>
+            </div>
+        </dialog>
+        <script src="main.js" type="module"></script>
+    </body>
 </html>
+
