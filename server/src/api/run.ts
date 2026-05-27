@@ -9,7 +9,7 @@ import {
     RunsOnRouteResponse,
 } from "@avarts/shared";
 import { parse, type Pmr } from "./parserMiddleware.ts";
-import * as beeswax from "../beeswax/mod.ts";
+import * as businessLogic from "../business_logic/mod.ts";
 
 export function addRunRoutes(
     router: Router,
@@ -22,7 +22,11 @@ export function addRunRoutes(
             AddRunRequest,
             AddRunResponse,
             async (req): Pmr<AddRunResponse> => {
-                const result = await beeswax.addRun(req, database, sessions);
+                const result = await businessLogic.addRun(
+                    req,
+                    database,
+                    sessions,
+                );
                 if (!result.ok) {
                     switch (result.error) {
                         case "db_error":
@@ -68,7 +72,7 @@ export function addRunRoutes(
             RunsOnRouteRequest,
             RunsOnRouteResponse,
             async (req): Pmr<RunsOnRouteResponse> => {
-                const result = await beeswax.runsOnRoute(
+                const result = await businessLogic.runsOnRoute(
                     req,
                     database,
                 );

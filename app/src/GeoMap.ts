@@ -121,9 +121,9 @@ class MapHelper {
         );
 
         [
-            layer(LineSource.routes, "#4444FF"),
-            layer(LineSource.routeInProgress, "#4444FF"),
-            layer(LineSource.runReached, "#4444FF"),
+            layer(LineSource.routes, "#00aaff"),
+            layer(LineSource.routeInProgress, "#00aaff"),
+            layer(LineSource.runReached, "#00aaff"),
             layer(LineSource.runNotReached, "#FF4444"),
         ].map((x) => this.raw.addLayer(x));
         this.addClickEventOnRouteLayer();

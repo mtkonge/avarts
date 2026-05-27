@@ -114,3 +114,10 @@
 
 - Optionally follow camera on user alá google maps navigation
 - Leaderboard filter
+- When creating route a line will now follow
+- Hide routes when creating routes and when on a run
+- Added progressive web app manifests
+- Added logo
+- Renamed beeswax to business_logic
+- Close the route popup when starting a run
+- Changed routes to theme color

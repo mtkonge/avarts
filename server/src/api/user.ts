@@ -1,7 +1,7 @@
 import type { Router } from "@oak/oak/router";
 import type { Database } from "../Database.ts";
 import type { Sessions } from "../Session.ts";
-import * as beeswax from "../beeswax/mod.ts";
+import * as businessLogic from "../business_logic/mod.ts";
 import {
     assertUnreachable,
     LoginRequest,
@@ -28,7 +28,11 @@ export function addUserRoutes(
             LoginRequest,
             LoginResponse,
             async (req): Pmr<LoginResponse> => {
-                const result = await beeswax.login(req, database, sessions);
+                const result = await businessLogic.login(
+                    req,
+                    database,
+                    sessions,
+                );
                 if (!result.ok) {
                     switch (result.error) {
                         case "db_error":
@@ -59,7 +63,7 @@ export function addUserRoutes(
             LogoutRequest,
             LogoutResponse,
             async (req): Pmr<LogoutResponse> => {
-                const result = await beeswax.logout(req, sessions);
+                const result = await businessLogic.logout(req, sessions);
                 if (!result.ok) {
                     switch (result.error) {
                         case "bad_login":
@@ -87,7 +91,7 @@ export function addUserRoutes(
             RegisterRequest,
             RegisterResponse,
             async (req): Pmr<RegisterResponse> => {
-                const result = await beeswax.register(req, database);
+                const result = await businessLogic.register(req, database);
                 if (!result.ok) {
                     switch (result.error) {
                         case "username_taken":
@@ -119,7 +123,7 @@ export function addUserRoutes(
     router.post(
         "/user",
         parse(UserRequest, UserResponse, async (req): Pmr<UserResponse> => {
-            const result = await beeswax.userWithToken(
+            const result = await businessLogic.userWithToken(
                 req,
                 database,
                 sessions,
@@ -161,7 +165,7 @@ export function addUserRoutes(
             UserFromIdRequest,
             UserFromIdResponse,
             async (req): Pmr<UserFromIdResponse> => {
-                const result = await beeswax.userWithId(
+                const result = await businessLogic.userWithId(
                     req,
                     database,
                 );

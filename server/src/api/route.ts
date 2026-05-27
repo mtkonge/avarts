@@ -11,7 +11,7 @@ import {
     RoutesResponse,
 } from "@avarts/shared";
 import { parse, type Pmr } from "./parserMiddleware.ts";
-import * as beeswax from "../beeswax/mod.ts";
+import * as businessLogic from "../business_logic/mod.ts";
 
 export function addRouteRoutes(
     router: Router,
@@ -24,7 +24,7 @@ export function addRouteRoutes(
             RouteRequest,
             RouteResponse,
             async (req): Pmr<RouteResponse> => {
-                const result = await beeswax.routeWithId(
+                const result = await businessLogic.routeWithId(
                     req,
                     database,
                 );
@@ -60,7 +60,7 @@ export function addRouteRoutes(
             AddRouteRequest,
             AddRouteResponse,
             async (req): Pmr<AddRouteResponse> => {
-                const result = await beeswax.addRoute(
+                const result = await businessLogic.addRoute(
                     req,
                     database,
                     sessions,
@@ -106,7 +106,7 @@ export function addRouteRoutes(
             RoutesRequest,
             RoutesResponse,
             async (): Pmr<RoutesResponse> => {
-                const result = await beeswax.allRoutes(database);
+                const result = await businessLogic.allRoutes(database);
 
                 if (!result.ok) {
                     switch (result.error) {
