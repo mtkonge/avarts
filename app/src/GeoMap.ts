@@ -396,6 +396,7 @@ export class GeoMap {
             style: "https://tiles.openfreemap.org/styles/bright",
             center: coordsToMapLibreCoords(coords),
             zoom: 16,
+            attributionControl: false,
         });
         return await new Promise((resolve) => {
             map.once("load", () => {
