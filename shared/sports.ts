@@ -6,6 +6,8 @@ export const SportId = z.literal([
     "rocket",
     "car",
     "legs",
+    "bike",
+    "wheelchair",
 ]);
 export type SportId = z.infer<typeof SportId>;
 
@@ -35,6 +37,14 @@ export function sportNames(): { [key in SportId]: Sport } {
         legs: {
             name: "Legs",
             emoji: "🦵",
+        },
+        bike: {
+            name: "Bike",
+            emoji: "🚲",
+        },
+        wheelchair: {
+            name: "Wheelchair",
+            emoji: "🦽",
         },
     };
 }

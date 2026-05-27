@@ -16,6 +16,7 @@ import {
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 import { type LeaderboardRun, renderLeaderboardRun } from "./leaderboard.ts";
+import { RouteRecorder } from "./RouteRecorder.ts";
 
 export function coordsToMapLibreCoords(
     coords: Coords,
@@ -334,6 +335,7 @@ export class GeoMap {
 
     private marker: maplibregl.Marker = userMarker();
     private run: RunRecorder | null = null;
+    private route: RouteRecorder | null = null;
     private followingUser = false;
     private constructor(
         private geolocator: Geolocator,
@@ -341,6 +343,7 @@ export class GeoMap {
         private server: AuthorizedServer,
         private map: MapHelper,
         private followUserButton: HTMLElement,
+        private createRouteButton: HTMLElement,
         private selectedSport: () => SportId,
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
@@ -400,6 +403,25 @@ export class GeoMap {
             }
         });
 
+        this.createRouteButton.addEventListener("click", async () => {
+            if (this.route === null) {
+                this.route = RouteRecorder.record(geolocator);
+                this.createRouteButton.innerText = "Finish route";
+            } else {
+                const coords = this.route.stop();
+                this.route = null;
+                this.createRouteButton.innerText = "Create route";
+                const name = prompt("What is the name of this route?");
+                if (name === null || name.length === 0) {
+                    console.error("Name not provided for route");
+                    return;
+                }
+                await this.addRoute({
+                    route: { coords, name },
+                });
+            }
+        });
+
         this.compass.addEvent("update", (heading: number) => {
             if (!this.followingUser) return;
             this.map.rotateTo(heading);
@@ -417,6 +439,7 @@ export class GeoMap {
         server: AuthorizedServer,
         mapContainer: HTMLElement,
         followButton: HTMLElement,
+        createRouteButton: HTMLElement,
         selectedSport: () => SportId,
     ): Promise<GeoMap> {
         const coords = geolocator.coords();
@@ -436,6 +459,7 @@ export class GeoMap {
                     server,
                     mapHelper,
                     followButton,
+                    createRouteButton,
                     selectedSport,
                 );
                 geoMap.reloadRoutes();
