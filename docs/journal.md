@@ -109,3 +109,7 @@
 - Fix database interface returning error instead of null when looking up with
   invalid user id
 - Consolidate styling
+
+# 27/05
+
+- Optionally center camera on user alá google maps navigation
