@@ -457,6 +457,9 @@ export class GeoMap {
         this.map.moveTo(this.geolocator.coords());
         this.map.rotateTo(this.compass.heading());
         this.map.setCenteredZoom(true);
+        this.map.raw.dragRotate.disable();
+        this.map.raw.touchZoomRotate.disable();
+        this.map.raw.dragPan.disable();
     }
     private unfollowUser() {
         this.followingUser = false;
@@ -464,6 +467,9 @@ export class GeoMap {
         this.map.raw.scrollZoom.disable();
         this.map.raw.scrollZoom.enable();
         this.map.setCenteredZoom(false);
+        this.map.raw.dragRotate.enable();
+        this.map.raw.touchZoomRotate.enable();
+        this.map.raw.dragPan.enable();
     }
 
     public startRun(route: RouteWithUserIdAndId) {

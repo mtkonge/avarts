@@ -159,7 +159,7 @@ dialog {
     margin-bottom: 0.25rem;
 }
 
-button {
+button, select {
     cursor: pointer;
     border: none;
     border-radius: 0.5rem;

@@ -112,4 +112,4 @@
 
 # 27/05
 
-- Optionally center camera on user alá google maps navigation
+- Optionally follow camera on user alá google maps navigation
