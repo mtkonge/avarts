@@ -350,6 +350,7 @@ export class GeoMap {
         });
 
         this.map.raw.on("dragstart", (ev) => {
+            if (!this.followingUser) return;
             const type = ev.originalEvent?.type ?? "none";
             const isUser = type.startsWith("mouse") || type.startsWith("touch");
             if (isUser) {
@@ -358,6 +359,7 @@ export class GeoMap {
         });
 
         this.map.raw.on("rotatestart", (ev) => {
+            if (!this.followingUser) return;
             const type = ev.originalEvent?.type ?? "none";
             const isUser = type.startsWith("mouse") || type.startsWith("touch");
             if (isUser) {
