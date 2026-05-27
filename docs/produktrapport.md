@@ -19,11 +19,14 @@ Hele vores projekt er skrevet i Typescript. Vi har valgt at skrive alting i
 Typescript, da vi har meget erfaring i det, og kan dele kode mellem app og
 backend, f.eks. datastrukturer.
 
-Typescript kan både transpiles til browser javascript, og transpiles til native
-javascript, og køre natively ved hjælp af en runtime. Vi har valgt Deno som
-vores native runtime. Vi har derudover også skrevet vores build scripts, som har
-ansvaret for at transpile vores webapp til browser javascript, i Deno, da det
-betyder at vi ikke behøver at bruge både Deno og Node.
+Typescript kan både transpiles til browser Javascript, og til native Javascript.
+
+Browser Javascript køres med brugeren's browser's Javascript runtime, dette er i
+kontrast til native Javascript, som kører vha. en native javascript runtime. Vi
+har valgt Deno som vores native runtime. Vi har derudover også skrevet vores
+build scripts, som har ansvaret for at transpile vores webapp til browser
+javascript, i Deno, da det betyder at vi ikke behøver at bruge både Deno og
+Node, som var den eneste (viable) runtime, før at Deno blev lavet.
 
 Vi har valgt Typescript frem for Javascript, da vi har vurderet, at muligheden,
 til at statisk garantere at størstedelen af vores software er korrekt, sparer os
@@ -43,9 +46,9 @@ Applikationen tager stor brug af Javascript librariet `zod`. Zod gør det muligt
 at definere schemas, som man derefter kan bruge til at parse ukendt data. Vi har
 brugt det til at validere alt fra requests og responses, til json data vi læser
 fra filer. Da Typescript kun eksisterer i compile time, og der ikke findes
-statiske typer i Javascript, hjælper det os med at garantere at alt ukendt data,
-der kommer i runtime, hvor Typescript ikke kan garantere noget, faktisk er det
-data, som vi tror det er.
+statiske typer i Javascript, hjælper det os med at garantere at alt dynamisk
+ukendt data, der kommer i runtime, hvor Typescript ikke kan garantere noget,
+faktisk er det data, som vi tror det er.
 
 Zod tillader dig derudover at få en Typescript type der beskriver dit schema, ud
 fra det schema du har defineret, som betyder at det spiller perfekt sammen med
@@ -53,8 +56,8 @@ vores brug af Typescript.
 
 Vi har valgt at bruge dette library, da vi havde tidligere erfaring med det, og
 at være sikker på at vi har den rigtige struktur, sparer os, ligesom Typescript,
-tid i længden, efter en upfront investering, som vi har vurderet er (ikke
-ligemeget men sådan. ikke relevant)
+tid i længden, efter en upfront tidsinvestering. Vi har vurderet at denne
+tidsinvestering er langt mindre, end det gavn vi får fra det.
 
 ## Web-appen
 
@@ -133,9 +136,12 @@ Man kan komme til sin egen profil ved at trykke på "Min profil" ("My profile")
 knappen i toolbaren øverst.
 
 Profilen viser hhv. hurtigste runs, og runsne der skete for nyligt. Runsne
-inkluderer position.
+inkluderer hvor brugeren er placeret på leaderboardet.
 
 ### Forbindelsen til backend serveren
+
+server interface etc etc validation med zod etc etc tabel med ruter -> req/res
+etc
 
 ### User auth
 
@@ -146,9 +152,6 @@ Typescript filerne direkte med Deno. Vi bruger Oak til at håndtere vores http
 requests og middleware. Til kryptering af passwords bruger vi bcrypt. Vores
 database er implementeret ved at gemme objekterne i json filer på harddisken.
 
-Vi har valgt at bruge Typescript frem for Javascript af samme grundlag som nævnt
-med frontend, og vha. Deno, er det muligt at bruge som applikation.
-
 Vi har valgt at bruge Oak da vi har tidligere erfaring med det, og det er den
 mest populære måde at lave servere i Deno på, som betyder at der er mange
 ressourcer og libraries.
@@ -158,6 +161,19 @@ at man vælger krypteringsværktøjer man kan stole på og da Bcrypt er en
 industri-standard for kryptering, og det er den vi har mest erfaring med,
 vurderer vi at det er den bedste at bruge til at løse vores problem.
 
+### Business logic
+
+Vi har valgt at følge princippet Seperation of Concerns, og afkoble vores
+business logic, fra vores http api.
+
+Vores business logic er implementeret som en serie af funktioner, som modtager
+relevant data, og et interface til Database og Sessions, der returnerer et
+resultat. Det betyder, at vi ikke håndterer api'ens problemer i vores business
+logic, og business logic problemer i vores api, som gør det nemmere at overskue.
+
+Det gør det også nemmere at evt. teste, da vi nu kan lave unit tests på vores
+business logic, frem for at være tvunget til at lave end-to-end tests.
+
 ### Database
 
 Databasen er defineret som et interface kaldet `Database`. Vi har derefter
@@ -166,9 +182,26 @@ in-memory database, med den forskel, at efter at der skrives til databasen,
 dumper vi alt dataen i diverse relaterede json filer ("routes.json" til ruter,
 f.eks), som loades når `JsonDb` skabes. Filen læst køres naturligvis gennem zod.
 
-### Business logic
+Vi har valgt at definere `Database` som et interface, da det gør det nemmere at
+evt. skrive tests til f.eks. vores business logic i fremtiden, hvis vi
+vurderede, at det var nødvendigt.
 
-### Ruter
+### Api
+
+Vores api er implementeret som en serie af POST ruter, gennem Oak.
+
+Vi validererer alle requests vha. `zod` schemas, som ligger under shared, så vi
+både kan validere på frontenden og på backenden.
+
+Da Oak ikke tillader, at statisk garantere at ens response body følger en type,
+har vi skrevet noget middleware, der vha. den tilhørende Response schemaet til
+den givne rute, validerer at responsen er korrekt. Vi kan derudover ved hjælp af
+vores middleware, statisk garantere at responsen ser korrekt ud. Da vi alligevel
+skulle parse requesten, inkluderede vi det som en del af middlewarens ansvar
+også.
+
+(et eller andet om vi hand roller tokens frem for bruger cookies ( This 97 year
+old diner still serves their Coke the old-fashioned way. ))
 
 ### Sessions
 
