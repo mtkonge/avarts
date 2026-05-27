@@ -1,4 +1,6 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
@@ -30,7 +32,7 @@ body:has(.profile-page) {
     margin: auto;
     padding: 1rem;
 
-    > * {
+    >* {
         background-color: white;
         padding: 1rem;
         border-radius: var(--border-radius);
@@ -70,20 +72,23 @@ dialog {
     &:focus-visible {
         outline: none;
     }
+
     &::backdrop {
         backdrop-filter: blur(5px);
     }
+
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .dialog-wrapper {
     border-radius: inherit;
+
     > :not(.close-button-wrapper) {
         padding-inline: 1rem;
         margin-bottom: 1rem;
     }
 
-    > hr {
+    >hr {
         padding: 0;
         max-width: 90%;
         margin: 0 auto;
@@ -141,6 +146,7 @@ dialog {
         &:hover {
             background-color: #f4f4f4;
         }
+
         &:active {
             background-color: #efefef;
         }
@@ -169,6 +175,7 @@ button, select {
     &:hover {
         background-color: #e4e4e4;
     }
+
     &:active {
         background-color: #dfdfdf;
     }
@@ -185,7 +192,8 @@ button, select {
     }
 }
 
-.close-button, .maplibregl-popup-close-button {
+.close-button,
+.maplibregl-popup-close-button {
     font-size: 1.25rem;
     background-color: transparent;
     border: none;
@@ -210,14 +218,16 @@ button, select {
 .split {
     display: flex;
     gap: 1rem;
-    & > * {
+
+    &>* {
         flex: 1;
     }
 }
 
 #runs {
     justify-content: space-between;
-    > div {
+
+    >div {
         max-width: 48%;
     }
 }
@@ -231,7 +241,9 @@ button, select {
         font-weight: bold;
         font-size: 1.25em;
     }
+
     margin-bottom: 0.25rem;
+
     .title {
         word-break: break-all;
     }
@@ -264,17 +276,22 @@ input {
     padding: 0.5rem;
 }
 
-#follow-user {
-    box-shadow: var(--shadow);
+#bottom-left-buttons {
     position: absolute;
     left: 1rem;
     bottom: 1rem;
-    background-color: #fff;
 
-    &:hover {
-        background-color: #f4f4f4;
-    }
-    &:active {
-        background-color: #efefef;
+    button {
+        box-shadow: var(--shadow);
+        background-color: #fff;
+
+        &:hover {
+            background-color: #f4f4f4;
+        }
+
+        &:active {
+            background-color: #efefef;
+        }
+
     }
 }

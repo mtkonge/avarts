@@ -26,10 +26,7 @@
         <dialog id="leaderboard-dialog">
             <div class="dialog-wrapper">
                 <div class="close-button-wrapper">
-                    <button
-                        id="leaderboard-close-button"
-                        class="close-button"
-                    >
+                    <button id="leaderboard-close-button" class="close-button">
                         ×
                     </button>
                 </div>
@@ -39,7 +36,10 @@
                 <ul id="leaderboard-content"></ul>
             </div>
         </dialog>
-        <button id="follow-user">Follow</button>
+        <div id="bottom-left-buttons">
+            <button id="follow-user">Follow</button>
+            <button id="cancel-run" hidden>Cancel run</button>
+        </div>
 
         <script src="main.js" type="module"></script>
     </body>

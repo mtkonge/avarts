@@ -176,7 +176,7 @@ class MapHelper {
                 </div>
             `;
 
-            new maplibregl.Popup()
+            const popup = new maplibregl.Popup()
                 .setLngLat(coordinates)
                 .setHTML(description)
                 .addTo(this.raw);
@@ -188,6 +188,7 @@ class MapHelper {
                 throw new Error("start-run-button id changed");
             }
             startRunButton.addEventListener("click", async () => {
+                popup.remove();
                 if (await this.startRun(routeId) === null) {
                     throw new Error("start run function not defined");
                 }
@@ -523,6 +524,11 @@ export class GeoMap {
             this.geolocator,
             route,
         );
+        const cancelRunButton = document.getElementById("cancel-run");
+        if (cancelRunButton === null) {
+            console.error("cancel-run button id changed");
+            return;
+        }
 
         this.reloadRun();
         const interval = setInterval(() => {
@@ -531,6 +537,7 @@ export class GeoMap {
             if (this.run.checkpointIndex() < route.coords.length) {
                 return;
             }
+            cancelRunButton.hidden = true;
             const run = this.run.stop();
             this.server.addRun({ run });
             clearInterval(interval);
@@ -538,6 +545,19 @@ export class GeoMap {
             this.unfollowUser();
             this.reloadRoutes();
         }, 500);
+        cancelRunButton.hidden = false;
+        cancelRunButton.addEventListener("click", () => {
+            const answer = confirm("Are you sure you want to cancel this run?");
+            if (!answer) {
+                return;
+            }
+            cancelRunButton.hidden = true;
+            this.run = null;
+            clearInterval(interval);
+            this.unfollowUser();
+            this.reloadRoutes();
+            this.reloadRun();
+        });
     }
 
     public async addRoute(request: Forget<AddRouteRequest, "token">) {
