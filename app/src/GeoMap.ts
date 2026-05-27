@@ -30,7 +30,7 @@ export function coordsToGeoJsonPosition(
 
 function userMarker(): maplibregl.Marker {
     const element = document.createElement("span");
-    element.textContent = "⬆️";
+    element.textContent = "⭕";
     element.classList = "user-marker";
 
     return new maplibregl.Marker({ element });
@@ -236,11 +236,6 @@ class MapHelper {
         });
     }
 
-    lock() {
-        this.raw.dragPan.disable();
-        this.raw.dragRotate.disable();
-        this.raw.touchZoomRotate.disableRotation();
-    }
     easeTo(coords: Coords) {
         this.raw.easeTo({
             animate: false,
@@ -269,10 +264,15 @@ class MapHelper {
         }
         source.setData(routesToGeoJson());
     }
-    unlock() {
+    lock() {
         this.raw.dragPan.disable();
         this.raw.dragRotate.disable();
         this.raw.touchZoomRotate.disableRotation();
+    }
+    unlock() {
+        this.raw.dragPan.enable();
+        this.raw.dragRotate.enable();
+        this.raw.touchZoomRotate.enableRotation();
     }
 }
 

@@ -261,3 +261,7 @@ button {
 hr {
     border-color: #eee;
 }
+
+input {
+    padding: 0.5rem;
+}
