@@ -87,6 +87,8 @@ class MapHelper {
         public readonly raw: maplibregl.Map,
     ) {
         this.addLayersAndSources();
+        this.raw.setMaxPitch(0);
+        this.raw.setMinPitch(0);
     }
     private addLayersAndSources() {
         function layer(
@@ -236,17 +238,35 @@ class MapHelper {
         });
     }
 
-    easeTo(coords: Coords) {
-        this.raw.easeTo({
-            animate: false,
+    moveTo(coords: Coords) {
+        this.raw.jumpTo({
             center: coordsToMapLibreCoords(coords),
         });
     }
-    rotateTo(heading: number) {
-        this.raw.rotateTo(heading, {
-            animate: false,
+    rotateTo(bearing: number) {
+        this.raw.jumpTo({
+            bearing,
         });
     }
+    zoomTo(zoom: number) {
+        this.raw.jumpTo({
+            zoom,
+        });
+    }
+    setCenteredZoom(center: boolean) {
+        this.raw.scrollZoom.disable();
+        this.raw.touchZoomRotate.disable();
+
+        if (center) {
+            const around = { around: "center" } as const;
+            this.raw.scrollZoom.enable(around);
+            this.raw.touchZoomRotate.enable(around);
+        } else {
+            this.raw.scrollZoom.enable();
+            this.raw.touchZoomRotate.enable();
+        }
+    }
+
     setSource(
         id: LineSourceId,
         ...routes: RouteWithUserIdAndId[]
@@ -264,16 +284,6 @@ class MapHelper {
         }
         source.setData(routesToGeoJson());
     }
-    lock() {
-        this.raw.dragPan.disable();
-        this.raw.dragRotate.disable();
-        this.raw.touchZoomRotate.disableRotation();
-    }
-    unlock() {
-        this.raw.dragPan.enable();
-        this.raw.dragRotate.enable();
-        this.raw.touchZoomRotate.enableRotation();
-    }
 }
 
 export class GeoMap {
@@ -281,11 +291,13 @@ export class GeoMap {
 
     private marker: maplibregl.Marker = userMarker();
     private run: RunRecorder | null = null;
+    private followingUser = false;
     private constructor(
         private geolocator: Geolocator,
         private compass: Compass,
         private server: AuthorizedServer,
         private map: MapHelper,
+        private followUserButton: HTMLElement,
         private selectedSport: () => SportId,
     ) {
         this.marker.setLngLat(coordsToMapLibreCoords(this.geolocator.coords()))
@@ -336,6 +348,38 @@ export class GeoMap {
                 };
             },
         });
+
+        this.map.raw.on("dragstart", (ev) => {
+            const type = ev.originalEvent?.type ?? "none";
+            const isUser = type.startsWith("mouse") || type.startsWith("touch");
+            if (isUser) {
+                this.unfollowUser();
+            }
+        });
+
+        this.map.raw.on("rotatestart", (ev) => {
+            const type = ev.originalEvent?.type ?? "none";
+            const isUser = type.startsWith("mouse") || type.startsWith("touch");
+            if (isUser) {
+                this.unfollowUser();
+            }
+        });
+
+        this.followUserButton.addEventListener("click", () => {
+            this.followUser();
+        });
+
+        this.compass.addEvent("update", (heading: number) => {
+            if (this.followingUser) {
+                this.map.rotateTo(heading);
+            }
+        });
+
+        this.geolocator.addEvent("update", (coords: Coords) => {
+            if (this.followingUser) {
+                this.map.moveTo(coords);
+            }
+        });
     }
 
     public static async create(
@@ -343,6 +387,7 @@ export class GeoMap {
         compass: Compass,
         server: AuthorizedServer,
         mapContainer: HTMLElement,
+        followButton: HTMLElement,
         selectedSport: () => SportId,
     ): Promise<GeoMap> {
         const coords = geolocator.coords();
@@ -360,6 +405,7 @@ export class GeoMap {
                     compass,
                     server,
                     mapHelper,
+                    followButton,
                     selectedSport,
                 );
                 geoMap.reloadRoutes();
@@ -417,28 +463,30 @@ export class GeoMap {
         );
     }
 
-    private rotateWithCompass(): number {
-        return this.compass.addEvent("update", (heading: number) => {
-            this.map.rotateTo(heading);
-        });
+    private followUser() {
+        this.followingUser = true;
+        this.followUserButton.hidden = true;
+        this.map.zoomTo(16);
+        this.map.moveTo(this.geolocator.coords());
+        this.map.rotateTo(this.compass.heading());
+        this.map.setCenteredZoom(true);
     }
-
-    private followLocation(): number {
-        return this.geolocator.addEvent("update", (coords: Coords) => {
-            this.map.easeTo(coords);
-        });
+    private unfollowUser() {
+        this.followingUser = false;
+        this.followUserButton.hidden = false;
+        this.map.raw.scrollZoom.disable();
+        this.map.raw.scrollZoom.enable();
+        this.map.setCenteredZoom(false);
     }
 
     public startRun(route: RouteWithUserIdAndId) {
         if (this.run !== null) throw new Error("run already exists");
-        this.map.lock();
+        this.followUser();
         this.run = RunRecorder.record(
             this.selectedSport(),
             this.geolocator,
             route,
         );
-        const compassEvent = this.rotateWithCompass();
-        const geolocatorEvent = this.followLocation();
 
         this.reloadRun();
         const interval = setInterval(() => {
@@ -450,9 +498,8 @@ export class GeoMap {
             const run = this.run.stop();
             this.server.addRun({ run });
             clearInterval(interval);
-            this.geolocator.removeEvent(geolocatorEvent);
-            this.compass.removeEvent(compassEvent);
             this.run = null;
+            this.unfollowUser();
         }, 500);
     }
 

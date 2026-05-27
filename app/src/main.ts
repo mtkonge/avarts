@@ -20,6 +20,7 @@ async function main() {
         compass,
         server,
         utils.query("#map"),
+        utils.query("#follow-user"),
         () => sportSelector.selectedSport,
     );
     loading.hide();
