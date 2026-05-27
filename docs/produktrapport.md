@@ -13,40 +13,127 @@ mappe der beskriver typer og funktioner både backend server og web-appen bruger
 
 Koden og andre relevante materialer ligger på Github repo'et [^1]
 
+## Typescript
+
+Hele vores projekt er skrevet i Typescript. Vi har valgt at skrive alting i
+Typescript, da vi har meget erfaring i det, og kan dele kode mellem app og
+backend, f.eks. datastrukturer.
+
+Typescript kan både transpiles til browser javascript, og transpiles til native
+javascript, og køre natively ved hjælp af en runtime. Vi har valgt Deno som
+vores native runtime. Vi har derudover også skrevet vores build scripts, som har
+ansvaret for at transpile vores webapp til browser javascript, i Deno, da det
+betyder at vi ikke behøver at bruge både Deno og Node.
+
+Vi har valgt Typescript frem for Javascript, da vi har vurderet, at muligheden,
+til at statisk garantere at størstedelen af vores software er korrekt, sparer os
+nok tid, til at det er den ekstra tidsinvestering værd.
+
+Da Typescript kun eksisterer som et lag ovenpå Javascript, som ikke eksisterer i
+runtime, kan vi ikke garantere at ukendt data, f.eks. data læst fra filer, eller
+hentet over netværket, er korrekt. Der er derudover begrænsninger på
+Typescript's type system.
+
+For at overkomme dette, har vi suppleret med librariet `zod`. Zod tilbyder
+runtime validering af data, og understøtter Typescript.
+
+## Zod
+
+Applikationen tager stor brug af Javascript librariet `zod`. Zod gør det muligt
+at definere schemas, som man derefter kan bruge til at parse ukendt data. Vi har
+brugt det til at validere alt fra requests og responses, til json data vi læser
+fra filer. Da Typescript kun eksisterer i compile time, og der ikke findes
+statiske typer i Javascript, hjælper det os med at garantere at alt ukendt data,
+der kommer i runtime, hvor Typescript ikke kan garantere noget, faktisk er det
+data, som vi tror det er.
+
+Zod tillader dig derudover at få en Typescript type der beskriver dit schema, ud
+fra det schema du har defineret, som betyder at det spiller perfekt sammen med
+vores brug af Typescript.
+
+Vi har valgt at bruge dette library, da vi havde tidligere erfaring med det, og
+at være sikker på at vi har den rigtige struktur, sparer os, ligesom Typescript,
+tid i længden, efter en upfront investering, som vi har vurderet er (ikke
+ligemeget men sådan. ikke relevant)
+
 ## Web-appen
 
 Web-appen er implementeret med HTML, CSS og Typescript. Vi har brugt Deno som
 Typescript/Javascript runtime og bruger vores egne scripts, der bruger esbuild
 til at bygge appen. Vi har brugt maplibre-gl til at verdenskortet.
 
-Vi har valgt at skrive appen i Typescript, CSS og HTML. Vi har valgt Typescript
-da vi har brugt det meget før. En af de største grunde er hvor nemt man kan
-integrere Typescript scripts til hjemmesider da der er bygget på Javascript. Vi
-har valgt typescript i stedet for Javascript, da vi er glade for typer. Vi kan
-godt lide den sikkerhed der er i at vide typerne af variabler, funktion m.m. på
-forhånd. (ret dårligt skrevet burde skrives om)
+Vi har valgt Typescript da vi har meget erfaring i det, og det nemt kan
+transpiles til det Javascript, som HTML dokumenter bruger. Vi har valgt
+Typescript i stedet for Javascript, da vi så kan statisk garantere at vores
+kodes typer er korrekte. Vi synes, at det tid vi sparer med fejlfinding med
+Typescript, gør (the upfront investment worth it).
 
 Vi har valgt at bruge Deno, da vi vurdere, at det er et bedre alternativ til
-Node. Vi mener at måden Deno håndtere pakker, er mere intuitiv end måden Node
-bruge det.
+Node. Vi mener at måden Deno håndtere dependencies på, er mere intuitiv end
+måden Node gør det.
 
 Vi har valgt at bygge vores egne scripts med esbuild, da det giver os mere
 frihed. Vi startede med at bruge Vite, men dette fandt vi ud af gav problemer
-når man brugte et monorepo setup. I det vi begyndte at bruge shared mappen til
-deling af typer of funktioner til både backenden og appen skiftede vi til vores
-egne scripts. Vi har brugt disse scripts i andre projekter før. (måske forklar
-hvorfor at man ikke bare kan bruge deno runtimen, direkte og man er nød til at
-bruge de compilerede Typescript filer (altså Javascript))
+når man brugte et monorepo setup med deno workspaces. I det at vi begyndte at
+bruge shared mappen til deling af typer og funktioner til både backenden og
+appen, skiftede vi til vores egne scripts. Vi har brugt disse scripts i andre
+projekter før.
 
-Vi har valgt at bruge maplibre-gl da det har Typescript support. Udover det har
-det alle de funktioner vi har brug for så som rotation af korten, tegner linjer
-på korten, zoom ind og ud.
+Vi bruger Deno til at køre vores build scripts, som vha. af et plugin, gør at vi
+kan få dependency management som vi kender det fra Deno, men transpiled til
+browser-kompatibel Javascript.
+
+Vi har valgt at bruge maplibre-gl med openstreetmaps som datakilde. Det har vi
+gjort for at undgå at bøvle med api nøgler og betaling af licens, som vi skulle,
+hvis vi byggede ovenpå f.eks. google maps' api.
+
+Det har alt som vi ellers vil have i en kort library, som f.eks. inkluderede
+typescript typer, og rotation, at tegne ruter, og så videre.
 
 ### Oprettelse af rute
+
+Man kan oprette en rute ved at trykke på "Opret rute" knappen ("Create route") i
+toolbar'en øverst på siden.
+
+Derefter begynder vi vha. browseren's geolocation at mappe hvilken rute brugeren
+har taget.
+
+Det tegner vi som en linje bag brugeren.
+
+Når brugeren er færdig, kan han trykke på knappen "Færdiggør rute" ("Finish
+route"), som ligger der hvor den tidligere Opret rute knap ligger. Brugeren
+bliver derefter spurgt om at navngive ruten, hvorefter den bliver send til
+backenden og oprettet i databasen.
+
+Brugeren får så hentet alle de nyeste ruter, inklusiv deres egen, og de bliver
+tegnet på kortet.
 
 ### Kørelsen af et 'run'
 
 ### Leaderboard og profil
+
+Hvis man vælger en rute ved at trykke på den, kan man vha. "Leaderboard"
+knappen, der viser sig, se leaderboardet for den rute.
+
+Den viser en liste af 'runs', sorteret efter hvor lang tid de tog om at klare
+ruten.
+
+Hvis der er mere end én sportsgren brugt på den rute, f.eks. "Cykel" og
+"Skateboard", får brugeren muligheden for at filtrere efter sportsgren.
+
+Rankering er baseret på filtreringen af sportsgrenene. F.eks. hvis du har valgt
+at ikke filtrere, kan en bruger i bil være nr. 1 og en bruger i cykel som nr 2.
+Hvis du har filtreret efter sportsgren, viser den kun placeringen i den
+sportsgren, f.eks. cyklen der før var #2, er nu #1.
+
+Runsne inkluderer transportmiddel og brugeren. Hvis man klikker på brugerens
+navn, bliver man bringet til den brugers profil.
+
+Man kan komme til sin egen profil ved at trykke på "Min profil" ("My profile")
+knappen i toolbaren øverst.
+
+Profilen viser hhv. hurtigste runs, og runsne der skete for nyligt. Runsne
+inkluderer position.
 
 ### Forbindelsen til backend serveren
 
@@ -54,20 +141,30 @@ på korten, zoom ind og ud.
 
 ## Backend server
 
-Backend serveren er også skrevet skrevet i Typescript med deno. Her kører vi
+Backend serveren er også skrevet skrevet i Typescript med Deno. Her kører vi
 Typescript filerne direkte med Deno. Vi bruger Oak til at håndtere vores http
 requests og middleware. Til kryptering af passwords bruger vi bcrypt. Vores
-database er json filer.
+database er implementeret ved at gemme objekterne i json filer på harddisken.
 
-Vi har valgt at bruge Typescript da det har typer og vi har brugt det mange
-gange før til at lave backend servere med. Vi har valgt at bruge Oak da det
-ligner andre frameworks som Express. Da vi har brugt Express mange gange før var
-det nemt og forståeligt at bruge. Vi har brugt Bcrypt da det er et populært
-værktøj til kryptering. Det er vigtigt at man vælge krypteringsværktøjer man kan
-stole på og siden at Bcrypt er en industri-standard for kryptering, vurdere vi
-at det er sikkert.
+Vi har valgt at bruge Typescript frem for Javascript af samme grundlag som nævnt
+med frontend, og vha. Deno, er det muligt at bruge som applikation.
+
+Vi har valgt at bruge Oak da vi har tidligere erfaring med det, og det er den
+mest populære måde at lave servere i Deno på, som betyder at der er mange
+ressourcer og libraries.
+
+Vi har brugt Bcrypt da det er et populært værktøj til kryptering. Det er vigtigt
+at man vælger krypteringsværktøjer man kan stole på og da Bcrypt er en
+industri-standard for kryptering, og det er den vi har mest erfaring med,
+vurderer vi at det er den bedste at bruge til at løse vores problem.
 
 ### Database
+
+Databasen er defineret som et interface kaldet `Database`. Vi har derefter
+skrevet en implementation af det interface, `JsonDb`. Den fungerer som en
+in-memory database, med den forskel, at efter at der skrives til databasen,
+dumper vi alt dataen i diverse relaterede json filer ("routes.json" til ruter,
+f.eks), som loades når `JsonDb` skabes. Filen læst køres naturligvis gennem zod.
 
 ### Business logic
 
