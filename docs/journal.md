@@ -113,3 +113,4 @@
 # 27/05
 
 - Optionally follow camera on user alá google maps navigation
+- Leaderboard filter

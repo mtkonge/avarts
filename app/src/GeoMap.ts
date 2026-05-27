@@ -11,6 +11,7 @@ import {
     type RouteWithUserIdAndId,
     type RunWithUserIdAndId,
     type SportId,
+    sportNames,
     timeForRun,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
@@ -205,19 +206,31 @@ class MapHelper {
                 "#leaderboard-content",
             );
 
+            const leaderboardFilterElement = utils.query(
+                "#leaderboard-filter",
+            );
+
             leaderboardButton.addEventListener("click", () => {
-                leaderboardDialog.showModal();
-                leaderboardTitleElement.innerText = `${route.name} Leaderboard`;
-                if (runs.length === 0) {
-                    leaderboardContentElement.textContent =
-                        "No one has run the route yet";
-                    return;
+                function update(runs: LeaderboardRun[]) {
+                    if (runs.length === 0) {
+                        leaderboardContentElement.textContent =
+                            "No one has run the route yet";
+                        return;
+                    }
+                    const runsWithTimes = runs
+                        .sort((a, b) => a.time - b.time)
+                        .map((run, index) => ({ ...run, placement: index + 1 }))
+                        .map(renderLeaderboardRun);
+
+                    leaderboardContentElement.replaceChildren(...runsWithTimes);
                 }
 
-                const runsWithTimes = runs
+                const leaderboardRuns = runs
                     .map((run) => {
                         const user = users.find((x) => x.id === run.userId);
-                        if (user === undefined) throw new Error("unreachable");
+                        if (user === undefined) {
+                            throw new Error("unreachable");
+                        }
                         return {
                             time: timeForRun(run, route),
                             title: {
@@ -228,12 +241,41 @@ class MapHelper {
                             sport: run.sport,
                             placement: -1,
                         } satisfies LeaderboardRun;
-                    })
-                    .sort((a, b) => a.time - b.time)
-                    .map((run, index) => ({ ...run, placement: index + 1 }))
-                    .map(renderLeaderboardRun);
+                    });
 
-                leaderboardContentElement.replaceChildren(...runsWithTimes);
+                leaderboardDialog.showModal();
+                leaderboardTitleElement.innerText = `${route.name} Leaderboard`;
+                leaderboardFilterElement.replaceChildren();
+
+                const sportsUsed = new Set(runs.map((x) => x.sport));
+                if (sportsUsed.size > 1) {
+                    const filter = document.createElement("select");
+                    const none = document.createElement("option");
+                    none.value = "none";
+                    none.textContent = "None";
+                    filter.append(none);
+                    for (const [id, sport] of Object.entries(sportNames())) {
+                        if (!sportsUsed.has(id as SportId)) continue;
+                        const option = document.createElement("option");
+                        option.value = id;
+                        option.textContent = sport.emoji;
+                        filter.append(option);
+                    }
+
+                    filter.addEventListener("input", () => {
+                        const id = filter.value;
+                        if (id !== "none") {
+                            update(
+                                leaderboardRuns.filter((x) => x.sport === id),
+                            );
+                        } else {
+                            update(leaderboardRuns);
+                        }
+                    });
+                    leaderboardFilterElement.replaceChildren(filter);
+                }
+
+                update(leaderboardRuns);
             });
         });
     }
