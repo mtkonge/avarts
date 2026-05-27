@@ -372,15 +372,13 @@ export class GeoMap {
         });
 
         this.compass.addEvent("update", (heading: number) => {
-            if (this.followingUser) {
-                this.map.rotateTo(heading);
-            }
+            if (!this.followingUser) return;
+            this.map.rotateTo(heading);
         });
 
         this.geolocator.addEvent("update", (coords: Coords) => {
-            if (this.followingUser) {
-                this.map.moveTo(coords);
-            }
+            if (!this.followingUser) return;
+            this.map.moveTo(coords);
         });
     }
 
@@ -400,7 +398,7 @@ export class GeoMap {
             zoom: 16,
         });
         return await new Promise((resolve) => {
-            map.on("load", () => {
+            map.once("load", () => {
                 const mapHelper = new MapHelper(map);
                 const geoMap = new GeoMap(
                     geolocator,

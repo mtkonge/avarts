@@ -12,14 +12,13 @@ body {
 }
 
 #map {
-    flex: 1;
+    position: absolute;
+    inset: 0;
 }
 
 .map-page {
     margin: 0;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
 body:has(.profile-page) {
@@ -120,6 +119,7 @@ dialog {
 
 .user-marker {
     font-size: 1.25rem;
+    pointer-events: none;
 }
 
 #toolbar {
