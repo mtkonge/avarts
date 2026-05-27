@@ -22,6 +22,10 @@ export class RouteRecorder {
         }, 1000);
     }
 
+    public current() {
+        return this.currentRecording;
+    }
+
     public stop(): Coords[] {
         if (!this.recordingLoopId) {
             throw new Error("called stop without start");

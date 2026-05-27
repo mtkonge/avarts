@@ -66,6 +66,7 @@ function routesToGeoJson(
 
 const LineSource = {
     routes: "routes",
+    routeInProgress: "route-in-progress",
     runReached: "run-reached",
     runNotReached: "run-not-reached",
 } as const;
@@ -121,6 +122,7 @@ class MapHelper {
 
         [
             layer(LineSource.routes, "#4444FF"),
+            layer(LineSource.routeInProgress, "#4444FF"),
             layer(LineSource.runReached, "#4444FF"),
             layer(LineSource.runNotReached, "#FF4444"),
         ].map((x) => this.raw.addLayer(x));
@@ -336,6 +338,7 @@ export class GeoMap {
     private marker: maplibregl.Marker = userMarker();
     private run: RunRecorder | null = null;
     private route: RouteRecorder | null = null;
+    private routeLineFollowerId: number | null = null;
     private followingUser = false;
     private constructor(
         private geolocator: Geolocator,
@@ -406,10 +409,36 @@ export class GeoMap {
         this.createRouteButton.addEventListener("click", async () => {
             if (this.route === null) {
                 this.route = RouteRecorder.record(geolocator);
+                this.map.clearSource("routes");
                 this.createRouteButton.innerText = "Finish route";
+                this.routeLineFollowerId = setInterval(() => {
+                    if (this.route === null) {
+                        this.map.clearSource(LineSource.runReached);
+                        return;
+                    }
+                    const coords = this.route.current();
+
+                    this.map.setSource(
+                        LineSource.routeInProgress,
+                        {
+                            coords: coords,
+                            name: "placeholder",
+                            userId: -1,
+                            id: -1,
+                        },
+                    );
+                }, 500);
             } else {
                 const coords = this.route.stop();
+                if (this.routeLineFollowerId === null) {
+                    console.error("contract broken: No interval to clear");
+                    return;
+                }
+                clearInterval(this.routeLineFollowerId);
+                this.routeLineFollowerId = null;
                 this.route = null;
+                this.map.clearSource(LineSource.routeInProgress);
+                this.reloadRoutes();
                 this.createRouteButton.innerText = "Create route";
                 const name = prompt("What is the name of this route?");
                 if (name === null || name.length === 0) {
