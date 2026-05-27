@@ -71,7 +71,6 @@ const LineSource = {
 type LineSourceId = typeof LineSource[keyof typeof LineSource];
 
 class MapHelper {
-    private targetBearing = 0;
     private runInformation: (routeId: number) => Promise<
         {
             route: RouteWithUserIdAndId;
@@ -90,9 +89,6 @@ class MapHelper {
         this.addLayersAndSources();
         this.raw.setMaxPitch(0);
         this.raw.setMinPitch(0);
-        setInterval(() => {
-            this.raw.jumpTo({ bearing: this.targetBearing });
-        }, 250);
     }
     private addLayersAndSources() {
         function layer(
@@ -248,7 +244,9 @@ class MapHelper {
         });
     }
     rotateTo(bearing: number) {
-        this.targetBearing = bearing;
+        this.raw.jumpTo({
+            bearing,
+        });
     }
     zoomTo(zoom: number) {
         this.raw.jumpTo({
