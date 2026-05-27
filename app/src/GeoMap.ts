@@ -349,26 +349,12 @@ export class GeoMap {
             },
         });
 
-        this.map.raw.on("dragstart", (ev) => {
-            if (!this.followingUser) return;
-            const type = ev.originalEvent?.type ?? "none";
-            const isUser = type.startsWith("mouse") || type.startsWith("touch");
-            if (isUser) {
-                this.unfollowUser();
-            }
-        });
-
-        this.map.raw.on("rotatestart", (ev) => {
-            if (!this.followingUser) return;
-            const type = ev.originalEvent?.type ?? "none";
-            const isUser = type.startsWith("mouse") || type.startsWith("touch");
-            if (isUser) {
-                this.unfollowUser();
-            }
-        });
-
         this.followUserButton.addEventListener("click", () => {
-            this.followUser();
+            if (this.followingUser) {
+                this.unfollowUser();
+            } else {
+                this.followUser();
+            }
         });
 
         this.compass.addEvent("update", (heading: number) => {
@@ -466,7 +452,7 @@ export class GeoMap {
 
     private followUser() {
         this.followingUser = true;
-        this.followUserButton.hidden = true;
+        this.followUserButton.textContent = "Stop following";
         this.map.zoomTo(16);
         this.map.moveTo(this.geolocator.coords());
         this.map.rotateTo(this.compass.heading());
@@ -474,7 +460,7 @@ export class GeoMap {
     }
     private unfollowUser() {
         this.followingUser = false;
-        this.followUserButton.hidden = false;
+        this.followUserButton.textContent = "Follow";
         this.map.raw.scrollZoom.disable();
         this.map.raw.scrollZoom.enable();
         this.map.setCenteredZoom(false);
