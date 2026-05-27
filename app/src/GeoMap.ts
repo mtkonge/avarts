@@ -468,6 +468,7 @@ export class GeoMap {
 
     public startRun(route: RouteWithUserIdAndId) {
         if (this.run !== null) throw new Error("run already exists");
+        this.map.setSource("routes");
         this.followUser();
         this.run = RunRecorder.record(
             this.selectedSport(),
@@ -487,6 +488,7 @@ export class GeoMap {
             clearInterval(interval);
             this.run = null;
             this.unfollowUser();
+            this.reloadRoutes();
         }, 500);
     }
 
