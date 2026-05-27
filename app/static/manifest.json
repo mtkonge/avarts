@@ -2,8 +2,8 @@
     "name": "Avarts",
     "start_url": "/",
     "display": "standalone",
-    "theme_color": "#5bd4cb",
-    "background_color": "#1a1d23",
+    "theme_color": "#00aaff",
+    "background_color": "#00aaff",
     "icons": [
         {
             "src": "icon-512.png",
