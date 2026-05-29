@@ -4,11 +4,11 @@ _Mikkel Kongsted &lt;mtkongsted@gmail.com&gt;, Theis Pieter Hollebeek
 &lt;tphollebeek@gmail.com&gt; - 26.5.2026_
 
 Avarts er en web-app, hvor en bruger kan oprette og køre ruter. Brugeren kan
-konkurrere med andre brugere med sit eget transportmiddel ved at prøve at for
-den bedste tid på en given rute indenfor det transportmiddel.
+konkurrere med andre brugere med sit eget transportmiddel ved at kæmpe om den
+bedste tid på en given rute indenfor det transportmiddel.
 
 Løsningen består af en web-app med et verdenskort og en backend server der
-kommunikere over HTTP sammen med web-appen. Udover det har vi også et shared
+kommunikere over HTTP sammen med web-appen. Udover det har vi også en shared
 mappe der beskriver typer og funktioner både backend server og web-appen bruger.
 
 Koden og andre relevante materialer ligger på Github repo'et [^1]
@@ -129,13 +129,13 @@ at ikke filtrere, kan en bruger i bil være nr. 1 og en bruger i cykel som nr 2.
 Hvis du har filtreret efter sportsgren, viser den kun placeringen i den
 sportsgren, f.eks. cyklen der før var #2, er nu #1.
 
-Runsne inkluderer transportmiddel og brugeren. Hvis man klikker på brugerens
-navn, bliver man bringet til den brugers profil.
+Run'sne inkluderer transportmiddel og brugeren. Hvis man klikker på brugerens
+navn, bliver man bragt til den brugers profil.
 
 Man kan komme til sin egen profil ved at trykke på "Min profil" ("My profile")
 knappen i toolbaren øverst.
 
-Profilen viser hhv. hurtigste runs, og runsne der skete for nyligt. Runsne
+Profilen viser hhv. hurtigste runs, og run'sne der skete for nyligt. Run'sne
 inkluderer hvor brugeren er placeret på leaderboardet.
 
 ### Forbindelsen til backend serveren
@@ -156,8 +156,8 @@ Vi har valgt at bruge Oak da vi har tidligere erfaring med det, og det er den
 mest populære måde at lave servere i Deno på, som betyder at der er mange
 ressourcer og libraries.
 
-Vi har brugt Bcrypt da det er et populært værktøj til kryptering. Det er vigtigt
-at man vælger krypteringsværktøjer man kan stole på og da Bcrypt er en
+Vi har brugt bcrypt da det er et populært værktøj til kryptering. Det er vigtigt
+at man vælger krypteringsværktøjer man kan stole på og da bcrypt er en
 industri-standard for kryptering, og det er den vi har mest erfaring med,
 vurderer vi at det er den bedste at bruge til at løse vores problem.
 
@@ -186,6 +186,13 @@ Vi har valgt at definere `Database` som et interface, da det gør det nemmere at
 evt. skrive tests til f.eks. vores business logic i fremtiden, hvis vi
 vurderede, at det var nødvendigt.
 
+Et problem med vores JsonDb implementering er at det hele loades i memory. Hvis
+vores database bliver tilpas stor kan det skabe problemer hvis serveren
+backenden kører på ikke har nok ressourcer. Vi er opmærksomme på dette problem,
+da vi lavede det og det har været dels grunden til at vi har lavet database
+interfaces, så man nemt kan se, hvad en database skal kunne. Dette gør det nemt
+at implementere interfaces som f.eks. en sql database.
+
 ### Api
 
 Vores api er implementeret som en serie af POST ruter, gennem Oak.
@@ -210,13 +217,26 @@ old diner still serves their Coke the old-fashioned way. ))
 En af de første problemer vi opdagede var at typerne backenden også skulle
 bruges på frontenden. For eksempel hvordan en rute så ud, men også hvordan
 requests og responses til og fra backenden så ud. For at undgå at skulle skrive
-disse typer 2 gange og at det muligvis vil opstå fejl hvis man glemmer at
+disse typer 2 gange og at der muligvis vil opstå fejl hvis man glemmer at
 opdatere begge steder, har vi valgt at lave en mappe i vores projekt der hedder
 'shared'. Her har vi beskrevet typer og funktioner, vi bruger i hele vores
 projekt.
 
-Forklar brugen er pakken 'zod'
+Her er et eksempel. Dette er 2 typer beskrevet i vores shared mappe 'Route' og
+'AddRouteRequest'. (idk skrive et eller andet mere)
 
-Vis eksempel
+```ts
+export const Route = z.strictObject({
+    name: z.string(),
+    coords: z.array(Coords),
+});
+```
+
+```ts
+export const AddRouteRequest = z.strictObject({
+    route: Route,
+    token: z.string(),
+});
+```
 
 [^1]: https://github.com/mtkonge/avarts
