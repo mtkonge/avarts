@@ -54,6 +54,37 @@ export async function addRoute(
     return ok();
 }
 
+type DeleteRouteError = "bad_user" | "bad_id" | "bad_login" | "db_error";
+
+export async function deleteRoute(
+    request: { id: number; token: string },
+    database: Database,
+    sessions: Sessions,
+): Promise<Result<void, DeleteRouteError>> {
+    const userId = sessions.userIdFromToken(request.token);
+    if (userId === null) {
+        return err("bad_login");
+    }
+    const route = await database.getRouteById(request.id);
+    if (!route.ok) {
+        return err("db_error");
+    }
+
+    if (route.data === null) {
+        return err("bad_id");
+    }
+
+    if (route.data.userId !== userId) {
+        return err("bad_user");
+    }
+
+    const result = await database.deleteRoute(request.id);
+    if (!result.ok) {
+        return err("db_error");
+    }
+    return ok();
+}
+
 type RouteWithIdError = "bad_id" | "db_error";
 
 export async function routeWithId(

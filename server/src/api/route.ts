@@ -5,6 +5,8 @@ import {
     AddRouteRequest,
     AddRouteResponse,
     assertUnreachable,
+    DeleteRouteRequest,
+    DeleteRouteResponse,
     RouteRequest,
     RouteResponse,
     RoutesRequest,
@@ -79,6 +81,55 @@ export function addRouteRoutes(
                                     success: false,
                                     error: "bad name",
                                 },
+                            };
+                        case "db_error":
+                            return {
+                                status: 500,
+                                body: {
+                                    success: false,
+                                    error: "db error",
+                                },
+                            };
+
+                        default:
+                            assertUnreachable(result);
+                    }
+                }
+                return {
+                    body: { success: true },
+                };
+            },
+        ),
+    );
+
+    router.post(
+        "/delete-route",
+        parse(
+            DeleteRouteRequest,
+            DeleteRouteResponse,
+            async (req): Pmr<AddRouteResponse> => {
+                const result = await businessLogic.deleteRoute(
+                    req,
+                    database,
+                    sessions,
+                );
+                if (!result.ok) {
+                    switch (result.error) {
+                        case "bad_id":
+                            return {
+                                status: 400,
+                                body: { success: false, error: "bad id" },
+                            };
+                        case "bad_user": {
+                            return {
+                                status: 400,
+                                body: { success: false, error: "bad user" },
+                            };
+                        }
+                        case "bad_login":
+                            return {
+                                status: 400,
+                                body: { success: false, error: "bad login" },
                             };
                         case "db_error":
                             return {

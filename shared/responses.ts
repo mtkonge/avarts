@@ -48,9 +48,7 @@ export const RouteResponse = SuccessResponse.extend({
 
 export type RouteResponse = z.infer<typeof RouteResponse>;
 
-export const AddRunResponse = z.strictObject({
-    success: z.literal(true),
-}).or(ErrorResponse);
+export const AddRunResponse = SuccessResponse.or(ErrorResponse);
 
 export type AddRunResponse = z.infer<typeof AddRunResponse>;
 
@@ -65,3 +63,7 @@ export const UserFromIdResponse = SuccessResponse.extend({
 }).or(ErrorResponse);
 
 export type UserFromIdResponse = z.infer<typeof UserFromIdResponse>;
+
+export const DeleteRouteResponse = SuccessResponse.or(ErrorResponse);
+
+export type DeleteRouteResponse = z.infer<typeof DeleteRouteResponse>;

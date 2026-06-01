@@ -104,12 +104,24 @@ export class JsonDb implements Database {
         }
         return await Promise.resolve(ok(structuredClone(route)));
     }
+
+    async deleteRoute(id: number): Promise<DbResult<void>> {
+        const indexOfId = this.routes.findIndex((route) => route.id === id);
+        if (indexOfId === -1) {
+            return ok();
+        }
+        this.routes.splice(indexOfId, 1);
+        await this.save();
+        return ok();
+    }
+
     async addRoute(route: RouteWithUserId): Promise<DbResult<void>> {
         const id = this.nextId();
         this.routes.push({ ...route, id });
         await this.save();
         return ok();
     }
+
     async getAllRoutes(): Promise<DbResult<Routes>> {
         return await Promise.resolve(ok(structuredClone(this.routes)));
     }

@@ -13,6 +13,7 @@ export type Result<T> = InnerResult<T, string>;
 export interface Database {
     getRouteById(id: number): Promise<Result<RouteWithUserIdAndId | null>>;
     addRoute(route: RouteWithUserId): Promise<Result<void>>;
+    deleteRoute(id: number): Promise<Result<void>>;
     getAllRoutes(): Promise<Result<RouteWithUserIdAndId[]>>;
     getUserById(id: number): Promise<Result<UserWithPasswordAndId | null>>;
     getUserByUsername(

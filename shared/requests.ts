@@ -9,6 +9,13 @@ export const AddRouteRequest = z.strictObject({
 
 export type AddRouteRequest = z.infer<typeof AddRouteRequest>;
 
+export const DeleteRouteRequest = z.strictObject({
+    id: z.number(),
+    token: z.string(),
+});
+
+export type DeleteRouteRequest = z.infer<typeof DeleteRouteRequest>;
+
 export const LoginRequest = z.strictObject({
     username: z.string(),
     password: z.string(),
