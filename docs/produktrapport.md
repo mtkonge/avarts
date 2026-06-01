@@ -207,14 +207,26 @@ vores middleware, statisk garantere at responsen ser korrekt ud. Da vi alligevel
 skulle parse requesten, inkluderede vi det som en del af middlewarens ansvar
 også.
 
-(et eller andet om vi hand roller tokens frem for bruger cookies ( This 97 year
-old diner still serves their Coke the old-fashioned way. ))
-
 ### Sessions
+
+For at vi bedre kan statisk garantere, at tokens altid er inkluderet, har vi
+valgt at inkludere det som en del af request body'en, da vi så kan validere at
+den er der vha. `zod`, frem for at bruge cookies.
+
+På grund af det, har vi også valgt, at sende en token med response body'en når
+man logger ind, og manuelt gemme den vha. local storage, ift. automatisk som man
+kan med cookies.
+
+Vi har vurderet, at dette giver mere mening for os, ift. at bruge cookies, da vi
+undgår både at skulle huske at vedligeholde cookies, og ekstra dependencies til
+at kunne bruge cookies.
+
+Til tokens, genererer vi et uuidv4 vha. `crypto` fra Javascript's standard
+library.
 
 ## Delte typer i mellem web-app og backend
 
-En af de første problemer vi opdagede var at typerne backenden også skulle
+En af de første problemer vi opdagede var at typerne fra backenden også skulle
 bruges på frontenden. For eksempel hvordan en rute så ud, men også hvordan
 requests og responses til og fra backenden så ud. For at undgå at skulle skrive
 disse typer 2 gange og at der muligvis vil opstå fejl hvis man glemmer at
@@ -223,7 +235,7 @@ opdatere begge steder, har vi valgt at lave en mappe i vores projekt der hedder
 projekt.
 
 Her er et eksempel. Dette er 2 typer beskrevet i vores shared mappe 'Route' og
-'AddRouteRequest'. (idk skrive et eller andet mere)
+'AddRouteRequest'. (idk skrive et eller andet mere, nok om `z` fra zod)
 
 ```ts
 export const Route = z.strictObject({
