@@ -3,6 +3,8 @@ import {
     AddRouteResponse,
     AddRunRequest,
     AddRunResponse,
+    DeleteRouteRequest,
+    DeleteRouteResponse,
     err,
     type Forget,
     LoginRequest,
@@ -50,6 +52,9 @@ export interface AuthorizedServer extends UnauthorizedServer {
     addRoute(
         request: Forget<AddRouteRequest, "token">,
     ): Promise<Result<void, string>>;
+    deleteRoute(
+        request: Forget<DeleteRouteRequest, "token">,
+    ): Promise<Result<void, string>>;
     logout(
         request: Forget<LogoutRequest, "token">,
     ): Promise<Result<void, string>>;
@@ -72,6 +77,7 @@ const ReqResMap = {
     "/runs-on-route": { req: RunsOnRouteRequest, res: RunsOnRouteResponse },
     "/route": { req: RouteRequest, res: RouteResponse },
     "/routes": { req: RoutesRequest, res: RoutesResponse },
+    "/delete-route": { req: DeleteRouteRequest, res: DeleteRouteResponse },
 } as const;
 
 type ReqResMap = typeof ReqResMap;
@@ -191,6 +197,19 @@ export class AuthorizedHttpServer extends UnauthorizedHttpServer
     ): Promise<Result<void, string>> {
         const body = await this.postRequest(
             "/add-route",
+            { token: this.token, ...request },
+        );
+        if (!body.success) {
+            return err(body.error);
+        }
+        return ok();
+    }
+
+    async deleteRoute(
+        request: Forget<DeleteRouteRequest, "token">,
+    ): Promise<Result<void, string>> {
+        const body = await this.postRequest(
+            "/delete-route",
             { token: this.token, ...request },
         );
         if (!body.success) {

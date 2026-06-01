@@ -32,7 +32,7 @@ body:has(.profile-page) {
     margin: auto;
     padding: 1rem;
 
-    >* {
+    > * {
         background-color: white;
         padding: 1rem;
         border-radius: var(--border-radius);
@@ -88,7 +88,7 @@ dialog {
         margin-bottom: 1rem;
     }
 
-    >hr {
+    > hr {
         padding: 0;
         max-width: 90%;
         margin: 0 auto;
@@ -219,7 +219,7 @@ button, select {
     display: flex;
     gap: 1rem;
 
-    &>* {
+    & > * {
         flex: 1;
     }
 }
@@ -227,7 +227,7 @@ button, select {
 #runs {
     justify-content: space-between;
 
-    >div {
+    > div {
         max-width: 48%;
     }
 }
@@ -263,6 +263,18 @@ button, select {
     margin-top: 0.25rem;
 }
 
+.delete-button {
+    background-color: #cc4040;
+    color: #ffffff;
+    &:hover {
+        background-color: #cc2222;
+    }
+
+    &:active {
+        background-color: #bb0000;
+    }
+}
+
 .profile-time-list {
     list-style: none;
     padding-left: 0;
@@ -292,6 +304,5 @@ input {
         &:active {
             background-color: #efefef;
         }
-
     }
 }

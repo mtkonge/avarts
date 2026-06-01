@@ -13,10 +13,15 @@ import {
     type SportId,
     sportNames,
     timeForRun,
+    UserWithId,
 } from "@avarts/shared";
 import { RunRecorder } from "./RunRecorder.ts";
 import { type LeaderboardRun, renderLeaderboardRun } from "./leaderboard.ts";
 import { RouteRecorder } from "./RouteRecorder.ts";
+
+type A = number | null;
+
+type NotNull<T> = T extends null ? never : T;
 
 export function coordsToMapLibreCoords(
     coords: Coords,
@@ -73,17 +78,25 @@ const LineSource = {
 
 type LineSourceId = typeof LineSource[keyof typeof LineSource];
 
+type RunInfomation = {
+    route: RouteWithUserIdAndId;
+    runs: RunWithUserIdAndId[];
+    users: { username: string; id: number }[];
+};
+
 class MapHelper {
     private runInformation: (routeId: number) => Promise<
-        {
-            route: RouteWithUserIdAndId;
-            runs: RunWithUserIdAndId[];
-            users: { username: string; id: number }[];
-        } | null
+        RunInfomation | null
     > = () => {
         return Promise.resolve(null);
     };
     private startRun: (routeId: number) => Promise<void | null> = () => {
+        return Promise.resolve(null);
+    };
+    private user: () => Promise<UserWithId | null> = () => {
+        return Promise.resolve(null);
+    };
+    private deleteRoute: (id: number) => Promise<void | null> = () => {
         return Promise.resolve(null);
     };
     constructor(
@@ -134,17 +147,15 @@ class MapHelper {
             startRun: (routeId: number) => Promise<void>;
             runInformation: (
                 routeId: number,
-            ) => Promise<
-                {
-                    route: RouteWithUserIdAndId;
-                    runs: RunWithUserIdAndId[];
-                    users: { username: string; id: number }[];
-                }
-            >;
+            ) => Promise<RunInfomation>;
+            user: () => Promise<UserWithId>;
+            deleteRoute: (id: number) => Promise<void>;
         },
     ) {
         this.startRun = x.startRun;
         this.runInformation = x.runInformation;
+        this.user = x.user;
+        this.deleteRoute = x.deleteRoute;
     }
 
     addClickEventOnRouteLayer() {
@@ -156,6 +167,10 @@ class MapHelper {
             const coordinates = event.lngLat;
             const routeId: number = firstFeature.properties.id;
             const maybeRunInformation = await this.runInformation(routeId);
+            const user = await this.user();
+            if (user === null) {
+                throw new Error("user function not defined");
+            }
             if (maybeRunInformation === null) {
                 throw new Error("run information function not defined");
             }
@@ -176,6 +191,14 @@ class MapHelper {
                         .id}-button">
                         Leaderboard
                     </button>
+                    <button
+                        hidden
+                        class="popup-button delete-button"
+                        id="delete-${route
+                            .id}-button"
+                    >
+                        Delete
+                    </button>
                 </div>
             `;
 
@@ -183,6 +206,26 @@ class MapHelper {
                 .setLngLat(coordinates)
                 .setHTML(description)
                 .addTo(this.raw);
+
+            const deleteRouteButton = utils.query(`#delete-${route.id}-button`);
+
+            if (user.id === route.userId) {
+                deleteRouteButton.hidden = false;
+            }
+            deleteRouteButton.addEventListener(
+                "click",
+                () => {
+                    const answer = confirm(
+                        "Are you sure you want to delete this route?",
+                    );
+                    if (!answer) {
+                        return;
+                    }
+                    popup.remove();
+
+                    this.deleteRoute(route.id);
+                },
+            );
 
             const startRunButton = utils.query(
                 `#start-run-${routeId}-button`,
@@ -362,11 +405,7 @@ export class GeoMap {
             },
             runInformation: async (
                 routeId: number,
-            ): Promise<{
-                route: RouteWithUserIdAndId;
-                runs: RunWithUserIdAndId[];
-                users: { username: string; id: number }[];
-            }> => {
+            ): Promise<RunInfomation> => {
                 const route = await server.route({ id: routeId });
                 const runs = await server.runsOnRoute({ routeId });
                 if (!runs.ok) {
@@ -395,6 +434,27 @@ export class GeoMap {
                     route: route.data,
                     users: distinctUsers,
                 };
+            },
+            user: async (): Promise<UserWithId> => {
+                const userResult = await server.user({});
+                if (!userResult.ok) {
+                    console.error(userResult.error);
+                    throw new Error("todo: error handling");
+                }
+                if (userResult.data === null) {
+                    console.error("user doesn't exist");
+                    throw new Error("todo: error handling");
+                }
+                return userResult.data;
+            },
+            deleteRoute: async (id: number): Promise<void> => {
+                const deleteRouteResult = await server.deleteRoute({ id });
+                this.reloadRoutes();
+                if (!deleteRouteResult.ok) {
+                    console.error(deleteRouteResult.error);
+                    throw new Error("todo: error handling");
+                }
+                return;
             },
         });
 
@@ -440,10 +500,14 @@ export class GeoMap {
                 this.map.clearSource(LineSource.routeInProgress);
                 this.reloadRoutes();
                 this.createRouteButton.innerText = "Create route";
-                const name = prompt("What is the name of this route?");
-                if (name === null || name.length === 0) {
-                    console.error("Name not provided for route");
-                    return;
+                let name;
+                while (true) {
+                    name = prompt("What is the name of this route?");
+                    if (name === null || name.length === 0) {
+                        alert("Name must have atleast 1 character");
+                        continue;
+                    }
+                    break;
                 }
                 await this.addRoute({
                     route: { coords, name },
