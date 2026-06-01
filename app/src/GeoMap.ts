@@ -500,6 +500,22 @@ export class GeoMap {
                 this.map.clearSource(LineSource.routeInProgress);
                 this.reloadRoutes();
                 this.createRouteButton.innerText = "Create route";
+                let invalidRoute = true;
+                const initialCoordinate = coords.at(0);
+                for (const coord of coords) {
+                    if (
+                        coord.latitude !== initialCoordinate?.latitude ||
+                        coord.longitude !== initialCoordinate?.longitude
+                    ) {
+                        invalidRoute = false;
+                        break;
+                    }
+                }
+                if (invalidRoute) {
+                    alert("Invalid route: coordinates do not differ");
+                    return;
+                }
+
                 let name;
                 while (true) {
                     name = prompt("What is the name of this route?");

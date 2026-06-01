@@ -121,3 +121,9 @@
 - Renamed beeswax to business_logic
 - Close the route popup when starting a run
 - Changed routes to theme color
+
+# 01/06
+
+- Delete route
+- Route validation
+- Alert user of route creation user input errors
