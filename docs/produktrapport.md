@@ -59,6 +59,10 @@ at være sikker på at vi har den rigtige struktur, sparer os, ligesom Typescrip
 tid i længden, efter en upfront tidsinvestering. Vi har vurderet at denne
 tidsinvestering er langt mindre, end det gavn vi får fra det.
 
+## Results
+
+Todo: beskriv results
+
 ## Web-appen
 
 Web-appen er implementeret med HTML, CSS og Typescript. Vi har brugt Deno som
@@ -174,6 +178,48 @@ logic, og business logic problemer i vores api, som gør det nemmere at overskue
 Det gør det også nemmere at evt. teste, da vi nu kan lave unit tests på vores
 business logic, frem for at være tvunget til at lave end-to-end tests.
 
+Her er et eksempel.
+
+```ts
+// server/src/business_logic
+type UserWithIdError = "bad_user" | "db_error";
+
+export async function userWithId(
+    request: { id: number },
+    database: Database,
+): Promise<Result<{ user: UserWithId }, UserWithIdError>> {
+    // ...
+}
+```
+
+Dette er vores business logic for ruten "/user-from-id". Her kan vi lave kald
+mod databasen for at få det data vi har brug for. Vi sørger for at returnere
+beskrivelser af de fejl der nu må opstå. Her kan vi se at fejlende kan være
+enten 'bad_user' eller 'db_error'. Dette kan vi parse på, når vi bruger metoden
+i vores ruter.
+
+```ts
+// server/src/api/user
+router.post(
+    "/user-from-id",
+    parse(
+        UserFromIdRequest,
+        UserFromIdResponse,
+        async (req): Pmr<UserFromIdResponse> => {
+            const result = await businessLogic.userWithId(
+                req,
+                database,
+            );
+            // ...
+        },
+    ),
+);
+```
+
+Dette er vores rute der bruge vores business logic metode 'userWithId' som
+beskrevet overfor. Her laver vi ikke kald mod databasen. (todo: måske skrive
+lidt mere. Noget konkluderende måske?)
+
 ### Database
 
 Databasen er defineret som et interface kaldet `Database`. Vi har derefter
@@ -229,26 +275,55 @@ library.
 En af de første problemer vi opdagede var at typerne fra backenden også skulle
 bruges på frontenden. For eksempel hvordan en rute så ud, men også hvordan
 requests og responses til og fra backenden så ud. For at undgå at skulle skrive
-disse typer 2 gange og at der muligvis vil opstå fejl hvis man glemmer at
-opdatere begge steder, har vi valgt at lave en mappe i vores projekt der hedder
-'shared'. Her har vi beskrevet typer og funktioner, vi bruger i hele vores
-projekt.
+disse typer 2 gange og undgå fejl hvis man glemmer at opdatere begge steder, har
+vi valgt at lave en mappe i vores projekt der hedder 'shared'. Her har vi
+beskrevet typer og funktioner, vi bruger i hele vores projekt.
 
-Her er et eksempel. Dette er 2 typer beskrevet i vores shared mappe 'Route' og
-'AddRouteRequest'. (idk skrive et eller andet mere, nok om `z` fra zod)
+Her er et eksempel. På hvordan vores shared mappe bruges.
 
 ```ts
-export const Route = z.strictObject({
-    name: z.string(),
-    coords: z.array(Coords),
-});
-```
-
-```ts
+// shared/requests.ts
 export const AddRouteRequest = z.strictObject({
     route: Route,
     token: z.string(),
 });
 ```
+
+Her definere vi en zod typen AddrouteRequest. 'z' her er zod.
+
+```ts
+// server/src/api/route.ts
+router.post(
+    "/add-route",
+    parse(
+        AddRouteRequest,
+        AddRouteResponse,
+        async (req): Pmr<AddRouteResponse> => {
+            // ...
+        },
+    ),
+);
+```
+
+Her bliver den så brugt i backend serveren. Vi kører den igennem vores
+middleware som er i det vi kalder 'parse'. Vores middleware validere at både
+requesten og responsen matcher typen.
+
+```ts
+// app/src/Server.ts
+export interface AuthorizedServer extends UnauthorizedServer {
+    addRoute(
+        request: Forget<AddRouteRequest, "token">,
+    ): Promise<Result<void, string>>;
+    // ...
+}
+```
+
+Her bliver den brugt i web-appen. Dette er et interface der beskriver hvad
+addRoute metoden skal bruge og hvad den returnere. Her bliver AddRouteRequest
+også brugt.
+
+Det skaber en sikkerhed i at vores backend server og vores web-app kommunikere i
+samme sprog.
 
 [^1]: https://github.com/mtkonge/avarts
