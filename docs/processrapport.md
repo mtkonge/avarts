@@ -33,7 +33,7 @@ routes.
 
 Så fik vi også lavet forbindelsen til frontenden og oprettet de 3 endpoints
 deri. Vi fandt ud af at det kunne være smart at de typer backenden bruger (type
-definitionen af Routes, AddRouteRequest, AddRouteResponse osv.) også var
+definitionen af Routes, RoutesRequest, RoutesResponse osv.) også var
 tilgængelige for frontenden. Derfor vurderede vi at vi skulle bruge et monorepo
 setup hvor vi lavede en tredje mappe 'shared' hvor de delte typer var defineret.
 Det virkede fint på backenden, men efter en del bøvl med Vite (vores frontend's
@@ -52,11 +52,39 @@ Her fik vi også implementered user autorisering på backenden.
 
 ## 11/05 - 12/05
 
+Her opdagede vi at når man startede appen tog det noget tid for kortet at load.
+Derfor tænkte vi at vi skulle have en form for loading skærm. Theis synes det
+kunne være fedt at lave nogle ASCII art animationer og jeg fik idéen at vores
+loading skulle være et transportmiddel der bevæger sige. Derfor lavede Theis 3
+animationer, en person der løber, en person der cykler og en person på
+skateboard.
+
+Her fik vi også hostet web-appen, så vi kunne teste appen på mobilen. Derudover
+gjorde vi sådan, at man kunne får kortet til at rotere med mobilens kompas.
+Backenden fik et nyt endpoint add route, og vi designede en toolbar til
+frontenden.
+
 ## 13/05
+
+Vi lavede en mekanisme til at kunne optage et run på frontend. Vi implementerede
+run endpoints på backend serveren.
+
+Her brugte vi også en del tid på at refaktorere vores nuværende kode.
 
 ## 18/05
 
+Her fik vi refakteret vores backend til ikke at indblande business logik i vores
+endpoints. Dette valgte vi at gøre for at skabe mere abstraktion. Dette gør det
+nemmere at udvikle i backenden i fremtiden.
+
 ## 19/05 - 21/05
+
+Her fik vi implementeret endpoint'et på backenden serveren runs on route,
+hvilket giver os alle runs på en rute.
+
+Her gjorde vi det muligt for brugeren at trykke på en rute. Dette viser en popup
+hvor man kan enten starte et run og eller se leaderboard ved at trykke på en
+knap. Her vil man så kunne se de bedste tider for ruten.
 
 ## 22/05
 
