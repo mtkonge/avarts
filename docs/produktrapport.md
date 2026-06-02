@@ -61,7 +61,7 @@ tidsinvestering er langt mindre, end det gavn vi får fra det.
 
 ## Results
 
-Todo: beskriv results
+TODO: beskriv results
 
 ## Web-appen
 
@@ -117,6 +117,8 @@ tegnet på kortet.
 
 ### Kørelsen af et 'run'
 
+TODO
+
 ### Leaderboard og profil
 
 Hvis man vælger en rute ved at trykke på den, kan man vha. "Leaderboard"
@@ -148,6 +150,12 @@ server interface etc etc validation med zod etc etc tabel med ruter -> req/res
 etc
 
 ### User auth
+
+TODO
+
+### Dependency resolution ved abstraktioner
+
+TODO
 
 ## Backend server
 
@@ -195,8 +203,8 @@ export async function userWithId(
 Dette er vores business logic for ruten "/user-from-id". Her kan vi lave kald
 mod databasen for at få det data vi har brug for. Vi sørger for at returnere
 beskrivelser af de fejl der nu må opstå. Her kan vi se at fejlende kan være
-enten 'bad_user' eller 'db_error'. Dette kan vi parse på, når vi bruger metoden
-i vores ruter.
+enten 'bad_user' eller 'db_error'. Dette kan vi parse, når vi bruger metoden i
+vores ruter.
 
 ```ts
 // server/src/api/user
@@ -234,10 +242,16 @@ vurderede, at det var nødvendigt.
 
 Et problem med vores JsonDb implementering er at det hele loades i memory. Hvis
 vores database bliver tilpas stor kan det skabe problemer hvis serveren
-backenden kører på ikke har nok ressourcer. Vi er opmærksomme på dette problem,
-da vi lavede det og det har været dels grunden til at vi har lavet database
-interfaces, så man nemt kan se, hvad en database skal kunne. Dette gør det nemt
-at implementere interfaces som f.eks. en sql database.
+backenden kører på ikke har nok ressourcer.
+
+Vi er opmærksomme på dette problem, da vi lavede det, men har vurderet at det
+ikke er noget der kommer til at være et problem for os, eftersom selv hvis hver
+element tog én mb (det er nok snarere et par kb eller bytes), skulle der flere
+tusinde brugere og ruter til, før vi løber tør for de 2-8gb ram, som de fleste
+servere tilbyder.
+
+Derudover bruger alting vores `Database` interface, som gør at man på under en
+arbejdsdag kan udskifte databaseimplementationen med f.eks. sqlite eller mysql.
 
 ### Api
 
