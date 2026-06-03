@@ -73,9 +73,9 @@ Her brugte vi også en del tid på at refaktorere vores nuværende kode.
 
 ## 18/05
 
-Her fik vi refakteret vores backend til ikke at indblande business logik i vores
-endpoints. Dette valgte vi at gøre for at skabe mere abstraktion. Dette gør det
-nemmere at udvikle i backenden i fremtiden.
+Her fik vi refaktoreret vores backend til ikke at indblande business logik i
+vores endpoints. Dette valgte vi at gøre for at skabe mere abstraktion. Dette
+gør det nemmere at udvikle i backenden i fremtiden.
 
 ## 19/05 - 21/05
 
@@ -83,12 +83,23 @@ Her fik vi implementeret endpoint'et på backenden serveren runs on route,
 hvilket giver os alle runs på en rute.
 
 Her gjorde vi det muligt for brugeren at trykke på en rute. Dette viser en popup
-hvor man kan enten starte et run og eller se leaderboard ved at trykke på en
-knap. Her vil man så kunne se de bedste tider for ruten.
+hvor man kan starte et run. Her vil man så kunne se de bedste tider for ruten.
 
 ## 22/05
 
+Her fik vi lavet brugerprofil. Her kan man se sine bedste runs og runs man har
+kørt for nylig.
+
 ## 26/05
+
+Her fik vi tilføjet sådan at man kan starte runs med forskellige
+sportskategorier (rulleskøjter, cykel, osv). Nu kan man også navngive ruter man
+laver. Vi fik også tilføjet en knap til brugerprofil på toolbaren og en knap til
+at logge ud.
+
+Vi fik også lavet leaderboard. Når man trykker på en rute kan man nu enten
+starte et run eller se leaderboardet for det run. Man kan på leaderboardet
+filtrere efter din sportskategori
 
 ## 27/05
 
