@@ -94,8 +94,8 @@ kørt for nylig.
 
 Her fik vi tilføjet sådan at man kan starte runs med forskellige
 sportskategorier (rulleskøjter, cykel, osv). Nu kan man også navngive ruter man
-laver. Vi fik også tilføjet en knap til brugerprofil på toolbaren og en knap til
-at logge ud.
+laver. Vi fikgi også tilføjet en knap til brugerprofil på toolbaren og en knap
+til at logge ud.
 
 Vi fik også lavet leaderboard. Når man trykker på en rute kan man nu enten
 starte et run eller se leaderboardet for det run. Man kan på leaderboardet
