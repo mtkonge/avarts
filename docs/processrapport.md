@@ -103,4 +103,12 @@ filtrere efter din sportskategori
 
 ## 27/05
 
+Her fik vi gjort sådan at man kunne filtrere leaderboards efter kategorier af
+transportmidler. Vi fik gjort sådan at en linje efterfølger brugerens lokation
+og tidligere oprettede ruter forsvinder, når man opretter en rute. Når man
+kører/opretter en rute vil man nu kunne slå kompasset til og fra. Vi lavede også
+et logo.
+
 ## 01/06
+
+Her fik vi lavet muligheden for at slette ruter man har lavet.
