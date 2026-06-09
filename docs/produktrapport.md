@@ -61,7 +61,121 @@ tidsinvestering er langt mindre, end det gavn vi får fra det.
 
 ## Results
 
-TODO: beskriv results
+Til error handling har vi, frem for at bruge exceptions og try/catch, taget
+inspiration fra funktionelle sprog og deres Result type.
+
+Det er implementeret som en tagged union med en værdi, eller en fejl. Altså:
+
+```ts
+type Ok<T> = { ok: true; value: T };
+type Err<E> = { ok: false; error: E };
+type Result<T, E> = Ok<T> | Err<E>;
+```
+
+Det har vi gjort pga. det har et par goder, som exceptions ikke har.
+
+Det er muligt at se hvilke fejl, en funktion kan returnere, ud fra dens
+signatur. Sammenlign de følgende funktionssignaturer:
+
+```ts
+function read_file_a(): string;
+
+function read_file_b(): Result<string, string>;
+```
+
+Man kan i `read_file_a` ikke se, at den kaster en fejl. Derudover, kan man ikke
+se hvornår den **ikke** kaster en fejl. Det betyder, at man kan håndtere
+exceptionen fra en funktion, alá dette:
+
+```ts
+try {
+    read_file();
+} catch {
+    console.error("could not read file");
+}
+```
+
+Men hvis man senere hen refactorer `read_file_exception` til, at ikke kaste
+exceptions, er der intet der kan advare dig, om at du har et unødvendigt
+try-catch.
+
+Derudover, skaber det også trælse træer med meget indentation, og betyder man
+skal læse koden "op-ned-op-ned-op-ned" (try, catch, try, catch, try, catch) som
+er unnaturligt, og i længere filer i praksis gør, at det er sværre at finde ud
+af, hvilken catch block der tilhører hvilken try block.
+
+```ts
+try {
+    const file = read_file();
+    try {
+        const parsed = parse_file(file);
+        try {
+            /* etc. */
+        } catch {
+            /* etc. */
+        }
+    } catch {
+        console.error("could not parse file");
+    }
+} catch {
+    console.error("could not read file");
+}
+```
+
+Dette er taget til kontrast med Result typen. Vi kan med Typescript's type
+system garantere, at man håndterer fejlen.
+
+```ts
+const file_result = read_file();
+
+// err: member `value` does not exist on type `{ ok: true, value: string } | { ok: false, error: string }`
+const file_data = file_result.value;
+
+if (!file_result.ok) {
+    console.error(`could not read file: ${file_result.error}`);
+    return;
+}
+
+// fordi vi har `return`'ed når file_result.ok === false, kan Typescript's type system vide,
+// at file_result kun kan være en `Ok<string>`, og vi kan derfor få adgang til dens værdi.
+
+const file_data = file_result.value;
+/* etc. */
+```
+
+Og hvis vi nu refactorer read_file, så den ikke kan fejle, kan typescript
+fortælle os, at vi tjekker for fejl, der ikke kan ske:
+
+```ts
+const file_result = read_file();
+
+// err: member `ok` does not exist on type `string`
+if (!file_result.ok) {
+    // err: member `error` does not exist on type `string`
+    console.error(`could not read file: ${file_result.error}`);
+    return;
+}
+
+// err: member `value` does not exist on type `string`
+const file_data = file_result.value;
+/* etc. */
+```
+
+Derudover løser det også vores problem med mange indents, og at error handling
+kode ikke ligger tæt på, der hvor den fejlende funktion ligger:
+
+```ts
+const file = read_file();
+if (!file.ok) {
+    console.error("could not read file");
+    return;
+}
+const parsed = parse_file(file.value);
+if (!parsed.ok) {
+    console.error("could not parse file");
+    return;
+}
+```
 
 ## Web-appen
 
@@ -148,6 +262,8 @@ inkluderer hvor brugeren er placeret på leaderboardet.
 
 server interface etc etc validation med zod etc etc tabel med ruter -> req/res
 etc
+
+TODO
 
 ### User auth
 
