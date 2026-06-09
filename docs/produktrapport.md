@@ -177,6 +177,16 @@ if (!parsed.ok) {
 }
 ```
 
+Vi har i stedet reserveret Exceptions til brug som en `panic` funktionalitet,
+dvs. fejl i softwaren, hvor at vores antagelser er forkert. Eksempelvist:
+
+```ts
+const mapElement = document.querySelector("#map");
+if (mapElement === null) {
+    throw new Error("unreachable: index.html does not have an element with an id of #map")
+})
+```
+
 ## Web-appen
 
 Web-appen er implementeret med HTML, CSS og Typescript. Vi har brugt Deno som
