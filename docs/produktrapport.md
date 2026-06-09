@@ -243,7 +243,37 @@ tegnet på kortet.
 
 ### Kørelsen af et 'run'
 
-TODO
+Når en bruger kører et run skal man have en måde at verificere om brugeren har
+kørt ruten korrekt. Den måde vi er endt med at gøre dette på er ved give en
+radius omkring alle checkpoints i ruten. Denne radius skal man så køre igennem
+for at opnå checkpoint'et.
+
+TODO Forklar matematikken og også hvorfor vi bruge linjer mellem sidste og
+nuværende element for af finde om vi er igennem et checkpoint.
+
+TODO Forklar konverteringen af meter til geo koordinater altså latitude og
+longidude, og hvorfor det rent faktisk ikke er en radius, men nærmere ovaler.
+
+Når man starter et run bliver ruten markeret med grå, hvor derefter når man når
+de forskellige checkpoints i ruten vil den del af ruten du har kørt bliver
+markeret med blåt. Man kan derfor se hvis man er kommet til at undvige et
+checkpoint i løbet af sit run.
+
+I starten da vi lavede vores kode til verificering af et run valgte vi en radius
+på cirka 5 meter. Efter at have været ude at teste det, fandt vi ud af at den
+geolocationsdata vi fik var ret ustabil. Nogle gange kunne geolocationsdataen
+godt være en del meter væk fra vores korrekte location.
+
+Det betød at i de fleste tilfælle ville man misse et checkpoint på grund af
+dette. Efter vi havde testet det ændrede vi det til cirka 15 meter. Dette virker
+bedre, men man kan godt indimellem opleve at locationsdataen er så ukorrekt at
+man stadig ikke når de checkpoint, man burde have kørt igennem hvis dataen være
+mere præcis.
+
+Vi har vurderet at 15 meter er godt nok. Vi vil gerne undgå at ruternes
+checkpoints er urealistiske, altså at man rammer et checkpoint selvom man er
+utroligt langt væk fra det, men samtidig vil vi også gerne undgå brugeren føler
+sig snydt fordi geolocationsdataen var for dårlig.
 
 ### Leaderboard og profil
 
@@ -283,9 +313,55 @@ TODO
 
 ### Dependency resolution ved abstraktioner
 
-TODO
+TODO geomap :3 (basically business logic)
+
+Vi har lavet en abstraktion over `maplibregl`, som vi har kaldet `MapHelper`.
+Det har vi gjort, pga. at maplibregl har en meget verbose syntax, og vi ikke gad
+at blande maplibregl specifikt funktionalitet (tegne linjer på kortet, etc),
+sammen med vores `GeoMap` konstrukt.
+
+Grundet at kortet skal være interaktivt, ved at man klikker på ruter for at
+kunne se leaderboard og at køre på en rute, skal vi oprette event listeners, og
+kalde funktionalitet som `GeoMap` har, da vi vil ikke have, at `MapHelper` ved,
+at GeoMap eksisterer.
+
+Det betyder lige nu, at `GeoMap` kræver `MapHelper`, og vice versa:
+
+![alt text](geomap_circular_dependency.png)
+
+Dette kalder man også en circular dependency. Problemet med circular
+dependencies er, at de er umulige at resolve. Vi har derfor i stedet givet
+`MapHelper` nogle late callbacks. Dsv, vi opretter `MapHelper` uden den krævede
+dependency til `GeoMap`, som vi så bruger til at oprette `GeoMap`, og derefter
+kan vi sætte medlemmerne til en callback der referrerer til `GeoMap`.
+
+Hvis vi skulle gøre det om igen, ville vi lave denne abstraktion anderledes, da
+det blev meget mudret hvad der er `GeoMap`'s ansvar og hvad der er `MapHelper`'s
+ansvar, da de arbejder meget tæt sammen.
+
+Man kunne i stedet for late functions, når ruter tegnes, returnere en liste af
+`MapLine`s, én for hver rute, som `GeoMap` kunne tilføje event listeners til,
+osv.
+
+Eksempelvist:
+
+```ts
+class MapLine {
+    constructor(private owner: MapHelper, id: number) {}
+
+    on(type: "click", callback: () => void) {
+        this.owner.findLineWith(id).on("click", () => {
+            callback();
+        });
+    }
+}
+```
 
 ## Backend server
+
+<p align="center">
+  <img src="backend_structure.png"/>
+</p>
 
 Backend serveren er også skrevet skrevet i Typescript med Deno. Her kører vi
 Typescript filerne direkte med Deno. Vi bruger Oak til at håndtere vores http
