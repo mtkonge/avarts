@@ -1,5 +1,26 @@
 # Processrapport
 
+## Tidsplan
+
+![alt text](tidsplan.png)
+
+### Uge 1
+
+Efter uge 1 forventer vi at kunne se ruter og oprette en rute.
+
+### Uge 2
+
+Efter uge 2 har vi bruger auth og er i gang med at implementere at kunne køre
+ruter.
+
+### Uge 3
+
+Efter uge 3 kan man køre ruter og er i gang med at implementere leaderboard
+
+### Uge 4
+
+Efter uge 4 har vi leaderboard implementeret og brugerprofil
+
 ## Indledning
 
 Som forberedelse til svendeprøven idegenerede vi for ikke at skulle bruge
@@ -13,7 +34,9 @@ appen allerede eksisterede ved navnet Strava. Dog kostede de features vi gerne
 ville have fra appen penge. Vi vurderede at det kunne være relevant og spændende
 at arbejde med til svendeprøven.
 
-## 04/05 - 05/05
+## Logbog
+
+### 04/05 - 05/05
 
 Her brugt vi en del tid på at undersøge hvilke værktøjer vi ville bruge til
 geolocation og visningen af et kort. Vi fandt ud af at browseren har et
@@ -23,7 +46,7 @@ andre kort API'er før, og fandt hurtigt ud af at det lignede det vi kendte. Her
 fik vi så sat kortet op og placeret en marker der hvor geolocationen var og
 opdateret den konstant.
 
-## 06/05 - 07/05
+### 06/05 - 07/05
 
 Her begyndte vi på at sætte en backend server op. Vi bestemte os for at bruge
 oak, da det lignede express som vi kendte godt. Derefter valgt vi at vores
@@ -40,7 +63,7 @@ Det virkede fint på backenden, men efter en del bøvl med Vite (vores frontend'
 build system) konkluderede vi at vi nok skulle prøve at bruge noget andet end
 Vite.
 
-## 08/05
+### 08/05
 
 Her fjernede vi Vite fra vores projekt. Theis havde nogle scripts han havde
 brugt før til at bygge hans typescript. Vi prøvede dem af og rettede lidt i dem
@@ -50,7 +73,7 @@ godt nok.
 
 Her fik vi også implementered user autorisering på backenden.
 
-## 11/05 - 12/05
+### 11/05 - 12/05
 
 Her opdagede vi at når man startede appen tog det noget tid for kortet at load.
 Derfor tænkte vi at vi skulle have en form for loading skærm. Theis synes det
@@ -64,20 +87,20 @@ gjorde vi sådan, at man kunne får kortet til at rotere med mobilens kompas.
 Backenden fik et nyt endpoint add route, og vi designede en toolbar til
 frontenden.
 
-## 13/05
+### 13/05
 
 Vi lavede en mekanisme til at kunne optage et run på frontend. Vi implementerede
 run endpoints på backend serveren.
 
 Her brugte vi også en del tid på at refaktorere vores nuværende kode.
 
-## 18/05
+### 18/05
 
 Her fik vi refaktoreret vores backend til ikke at indblande business logik i
 vores endpoints. Dette valgte vi at gøre for at skabe mere abstraktion. Dette
 gør det nemmere at udvikle i backenden i fremtiden.
 
-## 19/05 - 21/05
+### 19/05 - 21/05
 
 Her fik vi implementeret endpoint'et på backenden serveren runs on route,
 hvilket giver os alle runs på en rute.
@@ -85,12 +108,12 @@ hvilket giver os alle runs på en rute.
 Her gjorde vi det muligt for brugeren at trykke på en rute. Dette viser en popup
 hvor man kan starte et run. Her vil man så kunne se de bedste tider for ruten.
 
-## 22/05
+### 22/05
 
 Her fik vi lavet brugerprofil. Her kan man se sine bedste runs og runs man har
 kørt for nylig.
 
-## 26/05
+### 26/05
 
 Her fik vi tilføjet sådan at man kan starte runs med forskellige
 sportskategorier (rulleskøjter, cykel, osv). Nu kan man også navngive ruter man
@@ -101,7 +124,7 @@ Vi fik også lavet leaderboard. Når man trykker på en rute kan man nu enten
 starte et run eller se leaderboardet for det run. Man kan på leaderboardet
 filtrere efter din sportskategori
 
-## 27/05
+### 27/05
 
 Her fik vi gjort sådan at man kunne filtrere leaderboards efter kategorier af
 transportmidler. Vi fik gjort sådan at en linje efterfølger brugerens lokation
@@ -109,6 +132,26 @@ og tidligere oprettede ruter forsvinder, når man opretter en rute. Når man
 kører/opretter en rute vil man nu kunne slå kompasset til og fra. Vi lavede også
 et logo.
 
-## 01/06
+### 01/06
 
 Her fik vi lavet muligheden for at slette ruter man har lavet.
+
+## Konklusion
+
+Vi har formået at nå alle vores mål indenfor tidsrammen. Vi har arbejdet på de
+forskellige features i den rækkefølge, vi bestemte i vores tidsplan.
+
+Dog har vi ind imellem når vi ifølge vores tidsplan kunne se at vi var foran,
+gået tilbage til nogle features og forbedret dem.
+
+Dette har vi kunne gøre, fordi vi har med vilje lavet vores tidsplan
+overskuelig.
+
+Grunden til at vi har gjort dette er at vi derfor kan sørge for at der er tid
+til at lave et mere poleret produkt.
+
+Et eksempel på dette, er vores loading animationer, som vi selv har idegenereret
+og implementeret. Udover specifikke features som man kan se i produktet har det
+også betydet at vi har haft mulighed for at lave produktet nemt
+vedligeholdeligt. Vi har gennemtænkt en struktur i vores backend og frontend som
+gør det nemmere i fremtiden at tilføje flere features.
