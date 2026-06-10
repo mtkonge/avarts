@@ -284,17 +284,14 @@ konvertere det altså til latitude som er en konstant. Checkpoints vil derfor
 være ovaler med undtagelsen hvis checkpointet ligger i ækvator, hvor det vil
 være en perfekt cirkel.
 
-TODO: 1. ??? 2. profit :down_arrow:
-
 Vi har valgt at gå på kompromi med nøjagtighed, da vi vurderede at
 tidsinvesteringen ikke var det værd. Hvis vi havde mere tid, ville det være
-muligt at beregne `x` meters størrelse som funktion af todo:lat|lng|idk, og
-bruge det til at beregne checkpoint radiusen på todo:x|y|idk aksen. Dog vil det
-stadig betyde at vores checkpoints er oval, forskellen på den 1. og 2. radius er
-bare så lille, at man ikke kan se det. Man kan godt lave perfekte cirkler på
-kortet, men dette kræver meget mere computerkraft, da man skal beregne hver
-pixel i cirklens omkreds, som vi har vurderet til at være kæmpe spild af tid og
-ressourcer.
+muligt at beregne `x` meters størrelse som funktion af latitude, og bruge det
+til at beregne checkpoint radiusen på x aksen. Dog vil det stadig betyde at
+vores checkpoints er oval, forskellen på den 1. og 2. radius er bare så lille,
+at man ikke kan se det. Man kan godt lave perfekte cirkler på kortet, men dette
+kræver meget mere computerkraft, da man skal beregne hver pixel i cirklens
+omkreds, som vi har vurderet til at være kæmpe spild af tid og ressourcer.
 
 Når man starter et run bliver ruten markeret med mørkeblå, hvor derefter når man
 når de forskellige checkpoints i ruten vil den del af ruten du har kørt bliver
@@ -344,14 +341,89 @@ inkluderer hvor brugeren er placeret på leaderboardet.
 
 ### Forbindelsen til backend serveren
 
-server interface etc etc validation med zod etc etc tabel med ruter -> req/res
-etc
+Vi har valgt at lave alt kontakt til backenden gennem interfaces, som betyder,
+at vi evt. kan lave appen offline, eller lave in-memory mock servers til
+automatiseret testing.
 
-TODO
+Det fungerer som 2 interfaces, en `UnauthorizedServer`, og en
+`AuthorizedServer`. De ser sådan ud:
 
-### User auth
+```ts
+export interface UnauthorizedServer {
+    userFromId(
+        request: UserFromIdRequest,
+    ): Promise<Result<UserWithId, string>>;
+    runsOnRoute(
+        request: RunsOnRouteRequest,
+    ): Promise<Result<RunWithUserIdAndId[], string>>;
+    routes(): Promise<Result<RouteWithUserIdAndId[], string>>;
+    route(request: RouteRequest): Promise<Result<RouteWithUserIdAndId, string>>;
+    register(
+        request: RegisterRequest,
+    ): Promise<Result<void, string>>;
+    login(
+        request: LoginRequest,
+    ): Promise<Result<string, string>>;
+}
 
-TODO
+export interface AuthorizedServer extends UnauthorizedServer {
+    addRoute(
+        request: Omit<AddRouteRequest, "token">,
+    ): Promise<Result<void, string>>;
+    deleteRoute(
+        request: Omit<DeleteRouteRequest, "token">,
+    ): Promise<Result<void, string>>;
+    logout(
+        request: Omit<LogoutRequest, "token">,
+    ): Promise<Result<void, string>>;
+    user(
+        request: Omit<UserRequest, "token">,
+    ): Promise<Result<UserWithId | null, string>>;
+    addRun(
+        request: Omit<AddRunRequest, "token">,
+    ): Promise<Result<void, string>>;
+}
+```
+
+Vores `UnauthorizedServer` håndterer de requests, der ikke kræver user
+validation, mens vores `AuthorizedServer` har de requests, der kræver user
+validation.
+
+Vi genbruger de zod schemaer, som vi bruger til at parse requests på serveren,
+til at sende requests på frontenden. På `AuthorizedServer` efterbehandler vi så
+de typer, ved at fjerne `token` feltet, da det er en `AuthorizedServer`'s
+ansvar, at håndtere user validation.
+
+Det har vi gjort, sammen med, at man kun kan skabe en `AuthorizedServer` med en
+valid token i constructoren. Det betyder så, at vi ikke kan kalde
+`AuthorizedServer`'s funktioner, uden at have en user med en valid token, dvs.
+at vi undgår at en request fejler, fordi den har en invalid token.
+
+Det ser sådan ud, i praksis:
+
+```ts
+export async function authorizedServer(): Promise<AuthorizedServer> {
+    const token = localStorage.getItem("token");
+    if (token === null) {
+        return await redirectToLogin();
+    }
+    const server = new AuthorizedHttpServer(url(), token);
+    const user = await server.user({});
+    if (!user.ok || user.ok && user.data === null) {
+        return await redirectToLogin();
+    }
+    return server;
+}
+```
+
+Det betyder, at hvis vi er på en side, der kræver authentication, kan vi skrive
+
+```ts
+const server = await authorizedServer();
+await server.addRun(/* ... */);
+```
+
+Og så ved vi, at vi altid har en gyldig authorized server.
 
 ### Dependency resolution ved abstraktioner
 
@@ -366,7 +438,7 @@ glad at blande maplibregl specifikt funktionalitet (tegne linjer på kortet,
 etc), sammen med vores `GeoMap` konstrukt.
 
 Vores `GeoMap` klasse styrer logic skrevet specifikt til vores app. Det vil
-sige, hvad der skal ske når man f.eks. starter et run. Denne klasse forbruger
+sige, hvad der skal ske når man f.eks. starter et run. Denne klasse bruger
 `MapHelper` til at oprette og tegne på kortet.
 
 Grundet at kortet skal være interaktivt, ved at man klikker på ruter for at
@@ -430,10 +502,10 @@ vurderer vi at det er den bedste at bruge til at løse vores problem.
 Vi har valgt at følge princippet Seperation of Concerns, og afkoble vores
 business logic, fra vores http api.
 
-Vores business logic er implementeret som en serie af funktioner, som modtager
-relevant data, og et interface til Database og Sessions, der returnerer et
-resultat. Det betyder, at vi ikke håndterer api'ens problemer i vores business
-logic, og business logic problemer i vores api, som gør det nemmere at overskue.
+Vores business logic er implementeret som af funktioner, som modtager relevant
+data, og et interface til Database og Sessions, der returnerer et resultat. Det
+betyder, at vi ikke håndterer api'ens problemer i vores business logic, og
+business logic problemer i vores api, som gør det nemmere at overskue.
 
 Det gør det også nemmere at evt. teste, da vi nu kan lave unit tests på vores
 business logic, frem for at være tvunget til at lave end-to-end tests.
@@ -476,9 +548,19 @@ router.post(
 );
 ```
 
-Dette er vores rute der bruge vores business logic metode 'userWithId' som
-beskrevet overfor. Her laver vi ikke kald mod databasen. (todo: måske skrive
-lidt mere. Noget konkluderende måske?)
+Dette er vores rute der bruge vores business logic metode `userWithId` som
+beskrevet overfor. Vi bruger ikke databasen i selve rute implementationen, det
+er business logic'en ansvarlig for. Det følger vores praksis af, at ruterne
+eksisterer som et interface, og dens ansvar er at følge vores api spec, og
+omdanne det til noget business logic'en kan bruge.
+
+Business logic'en derimod, ved ikke om den kører på en Oak, Express, .NET server
+eller noget som helst, den ved kun, at den skal udøve noget arbejde, og
+returnere resultatet.
+
+Hvis userWithId evt. fejler, kan vi bruge `bad_user` eller `db_error` til at
+beskrive fejlen til useren, og sætte en status kode der reflekterer om det var
+brugerens, eller serverens fejl.
 
 ### Database
 
@@ -583,7 +665,7 @@ requesten og responsen matcher typen.
 // app/src/Server.ts
 export interface AuthorizedServer extends UnauthorizedServer {
     addRoute(
-        request: Forget<AddRouteRequest, "token">,
+        request: Omit<AddRouteRequest, "token">,
     ): Promise<Result<void, string>>;
     // ...
 }
