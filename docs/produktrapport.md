@@ -507,7 +507,7 @@ arbejdsdag kan udskifte databaseimplementationen med f.eks. sqlite eller mysql.
 
 Relationerne i databasen ser sådan ud:
 
-![alt text](database_releation_diagram.png)
+![alt text](database_relation_diagram.png)
 
 ### Api
 
