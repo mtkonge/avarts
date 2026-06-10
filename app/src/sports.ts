@@ -67,6 +67,7 @@ export class SportSelector {
         const display = sportNames()[id];
         this.showButton.textContent = display.emoji;
         localStorage.setItem("sport", id);
+        this.selectedSport = id;
     }
 
     show() {
