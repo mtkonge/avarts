@@ -123,7 +123,7 @@ class MapHelper {
                     "line-color": color,
                     "line-width": 8,
                 },
-            };
+            } satisfies maplibregl.LayerSpecification;
         }
 
         Object.values(LineSource).map((id) =>
@@ -136,8 +136,8 @@ class MapHelper {
         [
             layer(LineSource.routes, "#00aaff"),
             layer(LineSource.routeInProgress, "#00aaff"),
-            layer(LineSource.runReached, "#00aaff"),
             layer(LineSource.runNotReached, "#0d286d"),
+            layer(LineSource.runReached, "#00aaff"),
         ].map((x) => this.raw.addLayer(x));
         this.addClickEventOnRouteLayer();
     }
@@ -593,18 +593,18 @@ export class GeoMap {
         }
 
         this.map.setSource(
-            LineSource.runReached,
+            LineSource.runNotReached,
             {
-                coords: route.coords.filter((_, i) => i < checkpointReached),
+                coords: route.coords,
                 name: route.name,
                 userId: route.userId,
                 id: route.id,
             },
         );
         this.map.setSource(
-            LineSource.runNotReached,
+            LineSource.runReached,
             {
-                coords: route.coords.filter((_, i) => i >= checkpointReached),
+                coords: route.coords.filter((_, i) => i < checkpointReached),
                 name: route.name,
                 userId: route.userId,
                 id: route.id,
