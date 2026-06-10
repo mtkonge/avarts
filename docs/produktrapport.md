@@ -244,25 +244,67 @@ tegnet på kortet.
 ### Kørelsen af et 'run'
 
 Når en bruger kører et run skal man have en måde at verificere om brugeren har
-kørt ruten korrekt. Den måde vi er endt med at gøre dette på er ved give en
-radius omkring alle checkpoints i ruten. Denne radius skal man så køre igennem
-for at opnå checkpoint'et.
+kørt ruten korrekt. Måden vi er endt med at gøre dette på er ved give en radius
+til alle checkpoints i ruten. Denne radius skal brugeren så køre igennem for at
+opnå checkpoint'et.
 
-TODO Forklar matematikken og også hvorfor vi bruge linjer mellem sidste og
-nuværende element for af finde om vi er igennem et checkpoint.
+Måden vi beregner om brugeren har kørt korrekt igennem checkpoints er ved at for
+hver koordinat brugeren har kørt, kan vi definere en linje mellem det koordinat,
+og det koordinat, der blev målt før det.
 
-TODO Forklar konverteringen af meter til geo koordinater altså latitude og
-longidude, og hvorfor det rent faktisk ikke er en radius, men nærmere ovaler.
+Vi har derefter et linjestykke. Vi kan så finde det punkt på linjestykket, der
+ligger tættest på checkpointet. Nu hvor vi har 2 punkter, kan vi finde distancen
+mellem de to vha. pythagoras, og hvis distancen er <= radius, har brugeren fået
+det checkpoint. Vi går derefter videre til næste checkpoint.
 
-Når man starter et run bliver ruten markeret med grå, hvor derefter når man når
-de forskellige checkpoints i ruten vil den del af ruten du har kørt bliver
+Hvis distancen > radius, går vi i stedet videre til næste koordinat, og dermed
+næste linjestykke, indtil vi enten løber tør for linjestykker, eller løber tør
+for checkpoints.
+
+Grunden til at vi gør det som linjestykker i stedet for punkter kan man se på
+billedet nedenfor. Her kan man se at brugeren har kørt i yderkanten af et
+checkpoint. Her er der ingen punkter der er inde for den checkpointets radius,
+så selvom man kan se at linjen går indover checkpointet ville man altså ikke få
+checkpointet.
+
+![alt text](run_line_through_circle.png)
+
+En af de første problemer vi stod på da vi skulle lave disse beregninger var at
+de meter som checkpoints radius skulle være, skulle oversættet til kortets
+longitude og latitude. Siden jorden er rund<sup>[citation needed]</sup>, og
+kortet er en flad projektion skaber det visse udfordringer.
+
+Jo længere væk af latitude (nord/syd) man kommer fra ækvator jo mindre longitude
+(vest/øst) skal vi bruge for at opnå samme antal meter.
+
+Dette betyder altså at vores radius kan dynamisk ændre alt efter hvor det er på
+kloden. Vi har valgt ikke at gøre det store ud af dette. Den måde vi konvertere
+meterne af til longitude og latitude er ved at antager at vi er ved ækvator. Vi
+konvertere det altså til latitude som er en konstant. Checkpoints vil derfor
+være ovaler med undtagelsen hvis checkpointet ligger i ækvator, hvor det vil
+være en perfekt cirkel.
+
+TODO: 1. ??? 2. profit :down_arrow:
+
+Vi har valgt at gå på kompromi med nøjagtighed, da vi vurderede at
+tidsinvesteringen ikke var det værd. Hvis vi havde mere tid, ville det være
+muligt at beregne `x` meters størrelse som funktion af todo:lat|lng|idk, og
+bruge det til at beregne checkpoint radiusen på todo:x|y|idk aksen. Dog vil det
+stadig betyde at vores checkpoints er oval, forskellen på den 1. og 2. radius er
+bare så lille, at man ikke kan se det. Man kan godt lave perfekte cirkler på
+kortet, men dette kræver meget mere computerkraft, da man skal beregne hver
+pixel i cirklens omkreds, som vi har vurderet til at være kæmpe spild af tid og
+ressourcer.
+
+Når man starter et run bliver ruten markeret med mørkeblå, hvor derefter når man
+når de forskellige checkpoints i ruten vil den del af ruten du har kørt bliver
 markeret med blåt. Man kan derfor se hvis man er kommet til at undvige et
 checkpoint i løbet af sit run.
 
 I starten da vi lavede vores kode til verificering af et run valgte vi en radius
 på cirka 5 meter. Efter at have været ude at teste det, fandt vi ud af at den
 geolocationsdata vi fik var ret ustabil. Nogle gange kunne geolocationsdataen
-godt være en del meter væk fra vores korrekte location.
+godt være en 2-5 meter væk fra vores korrekte location.
 
 Det betød at i de fleste tilfælle ville man misse et checkpoint på grund af
 dette. Efter vi havde testet det ændrede vi det til cirka 15 meter. Dette virker
@@ -313,17 +355,23 @@ TODO
 
 ### Dependency resolution ved abstraktioner
 
-TODO geomap :3 (basically business logic)
+Vi har valgt at overholde principet Seperation of Concerns. Det betyder at vi
+gerne vil sørge for at hver individuelle element kun har et ansvar. Nogle gange
+kan der opstår vanskeligheder, når man gør dette. Her er et eksempel på en
+abstaktion der skabte en circular dependency.
 
 Vi har lavet en abstraktion over `maplibregl`, som vi har kaldet `MapHelper`.
-Det har vi gjort, pga. at maplibregl har en meget verbose syntax, og vi ikke gad
-at blande maplibregl specifikt funktionalitet (tegne linjer på kortet, etc),
-sammen med vores `GeoMap` konstrukt.
+Det har vi gjort, pga. at maplibregl har en meget verbose syntax, og vi ikke
+glad at blande maplibregl specifikt funktionalitet (tegne linjer på kortet,
+etc), sammen med vores `GeoMap` konstrukt.
+
+Vores `GeoMap` klasse styrer logic skrevet specifikt til vores app. Det vil
+sige, hvad der skal ske når man f.eks. starter et run. Denne klasse forbruger
+`MapHelper` til at oprette og tegne på kortet.
 
 Grundet at kortet skal være interaktivt, ved at man klikker på ruter for at
-kunne se leaderboard og at køre på en rute, skal vi oprette event listeners, og
-kalde funktionalitet som `GeoMap` har, da vi vil ikke have, at `MapHelper` ved,
-at GeoMap eksisterer.
+kunne se leaderboard og at køre på en rute, skal `MapHelper` oprette event
+listeners, som kalder funktionalitet som `GeoMap` har.
 
 Det betyder lige nu, at `GeoMap` kræver `MapHelper`, og vice versa:
 
@@ -331,13 +379,13 @@ Det betyder lige nu, at `GeoMap` kræver `MapHelper`, og vice versa:
 
 Dette kalder man også en circular dependency. Problemet med circular
 dependencies er, at de er umulige at resolve. Vi har derfor i stedet givet
-`MapHelper` nogle late callbacks. Dsv, vi opretter `MapHelper` uden den krævede
+`MapHelper` nogle late callbacks. Dvs, vi opretter `MapHelper` uden den krævede
 dependency til `GeoMap`, som vi så bruger til at oprette `GeoMap`, og derefter
-kan vi sætte medlemmerne til en callback der referrerer til `GeoMap`.
+kan vi sætte medlemmerne til en callback, der referrerer til `GeoMap`.
 
 Hvis vi skulle gøre det om igen, ville vi lave denne abstraktion anderledes, da
-det blev meget mudret hvad der er `GeoMap`'s ansvar og hvad der er `MapHelper`'s
-ansvar, da de arbejder meget tæt sammen.
+det blev meget mudret, hvad der er `GeoMap`'s ansvar, og hvad der er
+`MapHelper`'s ansvar, da de arbejder meget tæt sammen.
 
 Man kunne i stedet for late functions, når ruter tegnes, returnere en liste af
 `MapLine`s, én for hver rute, som `GeoMap` kunne tilføje event listeners til,
@@ -456,6 +504,10 @@ servere tilbyder.
 
 Derudover bruger alting vores `Database` interface, som gør at man på under en
 arbejdsdag kan udskifte databaseimplementationen med f.eks. sqlite eller mysql.
+
+Relationerne i databasen ser sådan ud:
+
+![alt text](database_releation_diagram.png)
 
 ### Api
 
