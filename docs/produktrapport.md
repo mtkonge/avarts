@@ -11,13 +11,17 @@ Løsningen består af en web-app med et verdenskort og en backend server der
 kommunikere over HTTP sammen med web-appen. Udover det har vi også en shared
 mappe der beskriver typer og funktioner både backend server og web-appen bruger.
 
-Koden og andre relevante materialer ligger på Github repo'et [^1]
+Projektet er deploy'et på domænet https://avarts.tpho.dk.
+
+Koden og andre relevante materialer ligger på [vores Github repository]
+
+[vores Github repository]: https://github.com/mtkonge/avarts
 
 ## Typescript
 
 Hele vores projekt er skrevet i Typescript. Vi har valgt at skrive alting i
-Typescript, da vi har meget erfaring i det, og kan dele kode mellem app og
-backend, f.eks. datastrukturer.
+Typescript, da vi har meget erfaring i det, og kan dele kode som datastrukturer
+mellem app og backend.
 
 Typescript kan både transpiles til browser Javascript, og til native Javascript.
 
@@ -193,35 +197,35 @@ if (mapElement === null) {
 
 Web-appen er implementeret med HTML, CSS og Typescript. Vi har brugt Deno som
 Typescript/Javascript runtime og bruger vores egne scripts, der bruger esbuild
-til at bygge appen. Vi har brugt maplibre-gl til at verdenskortet.
+til at bygge appen. Vi har brugt maplibre-gl til verdenskortet.
 
 Vi har valgt Typescript da vi har meget erfaring i det, og det nemt kan
 transpiles til det Javascript, som HTML dokumenter bruger. Vi har valgt
 Typescript i stedet for Javascript, da vi så kan statisk garantere at vores
 kodes typer er korrekte. Vi synes, at det tid vi sparer med fejlfinding med
-Typescript, gør (the upfront investment worth it).
+Typescript, gør den upfront tidsinvestering det værd.
 
 Vi har valgt at bruge Deno, da vi vurdere, at det er et bedre alternativ til
 Node. Vi mener at måden Deno håndtere dependencies på, er mere intuitiv end
 måden Node gør det.
 
 Vi har valgt at bygge vores egne scripts med esbuild, da det giver os mere
-frihed. Vi startede med at bruge Vite, men dette fandt vi ud af gav problemer
+frihed. Vi startede med at bruge Vite, men dette fandt vi ud af gav problemer,
 når man brugte et monorepo setup med deno workspaces. I det at vi begyndte at
 bruge shared mappen til deling af typer og funktioner til både backenden og
 appen, skiftede vi til vores egne scripts. Vi har brugt disse scripts i andre
-projekter før.
+projekter før, så det har derfor været nemt at skifte til dem.
 
 Vi bruger Deno til at køre vores build scripts, som vha. af et plugin, gør at vi
-kan få dependency management som vi kender det fra Deno, men transpiled til
+kan få dependency management, som vi kender det fra Deno, men transpileret til
 browser-kompatibel Javascript.
 
 Vi har valgt at bruge maplibre-gl med openstreetmaps som datakilde. Det har vi
 gjort for at undgå at bøvle med api nøgler og betaling af licens, som vi skulle,
 hvis vi byggede ovenpå f.eks. google maps' api.
 
-Det har alt som vi ellers vil have i en kort library, som f.eks. inkluderede
-typescript typer, og rotation, at tegne ruter, og så videre.
+Det har alt, som vi ellers vil have i en kort library, som f.eks. inkluderede
+typescript typer, rotation, at tegne ruter, m.m.
 
 ### Oprettelse af rute
 
@@ -229,12 +233,10 @@ Man kan oprette en rute ved at trykke på "Opret rute" knappen ("Create route") 
 toolbar'en øverst på siden.
 
 Derefter begynder vi vha. browseren's geolocation at mappe hvilken rute brugeren
-har taget.
+har taget. Det tegner vi som en linje bag brugeren.
 
-Det tegner vi som en linje bag brugeren.
-
-Når brugeren er færdig, kan han trykke på knappen "Færdiggør rute" ("Finish
-route"), som ligger der hvor den tidligere Opret rute knap ligger. Brugeren
+Når brugeren er færdig, kan brugeren trykke på knappen "Færdiggør rute" ("Finish
+route"), som ligger, der hvor den tidligere Opret rute knap ligger. Brugeren
 bliver derefter spurgt om at navngive ruten, hvorefter den bliver send til
 backenden og oprettet i databasen.
 
@@ -261,25 +263,25 @@ Hvis distancen > radius, går vi i stedet videre til næste koordinat, og dermed
 næste linjestykke, indtil vi enten løber tør for linjestykker, eller løber tør
 for checkpoints.
 
-Grunden til at vi gør det som linjestykker i stedet for punkter kan man se på
-billedet nedenfor. Her kan man se at brugeren har kørt i yderkanten af et
-checkpoint. Her er der ingen punkter der er inde for den checkpointets radius,
-så selvom man kan se at linjen går indover checkpointet ville man altså ikke få
-checkpointet.
+Grunden til at vi gør det som linjestykker i stedet for punkter, kan man se på
+billedet nedenfor. Her kan man se, at brugeren har kørt i yderkanten af et
+checkpoint. Her er der ingen punkter, der er inde for den checkpointets radius,
+så selvom man kan se, at linjen går indover checkpointet, ville man altså ikke
+få checkpointet.
 
 ![alt text](run_line_through_circle.png)
 
-En af de første problemer vi stod på da vi skulle lave disse beregninger var at
-de meter som checkpoints radius skulle være, skulle oversættet til kortets
+En af de første problemer vi stod på, da vi skulle lave disse beregninger var,
+at de meter som checkpoints radius skulle være, skulle oversættet til kortets
 longitude og latitude. Siden jorden er rund<sup>[citation needed]</sup>, og
-kortet er en flad projektion skaber det visse udfordringer.
+kortet er en flad projektion, skaber det visse udfordringer.
 
 Jo længere væk af latitude (nord/syd) man kommer fra ækvator jo mindre longitude
 (vest/øst) skal vi bruge for at opnå samme antal meter.
 
 Dette betyder altså at vores radius kan dynamisk ændre alt efter hvor det er på
 kloden. Vi har valgt ikke at gøre det store ud af dette. Den måde vi konvertere
-meterne af til longitude og latitude er ved at antager at vi er ved ækvator. Vi
+meterne af til longitude og latitude, er ved at antage, at vi er ved ækvator. Vi
 konvertere det altså til latitude som er en konstant. Checkpoints vil derfor
 være ovaler med undtagelsen hvis checkpointet ligger i ækvator, hvor det vil
 være en perfekt cirkel.
@@ -293,40 +295,40 @@ at man ikke kan se det. Man kan godt lave perfekte cirkler på kortet, men dette
 kræver meget mere computerkraft, da man skal beregne hver pixel i cirklens
 omkreds, som vi har vurderet til at være kæmpe spild af tid og ressourcer.
 
-Når man starter et run bliver ruten markeret med mørkeblå, hvor derefter når man
-når de forskellige checkpoints i ruten vil den del af ruten du har kørt bliver
-markeret med blåt. Man kan derfor se hvis man er kommet til at undvige et
+Når man starter et run, bliver ruten markeret med mørkeblå, hvor derefter når
+man når de forskellige checkpoints i ruten, vil den del af ruten du har kørt
+blive markeret med blåt. Man kan derfor se, hvis man er kommet til at undvige et
 checkpoint i løbet af sit run.
 
-I starten da vi lavede vores kode til verificering af et run valgte vi en radius
-på cirka 5 meter. Efter at have været ude at teste det, fandt vi ud af at den
-geolocationsdata vi fik var ret ustabil. Nogle gange kunne geolocationsdataen
-godt være en 2-5 meter væk fra vores korrekte location.
+I starten da vi lavede vores kode til verificering af et run, valgte vi en
+radius på cirka 5 meter. Efter at have været ude at teste det, fandt vi ud af,
+at den geolocationsdata vi fik var mere ustabil end forventet. Nogle gange kunne
+geolocationsdataen godt være en 2-5 meter væk fra vores korrekte location.
 
-Det betød at i de fleste tilfælle ville man misse et checkpoint på grund af
-dette. Efter vi havde testet det ændrede vi det til cirka 15 meter. Dette virker
-bedre, men man kan godt indimellem opleve at locationsdataen er så ukorrekt at
-man stadig ikke når de checkpoint, man burde have kørt igennem hvis dataen være
-mere præcis.
+Det betød, at i de fleste tilfælle ville man misse et checkpoint på grund af
+dette. Efter vi havde testet det, ændrede vi det til cirka 15 meter. Dette
+virker bedre, men man kan godt indimellem opleve at locationsdataen er så
+ukorrekt at man stadig ikke når de checkpoints, man burde have kørt igennem,
+hvis dataen var mere præcis.
 
-Vi har vurderet at 15 meter er godt nok. Vi vil gerne undgå at ruternes
+Vi har vurderet, at 15 meter er godt nok. Vi vil gerne undgå at ruternes
 checkpoints er urealistiske, altså at man rammer et checkpoint selvom man er
-utroligt langt væk fra det, men samtidig vil vi også gerne undgå brugeren føler
-sig snydt fordi geolocationsdataen var for dårlig.
+utroligt langt væk fra det, men samtidig vil vi også gerne undgå, at brugeren
+føler sig snydt, fordi geolocationsdataen var for dårlig.
 
 ### Leaderboard og profil
 
 Hvis man vælger en rute ved at trykke på den, kan man vha. "Leaderboard"
 knappen, der viser sig, se leaderboardet for den rute.
 
-Den viser en liste af 'runs', sorteret efter hvor lang tid de tog om at klare
+Den viser en liste af 'runs' sorteret efter, hvor lang tid de tog om at klare
 ruten.
 
 Hvis der er mere end én sportsgren brugt på den rute, f.eks. "Cykel" og
 "Skateboard", får brugeren muligheden for at filtrere efter sportsgren.
 
 Rankering er baseret på filtreringen af sportsgrenene. F.eks. hvis du har valgt
-at ikke filtrere, kan en bruger i bil være nr. 1 og en bruger i cykel som nr 2.
+at ikke filtrere, kan en bruger i bil være nr. 1 og en bruger på cykel som nr 2.
 Hvis du har filtreret efter sportsgren, viser den kun placeringen i den
 sportsgren, f.eks. cyklen der før var #2, er nu #1.
 
@@ -391,13 +393,13 @@ validation.
 
 Vi genbruger de zod schemaer, som vi bruger til at parse requests på serveren,
 til at sende requests på frontenden. På `AuthorizedServer` efterbehandler vi så
-de typer, ved at fjerne `token` feltet, da det er en `AuthorizedServer`'s
-ansvar, at håndtere user validation.
+de typer, ved at fjerne `token` feltet, da det er en `AuthorizedServer`'s ansvar
+at håndtere user validation.
 
-Det har vi gjort, sammen med, at man kun kan skabe en `AuthorizedServer` med en
+Det har vi gjort sammen med, at man kun kan skabe en `AuthorizedServer` med en
 valid token i constructoren. Det betyder så, at vi ikke kan kalde
-`AuthorizedServer`'s funktioner, uden at have en user med en valid token, dvs.
-at vi undgår at en request fejler, fordi den har en invalid token.
+`AuthorizedServer`'s funktioner uden at have en user med en valid token, dvs. at
+vi undgår at en request fejler, fordi den har en invalid token.
 
 Det ser sådan ud, i praksis:
 
@@ -416,7 +418,7 @@ export async function authorizedServer(): Promise<AuthorizedServer> {
 }
 ```
 
-Det betyder, at hvis vi er på en side, der kræver authentication, kan vi skrive
+Det betyder, at hvis vi er på en side, der kræver authentication, kan vi skrive:
 
 ```ts
 const server = await authorizedServer();
@@ -488,22 +490,22 @@ Typescript filerne direkte med Deno. Vi bruger Oak til at håndtere vores http
 requests og middleware. Til kryptering af passwords bruger vi bcrypt. Vores
 database er implementeret ved at gemme objekterne i json filer på harddisken.
 
-Vi har valgt at bruge Oak da vi har tidligere erfaring med det, og det er den
-mest populære måde at lave servere i Deno på, som betyder at der er mange
+Vi har valgt at bruge Oak, da vi har tidligere erfaring med det, og det er den
+mest populære måde at lave servere i Deno på, som betyder, at der er mange
 ressourcer og libraries.
 
-Vi har brugt bcrypt da det er et populært værktøj til kryptering. Det er vigtigt
-at man vælger krypteringsværktøjer man kan stole på og da bcrypt er en
-industri-standard for kryptering, og det er den vi har mest erfaring med,
-vurderer vi at det er den bedste at bruge til at løse vores problem.
+Vi har brugt bcrypt, da det er et populært værktøj til kryptering. Det er
+vigtigt at man vælger krypteringsværktøjer, man kan stole på, og da bcrypt er en
+industri-standard for kryptering, og det er den, vi har mest erfaring med,
+vurderer vi, at det er den bedste at bruge til at løse vores problem.
 
 ### Business logic
 
 Vi har valgt at følge princippet Seperation of Concerns, og afkoble vores
 business logic, fra vores http api.
 
-Vores business logic er implementeret som af funktioner, som modtager relevant
-data, og et interface til Database og Sessions, der returnerer et resultat. Det
+Vores business logic er implementeret som funktioner, der modtager relevant data
+og et interface til Database og Sessions, der returnerer et resultat. Det
 betyder, at vi ikke håndterer api'ens problemer i vores business logic, og
 business logic problemer i vores api, som gør det nemmere at overskue.
 
@@ -525,8 +527,8 @@ export async function userWithId(
 ```
 
 Dette er vores business logic for ruten "/user-from-id". Her kan vi lave kald
-mod databasen for at få det data vi har brug for. Vi sørger for at returnere
-beskrivelser af de fejl der nu må opstå. Her kan vi se at fejlende kan være
+mod databasen, for at få det data vi har brug for. Vi sørger for at returnere
+beskrivelser af de fejl, der nu må opstå. Her kan vi se, at fejlende kan være
 enten 'bad_user' eller 'db_error'. Dette kan vi parse, når vi bruger metoden i
 vores ruter.
 
@@ -548,7 +550,7 @@ router.post(
 );
 ```
 
-Dette er vores rute der bruge vores business logic metode `userWithId` som
+Dette er vores rute, der bruge vores business logic metode `userWithId` som
 beskrevet overfor. Vi bruger ikke databasen i selve rute implementationen, det
 er business logic'en ansvarlig for. Det følger vores praksis af, at ruterne
 eksisterer som et interface, og dens ansvar er at følge vores api spec, og
@@ -574,12 +576,12 @@ Vi har valgt at definere `Database` som et interface, da det gør det nemmere at
 evt. skrive tests til f.eks. vores business logic i fremtiden, hvis vi
 vurderede, at det var nødvendigt.
 
-Et problem med vores JsonDb implementering er at det hele loades i memory. Hvis
-vores database bliver tilpas stor kan det skabe problemer hvis serveren
+Et problem med vores JsonDb implementering er, at det hele loades i memory. Hvis
+vores database bliver tilpas stor, kan det skabe problemer, hvis serveren
 backenden kører på ikke har nok ressourcer.
 
-Vi er opmærksomme på dette problem, da vi lavede det, men har vurderet at det
-ikke er noget der kommer til at være et problem for os, eftersom selv hvis hver
+Vi er opmærksomme på dette problem, da vi lavede det, men har vurderet, at det
+ikke er noget, der kommer til at være et problem for os, eftersom selv hvis hver
 element tog én mb (det er nok snarere et par kb eller bytes), skulle der flere
 tusinde brugere og ruter til, før vi løber tør for de 2-8gb ram, som de fleste
 servere tilbyder.
@@ -624,11 +626,11 @@ library.
 
 ## Delte typer i mellem web-app og backend
 
-En af de første problemer vi opdagede var at typerne fra backenden også skulle
+En af de første problemer vi opdagede var, at typerne fra backenden også skulle
 bruges på frontenden. For eksempel hvordan en rute så ud, men også hvordan
 requests og responses til og fra backenden så ud. For at undgå at skulle skrive
-disse typer 2 gange og undgå fejl hvis man glemmer at opdatere begge steder, har
-vi valgt at lave en mappe i vores projekt der hedder 'shared'. Her har vi
+disse typer 2 gange og undgå fejl, hvis man glemmer at opdatere begge steder,
+har vi valgt at lave en mappe i vores projekt der hedder 'shared'. Her har vi
 beskrevet typer og funktioner, vi bruger i hele vores projekt.
 
 Her er et eksempel. På hvordan vores shared mappe bruges.
@@ -641,7 +643,7 @@ export const AddRouteRequest = z.strictObject({
 });
 ```
 
-Her definere vi en zod typen AddrouteRequest. 'z' her er zod.
+Overfor definere vi en zod typen AddrouteRequest. 'z' her er zod.
 
 ```ts
 // server/src/api/route.ts
@@ -657,8 +659,8 @@ router.post(
 );
 ```
 
-Her bliver den så brugt i backend serveren. Vi kører den igennem vores
-middleware som er i det vi kalder 'parse'. Vores middleware validere at både
+Overfor bliver den så brugt i backend serveren. Vi kører den igennem vores
+middleware, som her er det, vi kalder 'parse'. Vores middleware validere at både
 requesten og responsen matcher typen.
 
 ```ts
@@ -671,11 +673,9 @@ export interface AuthorizedServer extends UnauthorizedServer {
 }
 ```
 
-Her bliver den brugt i web-appen. Dette er et interface der beskriver hvad
-addRoute metoden skal bruge og hvad den returnere. Her bliver AddRouteRequest
-også brugt.
+Overfor bliver den så brugt i web-appen. Dette er et interface, der beskriver,
+hvad addRoute metoden skal bruge, og hvad den returnere. Her bliver
+AddRouteRequest også brugt.
 
-Det skaber en sikkerhed i at vores backend server og vores web-app kommunikere i
-samme sprog.
-
-[^1]: https://github.com/mtkonge/avarts
+Det skaber en sikkerhed i, at vores backend server og vores web-app kommunikere
+i samme sprog.
